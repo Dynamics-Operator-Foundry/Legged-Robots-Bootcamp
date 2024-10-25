@@ -1,0 +1,126 @@
+/*
+    This file is part of quadruped_ctrl_ros - learning material for quadruped control
+
+    quadruped_ctrl_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    quadruped_ctrl_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with quadruped_ctrl_ros.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ * \file ctrl_server.cpp
+ * \date 25/10/2024
+ * \author pattylo
+ * \copyright (c) AIRO-LAB, RCUAS of Hong Kong Polytechnic University
+ * \brief classes for quadruped_ctrl_ros_uav using airo_control_interface
+ */
+
+#ifndef CTRL_SERVER_H
+#define CTRL_SERVER_H
+
+#include <ros_utilities/ros_utilities.h>
+#include "unitree_legged_msgs/LowCmd.h"
+#include "unitree_legged_msgs/LowState.h"
+#include "unitree_legged_msgs/MotorCmd.h"
+#include "unitree_legged_msgs/MotorState.h"
+#include <sensor_msgs/Imu.h>
+
+// FSM_STATE
+#define PASSIVE "PASSIVE"
+#define TIP "TIP"
+#define STAND "STAND"
+#define SWING_LEG "SWING_LEG"
+#define SQUIGGLE "SQUIGGLE"
+#define CRAWL "CRAWL"
+#define TROT "TROT"
+
+// CTRL_MODE
+// tau = tau_ff + Kp * dq + Kd * dqot
+#define POS_MODE "POS_MODE"
+#define VEL_MODE "VEL_MODE"
+#define DAMP_MODE "DAMP_MODE"
+#define TORQ_MODE "TORQ_MODE"
+#define MIX_MODE "MIX_MODE"
+
+
+class ctrl_server : private ros_utilities
+{
+
+private:
+    ros::NodeHandle nh;
+    bool sys_started = false;
+
+// quadruped parameters & objects
+    std::string robot_name;
+    int DoF = 12;
+    unitree_legged_msgs::LowCmd lowCmd;
+    unitree_legged_msgs::LowState lowState;
+
+// quadruped fsm and control mode
+    std::string CTRL_MODE;
+    std::string FSM_STATE;
+    bool print_or_not = true;
+
+    void fsm_manager();
+
+//ros related
+    // subscriber
+    std::unique_ptr<ros::Subscriber[]> servo_subscribers_ptr;
+    
+    void register_callbacks();
+    // callbacks
+        // front right
+    void FRhipCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+    void FRthighCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+    void FRcalfCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+        // front left
+    void FLhipCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+    void FLthighCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+    void FLcalfCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+        // rear right
+    void RRhipCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+    void RRthighCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+    void RRcalfCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+        // rear left
+    void RLhipCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+    void RLthighCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+    void RLcalfCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+
+
+    // publisher
+    std::unique_ptr<ros::Publisher[]> servo_publishers_ptr;
+    void register_publishers();
+    void publish_servos(const unitree_legged_msgs::LowCmd& cmd_now);
+
+// main functions
+    void passive_ctrl();
+    void tip_ctrl();
+    void stand_ctrl();
+    void swing_leg_ctrl();
+    void squiggle_ctrl();
+    void crawl_ctrl();
+    void trot_ctrl();
+
+    // timer
+    ros::Timer mainspin_timer;
+    void mainspinCallback(const ros::TimerEvent &e);
+
+// config
+    void config(ros::NodeHandle& _nh);
+
+
+public:
+    ctrl_server(ros::NodeHandle& _nh);
+    ~ctrl_server();
+
+};
+
+#endif

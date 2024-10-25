@@ -35,13 +35,22 @@ link_directories(
     ${GAZEBO_LIBRARY_DIRS}
 )
 
-add_executable(
-    main 
-    src/main.cpp
+add_executable(ctrl_node
+    src/ctrl_node.cpp
+    src/ctrl_server.cpp
+    
+    src/ctrl_IO.cpp
+    src/ctrl_passive.cpp
+    src/ctrl_tip.cpp
+    src/ctrl_stand.cpp
+    src/ctrl_swing_leg.cpp
+    src/ctrl_squiggle.cpp
+    src/ctrl_crawl.cpp
+    src/ctrl_trot.cpp
 )
-target_link_libraries(main
+target_link_libraries(ctrl_node
     ${catkin_LIBRARIES}
 )
-add_dependencies(main 
+add_dependencies(ctrl_node
     unitree_legged_msgs_generate_messages_cpp
 )
