@@ -1,0 +1,5 @@
+<launch>
+  <node name="ctrl_node" pkg="quadruped_ctrl_ros" type="ctrl_node" output="screen">
+    <rosparam command="load" file="$(find quadruped_ctrl_ros)/launch/configs/ctrl.yaml" />
+  </node>
+</launch>

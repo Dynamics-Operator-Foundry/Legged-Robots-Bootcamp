@@ -32,7 +32,8 @@ int main(int argc, char **argv)
 
     ctrl_server planner_server(nh);
     
-    ros::spin();
+    ros::MultiThreadedSpinner s(2);
+    ros::spin(s);
 
     return 0;
 }

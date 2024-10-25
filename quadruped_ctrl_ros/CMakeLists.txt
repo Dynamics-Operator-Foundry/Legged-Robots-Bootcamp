@@ -8,21 +8,16 @@ find_package(catkin REQUIRED COMPONENTS
     controller_manager
     joint_state_controller
     gazebo_ros
-    # genmsg
     robot_state_publisher
-    # roscpp
-    # std_msgs
-    # tf
-    # geometry_msgs
     unitree_legged_msgs
     ros_utilities
-    # gazebo
 )
 
-# catkin_package(
-#     CATKIN_DEPENDS 
-#     unitree_legged_msgs 
-# )
+catkin_package(
+    INCLUDE_DIRS include
+    CATKIN_DEPENDS 
+    # roscpp
+)
 
 include_directories(
     include
@@ -48,6 +43,8 @@ add_executable(ctrl_node
     src/ctrl_squiggle.cpp
     src/ctrl_crawl.cpp
     src/ctrl_trot.cpp
+
+    src/ctrl_keyboard_cmd.cpp
 )
 target_link_libraries(ctrl_node
     ${catkin_LIBRARIES}

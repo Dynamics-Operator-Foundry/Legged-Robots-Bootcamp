@@ -28,18 +28,18 @@
 void ctrl_server::register_callbacks()
 {
     servo_subscribers_ptr = std::make_unique<ros::Subscriber[]>(DoF);
-    servo_subscribers_ptr[0] = nh.subscribe("/" + robot_name + "_gazebo/FR_hip_controller/state", 1, &ctrl_server::FRhipCallback, this);
-    servo_subscribers_ptr[1] = nh.subscribe("/" + robot_name + "_gazebo/FR_thigh_controller/state", 1, &ctrl_server::FRthighCallback, this);
-    servo_subscribers_ptr[2] = nh.subscribe("/" + robot_name + "_gazebo/FR_calf_controller/state", 1, &ctrl_server::FRcalfCallback, this);
-    servo_subscribers_ptr[3] = nh.subscribe("/" + robot_name + "_gazebo/FL_hip_controller/state", 1, &ctrl_server::FLhipCallback, this);
-    servo_subscribers_ptr[4] = nh.subscribe("/" + robot_name + "_gazebo/FL_thigh_controller/state", 1, &ctrl_server::FLthighCallback, this);
-    servo_subscribers_ptr[5] = nh.subscribe("/" + robot_name + "_gazebo/FL_calf_controller/state", 1, &ctrl_server::FLcalfCallback, this);
-    servo_subscribers_ptr[6] = nh.subscribe("/" + robot_name + "_gazebo/RR_hip_controller/state", 1, &ctrl_server::RRhipCallback, this);
-    servo_subscribers_ptr[7] = nh.subscribe("/" + robot_name + "_gazebo/RR_thigh_controller/state", 1, &ctrl_server::RRthighCallback, this);
-    servo_subscribers_ptr[8] = nh.subscribe("/" + robot_name + "_gazebo/RR_calf_controller/state", 1, &ctrl_server::RRcalfCallback, this);
-    servo_subscribers_ptr[9] = nh.subscribe("/" + robot_name + "_gazebo/RL_hip_controller/state", 1, &ctrl_server::RLhipCallback, this);
-    servo_subscribers_ptr[10] = nh.subscribe("/" + robot_name + "_gazebo/RL_thigh_controller/state", 1, &ctrl_server::RLthighCallback, this);
-    servo_subscribers_ptr[11] = nh.subscribe("/" + robot_name + "_gazebo/RL_calf_controller/state", 1, &ctrl_server::RLcalfCallback, this);
+    servo_subscribers_ptr[0] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/FR_hip_controller/state", 1, &ctrl_server::FRhipCallback, this);
+    servo_subscribers_ptr[1] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/FR_thigh_controller/state", 1, &ctrl_server::FRthighCallback, this);
+    servo_subscribers_ptr[2] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/FR_calf_controller/state", 1, &ctrl_server::FRcalfCallback, this);
+    servo_subscribers_ptr[3] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/FL_hip_controller/state", 1, &ctrl_server::FLhipCallback, this);
+    servo_subscribers_ptr[4] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/FL_thigh_controller/state", 1, &ctrl_server::FLthighCallback, this);
+    servo_subscribers_ptr[5] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/FL_calf_controller/state", 1, &ctrl_server::FLcalfCallback, this);
+    servo_subscribers_ptr[6] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/RR_hip_controller/state", 1, &ctrl_server::RRhipCallback, this);
+    servo_subscribers_ptr[7] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/RR_thigh_controller/state", 1, &ctrl_server::RRthighCallback, this);
+    servo_subscribers_ptr[8] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/RR_calf_controller/state", 1, &ctrl_server::RRcalfCallback, this);
+    servo_subscribers_ptr[9] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/RL_hip_controller/state", 1, &ctrl_server::RLhipCallback, this);
+    servo_subscribers_ptr[10] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/RL_thigh_controller/state", 1, &ctrl_server::RLthighCallback, this);
+    servo_subscribers_ptr[11] = nh.subscribe("/" + ROBOT_NAME + "_gazebo/RL_calf_controller/state", 1, &ctrl_server::RLcalfCallback, this);
 
     return;
 }
@@ -168,18 +168,30 @@ void ctrl_server::RLcalfCallback(
 void ctrl_server::register_publishers()
 {
     servo_publishers_ptr = std::make_unique<ros::Publisher[]>(DoF);
-    servo_publishers_ptr[0] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/FR_hip_controller/command", 1);
-    servo_publishers_ptr[1] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/FR_thigh_controller/command", 1);
-    servo_publishers_ptr[2] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/FR_calf_controller/command", 1);
-    servo_publishers_ptr[3] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/FL_hip_controller/command", 1);
-    servo_publishers_ptr[4] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/FL_thigh_controller/command", 1);
-    servo_publishers_ptr[5] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/FL_calf_controller/command", 1);
-    servo_publishers_ptr[6] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/RR_hip_controller/command", 1);
-    servo_publishers_ptr[7] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/RR_thigh_controller/command", 1);
-    servo_publishers_ptr[8] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/RR_calf_controller/command", 1);
-    servo_publishers_ptr[9] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/RL_hip_controller/command", 1);
-    servo_publishers_ptr[10] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/RL_thigh_controller/command", 1);
-    servo_publishers_ptr[11] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + robot_name + "_gazebo/RL_calf_controller/command", 1);
+    servo_publishers_ptr[0] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/FR_hip_controller/command", 1);
+    servo_publishers_ptr[1] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/FR_thigh_controller/command", 1);
+    servo_publishers_ptr[2] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/FR_calf_controller/command", 1);
+    servo_publishers_ptr[3] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/FL_hip_controller/command", 1);
+    servo_publishers_ptr[4] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/FL_thigh_controller/command", 1);
+    servo_publishers_ptr[5] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/FL_calf_controller/command", 1);
+    servo_publishers_ptr[6] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/RR_hip_controller/command", 1);
+    servo_publishers_ptr[7] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/RR_thigh_controller/command", 1);
+    servo_publishers_ptr[8] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/RR_calf_controller/command", 1);
+    servo_publishers_ptr[9] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/RL_hip_controller/command", 1);
+    servo_publishers_ptr[10] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/RL_thigh_controller/command", 1);
+    servo_publishers_ptr[11] = nh.advertise<unitree_legged_msgs::MotorCmd>("/" + ROBOT_NAME + "_gazebo/RL_calf_controller/command", 1);
+
+    mainspin_timer = nh.createTimer(
+        ros::Duration(1.0/400.0),
+        &ctrl_server::mainspinCallback,
+        this
+    );
+
+    keyboard_timer = nh.createTimer(
+        ros::Duration(1.0/10.0),
+        &ctrl_server::keyboardCallback,
+        this
+    );
 
     return;
 }

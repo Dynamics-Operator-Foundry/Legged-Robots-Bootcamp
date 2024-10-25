@@ -31,16 +31,19 @@
 #include "unitree_legged_msgs/LowState.h"
 #include "unitree_legged_msgs/MotorCmd.h"
 #include "unitree_legged_msgs/MotorState.h"
-#include <sensor_msgs/Imu.h>
+
+#include <termios.h>
+#include <unistd.h>
+#include <thread>
 
 // FSM_STATE
-#define PASSIVE "PASSIVE"
-#define TIP "TIP"
-#define STAND "STAND"
-#define SWING_LEG "SWING_LEG"
-#define SQUIGGLE "SQUIGGLE"
-#define CRAWL "CRAWL"
-#define TROT "TROT"
+#define PASSIVE "PASSIVE" // 0
+#define TIP "TIP" // 1
+#define STAND "STAND" // 2
+#define SWING_LEG "SWING_LEG" // 3
+#define SQUIGGLE "SQUIGGLE" // 4
+#define CRAWL "CRAWL" // 5
+#define TROT "TROT" // 6
 
 // CTRL_MODE
 // tau = tau_ff + Kp * dq + Kd * dqot
@@ -59,14 +62,14 @@ private:
     bool sys_started = false;
 
 // quadruped parameters & objects
-    std::string robot_name;
+    std::string ROBOT_NAME;
     int DoF = 12;
     unitree_legged_msgs::LowCmd lowCmd;
     unitree_legged_msgs::LowState lowState;
 
 // quadruped fsm and control mode
-    std::string CTRL_MODE;
-    std::string FSM_STATE;
+    std::string CTRL_MODE = POS_MODE;
+    std::string FSM_STATE = PASSIVE;
     bool print_or_not = true;
 
     void fsm_manager();
@@ -100,6 +103,10 @@ private:
     void register_publishers();
     void publish_servos(const unitree_legged_msgs::LowCmd& cmd_now);
 
+    // timer
+    ros::Timer mainspin_timer, keyboard_timer;
+    void mainspinCallback(const ros::TimerEvent &e);
+
 // main functions
     void passive_ctrl();
     void tip_ctrl();
@@ -109,12 +116,17 @@ private:
     void crawl_ctrl();
     void trot_ctrl();
 
-    // timer
-    ros::Timer mainspin_timer;
-    void mainspinCallback(const ros::TimerEvent &e);
 
 // config
-    void config(ros::NodeHandle& _nh);
+    void config();
+
+// keyboard cmd
+    std::map<char, bool> key_states;
+
+    void keyboardCallback(const ros::TimerEvent &e);
+    bool check_fsm_change();
+    void keyboardInitTerminal();
+    void checkKeyPress();
 
 
 public:

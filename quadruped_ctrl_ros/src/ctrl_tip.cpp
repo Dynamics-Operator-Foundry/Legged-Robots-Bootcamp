@@ -28,4 +28,6 @@
 void ctrl_server::tip_ctrl()
 {
     
+
+    
 }

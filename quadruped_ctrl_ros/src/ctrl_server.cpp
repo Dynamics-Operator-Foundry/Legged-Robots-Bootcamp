@@ -27,7 +27,7 @@
 
 ctrl_server::ctrl_server(ros::NodeHandle& _nh) : nh(_nh)
 {
-    nh.getParam("/robot_name", robot_name);
+    config();
     register_callbacks();
     register_publishers();
     
@@ -39,6 +39,17 @@ ctrl_server::~ctrl_server()
 
 }
 
+void ctrl_server::config()
+{
+    nh.getParam("/ROBOT_NAME", ROBOT_NAME);
+    nh.getParam("CTRL_MODE", CTRL_MODE);
+    nh.getParam("FSM_STATE", FSM_STATE);
+
+    geometry_msgs::PoseStamped lala;
+
+    keyboardInitTerminal();
+
+}
 
 
 void ctrl_server::mainspinCallback(const ros::TimerEvent &e)
@@ -51,72 +62,23 @@ void ctrl_server::mainspinCallback(const ros::TimerEvent &e)
 void ctrl_server::fsm_manager()
 {
     if(FSM_STATE == PASSIVE)
-    {
-        if(print_or_not)
-        {
-            ROS_YELLOW_STREAM(PASSIVE);
-            print_or_not = false;
-        }
         passive_ctrl();
-    }
     else if(FSM_STATE == TIP)
-    {
-        if(print_or_not)
-        {
-            ROS_GREEN_STREAM(TIP);
-            print_or_not = false;
-        }
         tip_ctrl();
-    }
     else if(FSM_STATE == STAND)
-    {
-        if(print_or_not)
-        {
-            ROS_GREEN_STREAM(STAND);
-            print_or_not = false;
-        }
         stand_ctrl();
-    }
     else if(FSM_STATE == SWING_LEG)
-    {
-        if(print_or_not)
-        {
-            ROS_GREEN_STREAM(SWING_LEG);
-            print_or_not = false;
-        }
         swing_leg_ctrl();
-    }
     else if(FSM_STATE == SQUIGGLE)
-    {
-        if(print_or_not)
-        {
-            ROS_GREEN_STREAM(SQUIGGLE);
-            print_or_not = false;
-        }
         squiggle_ctrl();
-    }
     else if(FSM_STATE == CRAWL)
-    {
-        if(print_or_not)
-        {
-            ROS_GREEN_STREAM(CRAWL);
-            print_or_not = false;
-        }
         crawl_ctrl();
-    }
     else if(FSM_STATE == TROT)
-    {
-        if(print_or_not)
-        {
-            ROS_GREEN_STREAM(TROT);
-            print_or_not = false;
-        }
         trot_ctrl();
-    }
-    else
-    {
+    else    
         ROS_ERROR("Please Check System...");
-    }
+
+    // publisher here
 }
 
 
