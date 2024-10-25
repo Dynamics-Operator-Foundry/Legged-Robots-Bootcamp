@@ -38,6 +38,7 @@ link_directories(
 add_executable(ctrl_node
     src/ctrl_node.cpp
     src/ctrl_server.cpp
+    src/ctrl_math.cpp
     
     src/ctrl_IO.cpp
     src/ctrl_passive.cpp
