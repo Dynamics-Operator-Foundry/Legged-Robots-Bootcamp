@@ -27,6 +27,16 @@
 
 void ctrl_server::passive_ctrl()
 {
-    
+    // passive mode is a kind of velocity mode, but with dq = 0;
+    // velocity mode Kp = 0.0
+    for(int i = 0; i < DoF; i++)
+    {
+        cmdSet.motorCmd[i].mode = 10;
+        cmdSet.motorCmd[i].q = 0.0;
+        cmdSet.motorCmd[i].dq = 0.0;
+        cmdSet.motorCmd[i].Kp = 0.0;
+        cmdSet.motorCmd[i].Kd = 8.0;
+        cmdSet.motorCmd[i].tau = 0.0;
+    }
     
 }

@@ -32,10 +32,6 @@
 #include "unitree_legged_msgs/MotorCmd.h"
 #include "unitree_legged_msgs/MotorState.h"
 
-#include <termios.h>
-#include <unistd.h>
-#include <thread>
-
 // FSM_STATE
 #define PASSIVE "PASSIVE" // 0
 #define TIP "TIP" // 1
@@ -56,19 +52,26 @@
 
 class ctrl_server : private ros_utilities
 {
-
+    
 private:
     ros::NodeHandle nh;
-    bool sys_started = false;
+    
+// pointers
+    std::unique_ptr<ros::Subscriber[]> servo_subscribers_ptr;
+    std::unique_ptr<ros::Publisher[]> servo_publishers_ptr;
 
 // quadruped parameters & objects
+    bool sys_started = false;
+    double ctrl_freq = 400.0;
     std::string ROBOT_NAME;
     int DoF = 12;
-    unitree_legged_msgs::LowCmd lowCmd;
-    unitree_legged_msgs::LowState lowState;
+    int leg_no = 4;
+    unitree_legged_msgs::LowCmd cmdNow;
+    unitree_legged_msgs::LowCmd cmdSet;
+    unitree_legged_msgs::LowState stateNow;
 
 // quadruped fsm and control mode
-    std::string CTRL_MODE = POS_MODE;
+    std::string CTRL_MODE = DAMP_MODE;
     std::string FSM_STATE = PASSIVE;
     bool print_or_not = true;
 
@@ -76,8 +79,7 @@ private:
 
 //ros related
     // subscriber
-    std::unique_ptr<ros::Subscriber[]> servo_subscribers_ptr;
-    
+    ros::Subscriber fsm_sub;
     void register_callbacks();
     // callbacks
         // front right
@@ -97,20 +99,29 @@ private:
     void RLthighCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
     void RLcalfCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
 
+    void fsmCallback(const std_msgs::String::ConstPtr& msg);
 
     // publisher
-    std::unique_ptr<ros::Publisher[]> servo_publishers_ptr;
     void register_publishers();
-    void publish_servos(const unitree_legged_msgs::LowCmd& cmd_now);
+    void publish_servos(unitree_legged_msgs::LowCmd& _cmdSet);
 
     // timer
-    ros::Timer mainspin_timer, keyboard_timer;
+    ros::Timer mainspin_timer;
     void mainspinCallback(const ros::TimerEvent &e);
 
 // main functions
     void passive_ctrl();
-    void tip_ctrl();
-    void stand_ctrl();
+
+    void target_ctrl();
+    void set_target_ctrl();
+    void set_gain();
+    void target_reset();
+    Eigen::VectorXd q_start;
+    Eigen::VectorXd q_target;
+    bool target_track_start = false;
+    double target_percent = 0;
+
+
     void swing_leg_ctrl();
     void squiggle_ctrl();
     void crawl_ctrl();
@@ -121,12 +132,7 @@ private:
     void config();
 
 // keyboard cmd
-    std::map<char, bool> key_states;
-
-    void keyboardCallback(const ros::TimerEvent &e);
-    bool check_fsm_change();
-    void keyboardInitTerminal();
-    void checkKeyPress();
+    
 
 
 public:

@@ -23,15 +23,55 @@
  * \brief classes for quadruped_ctrl_ros_uav using airo_control_interface
  */
 
-#include "quadruped_ctrl_ros/ctrl_server.h"
+#include <ros_utilities/ros_utilities.h>
+#include <termios.h>
+#include <unistd.h>
+#include <thread>
 
-void ctrl_server::keyboardCallback(
+// FSM_STATE
+#define PASSIVE "PASSIVE" // 0
+#define TIP "TIP" // 1
+#define STAND "STAND" // 2
+#define SWING_LEG "SWING_LEG" // 3
+#define SQUIGGLE "SQUIGGLE" // 4
+#define CRAWL "CRAWL" // 5
+#define TROT "TROT" // 6
+
+static std::map<char, bool> key_states;
+static std::string FSM_STATE;
+static ros::Publisher fsm_pub;
+
+void keyboardCallback(const ros::TimerEvent &e);
+void keyboardInitTerminal();
+void checkKeyPress();
+
+int main(int argc, char **argv)
+{
+    ros::init(argc, argv, "keyboard");
+    ros::NodeHandle nh("~");
+
+    nh.getParam("FSM_STATE", FSM_STATE);
+
+    fsm_pub = nh.advertise<std_msgs::String>("/FSM", 1, true);
+
+    ros::Timer keyboard_timer = nh.createTimer(
+        ros::Duration(1.0/10.0),
+        keyboardCallback
+    );
+
+    keyboardInitTerminal();
+    
+    ros::spin();
+
+    return 0;
+}
+
+void keyboardCallback(
     const ros::TimerEvent &e
 )
 {
     checkKeyPress();
-    
-    std::cout<<"keyboard!"<<std::endl;
+    std::cout<<std::endl;
 
     if (key_states['0'])
     {
@@ -97,24 +137,28 @@ void ctrl_server::keyboardCallback(
             ROS_GREEN_STREAM(FSM_STATE);
         }
     }
+    // ROS_INFO("MESSAGE RECEIVED!");
+    std::string display = "CURRENT STATE: " + FSM_STATE + "!!!!!!!!";
+    ROS_CYAN_STREAM(display);
 
     key_states.clear();
+
+    std_msgs::String fsm_pub_object;
+    fsm_pub_object.data = FSM_STATE;
+
+    fsm_pub.publish(fsm_pub_object);
 }
 
-bool ctrl_server::check_fsm_change()
-{
-    return false;
-    
-}
 
-void ctrl_server::keyboardInitTerminal() {
+
+void keyboardInitTerminal() {
     termios settings;
     tcgetattr(STDIN_FILENO, &settings);
     settings.c_lflag &= ~(ICANON); // Disable canonical mode
     tcsetattr(STDIN_FILENO, TCSANOW, &settings);
 }
 
-void ctrl_server::checkKeyPress() {
+void checkKeyPress() {
     char ch;
     std::cout<<"\n"<<std::endl;
     std::cout<<"0: PASSIVE"<<std::endl;
@@ -125,10 +169,21 @@ void ctrl_server::checkKeyPress() {
     std::cout<<"5: CRAWL"<<std::endl;
     std::cout<<"6: TROT"<<std::endl;
     std::cout<<"\n"<<std::endl;
+    std::cout<<"e: ENTER"<<std::endl;
+    std::cout<<"q: QUIT"<<std::endl;
+    std::cout<<"\n"<<std::endl;
 
     while (read(STDIN_FILENO, &ch, 1) == 1) {
         key_states[ch] = true;
-        if (ch == 'm')
+        if (ch == 'e' || ch == 'E')
             break;
+
+        if (ch == 'q' || ch == 'Q')
+        {
+            std::cout<<std::endl;
+            ROS_WARN("SHUT DOWN");
+            ros::shutdown(); 
+            std::exit(EXIT_FAILURE);  
+        }
     }
 }

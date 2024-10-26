@@ -32,8 +32,13 @@ int main(int argc, char **argv)
 
     ctrl_server planner_server(nh);
     
-    ros::MultiThreadedSpinner s(2);
-    ros::spin(s);
+    // ros::MultiThreadedSpinner s(2);
+    // ros::spin(s);
+    // ros::MultiThreadedSpinner spinner(4); // Number of threads
+    // spinner.spin(); // This will start processing callbacks
+
+    // ros::MultiThreadedSpinner spinner(0);
+    // spinner.spin(&planner_server::);
 
     return 0;
 }

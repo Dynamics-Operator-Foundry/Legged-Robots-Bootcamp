@@ -25,11 +25,19 @@
 
 #include "quadruped_ctrl_ros/ctrl_server.h"
 
-ctrl_server::ctrl_server(ros::NodeHandle& _nh) : nh(_nh)
+ctrl_server::ctrl_server(ros::NodeHandle& _nh) :
+nh(_nh)
 {
+    using namespace std;
+    
+    ros::AsyncSpinner spinner(0);
+    spinner.start();
+
     config();
     register_callbacks();
     register_publishers();
+
+    ros::waitForShutdown();
     
     return;
 }
@@ -41,34 +49,39 @@ ctrl_server::~ctrl_server()
 
 void ctrl_server::config()
 {
-    nh.getParam("/ROBOT_NAME", ROBOT_NAME);
+    nh.getParam("/robot_name", ROBOT_NAME);
     nh.getParam("CTRL_MODE", CTRL_MODE);
-    nh.getParam("FSM_STATE", FSM_STATE);
 
-    geometry_msgs::PoseStamped lala;
-
-    keyboardInitTerminal();
-
+    q_start.resize(DoF);
+    q_target.resize(DoF);
 }
 
 
 void ctrl_server::mainspinCallback(const ros::TimerEvent &e)
 {
+    using namespace std;
+
     fsm_manager();
+    publish_servos(cmdSet);
 
     return;
 }
 
 void ctrl_server::fsm_manager()
 {
+    // std::cout<<FSM_STATE<<std::endl;
+    
     if(FSM_STATE == PASSIVE)
         passive_ctrl();
-    else if(FSM_STATE == TIP)
-        tip_ctrl();
-    else if(FSM_STATE == STAND)
-        stand_ctrl();
+    else if(FSM_STATE == TIP || FSM_STATE == STAND)
+    {
+        target_ctrl();
+        // std::cout<<FSM_STATE<<std::endl;
+    }
     else if(FSM_STATE == SWING_LEG)
+    {
         swing_leg_ctrl();
+    }
     else if(FSM_STATE == SQUIGGLE)
         squiggle_ctrl();
     else if(FSM_STATE == CRAWL)
@@ -78,7 +91,6 @@ void ctrl_server::fsm_manager()
     else    
         ROS_ERROR("Please Check System...");
 
-    // publisher here
 }
 
 

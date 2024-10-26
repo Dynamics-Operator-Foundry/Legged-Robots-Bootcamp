@@ -11,7 +11,8 @@
                 "/usr/include/**",
                 "${workspaceFolder}/nics_rse/include",
                 "${workspaceFolder}/ros_utilities/include",
-                "${workspaceFolder}/quadruped_ctrl_ros/include"
+                "${workspaceFolder}/quadruped_ctrl_ros/include",
+                "/home/patty/leg_boot_ws/devel/include/**"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x64",
