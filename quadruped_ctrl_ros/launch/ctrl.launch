@@ -3,7 +3,7 @@
     <rosparam command="load" file="$(find quadruped_ctrl_ros)/launch/configs/ctrl.yaml" />
   </node>
 
-  <!-- <node name="keyboard_cmd" pkg="quadruped_ctrl_ros" type="keyboard_cmd" output="screen">
+  <node name="keyboard_cmd" pkg="quadruped_ctrl_ros" type="keyboard_cmd" output="screen">
     <rosparam command="load" file="$(find quadruped_ctrl_ros)/launch/configs/ctrl.yaml" />
-  </node> -->
+  </node>
 </launch>

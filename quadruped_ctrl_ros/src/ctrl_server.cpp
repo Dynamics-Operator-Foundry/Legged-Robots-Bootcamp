@@ -54,6 +54,8 @@ void ctrl_server::config()
 
     q_start.resize(DoF);
     q_target.resize(DoF);
+
+    pre_FSM_STATE = FSM_STATE;
 }
 
 
@@ -70,14 +72,12 @@ void ctrl_server::mainspinCallback(const ros::TimerEvent &e)
 void ctrl_server::fsm_manager()
 {
     // std::cout<<FSM_STATE<<std::endl;
-    
+    check_fsm_change();
+
     if(FSM_STATE == PASSIVE)
         passive_ctrl();
-    else if(FSM_STATE == TIP || FSM_STATE == STAND)
-    {
+    else if(FSM_STATE == STAND)
         target_ctrl();
-        // std::cout<<FSM_STATE<<std::endl;
-    }
     else if(FSM_STATE == SWING_LEG)
     {
         swing_leg_ctrl();
@@ -90,6 +90,18 @@ void ctrl_server::fsm_manager()
         trot_ctrl();
     else    
         ROS_ERROR("Please Check System...");
+
+    
+}
+
+void ctrl_server::check_fsm_change()
+{
+    if (FSM_STATE != pre_FSM_STATE)
+    {
+        pre_FSM_STATE = FSM_STATE;
+
+        target_reset();
+    }
 
 }
 

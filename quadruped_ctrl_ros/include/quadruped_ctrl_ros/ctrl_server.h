@@ -127,6 +127,9 @@ private:
     void crawl_ctrl();
     void trot_ctrl();
 
+    std::string pre_FSM_STATE;
+    void check_fsm_change();
+
 
 // config
     void config();

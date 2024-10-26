@@ -44,16 +44,13 @@ void ctrl_server::target_ctrl()
 
 void ctrl_server::set_target_ctrl()
 {
-    if(FSM_STATE == TIP)
-        q_target.setZero();
-    else if(FSM_STATE == STAND)
-    {
-        q_target << 
+    
+    q_target << 
         0.0, 0.67, -1.3,
         0.0, 0.67, -1.3,
         0.0, 0.67, -1.3,
         0.0, 0.67, -1.3;
-    }
+    
         
     for(int i = 0; i < DoF; i++)
     {
