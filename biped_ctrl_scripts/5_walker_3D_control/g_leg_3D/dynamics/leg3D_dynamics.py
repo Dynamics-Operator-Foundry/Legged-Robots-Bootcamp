@@ -18,8 +18,10 @@ q = [theta0, theta1, theta2]
 qdot = [omega0, omega1, omega2]
 
 # Rotation matrices
-R_1_to_0 = sp.Matrix([[sp.cos(theta0), -sp.sin(theta0)],
-                 [sp.sin(theta0), sp.cos(theta0)]])
+R_1_to_0 = sp.Matrix([
+    [1, 0, 0],
+    [0, sp.sin(theta0), sp.cos(theta0)]])
+
 R_B2_2_B1 = sp.Matrix([[sp.cos(theta1), -sp.sin(theta1)],
                  [sp.sin(theta1), sp.cos(theta1)]])
 CP_I = sp.Matrix([x, y]) # contact point in ground frame {I}

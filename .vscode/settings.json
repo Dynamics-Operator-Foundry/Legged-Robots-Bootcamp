@@ -1,8 +1,9 @@
 {
     "python.analysis.extraPaths": [
-        "${workspaceFolder}/bootcamp_scripts/5_walker_3D_control/f_walker_3D/",
+        "${workspaceFolder}/bootcamp_scripts/5_walker_3D_control/f_walker_3D/**",
         "${workspaceFolder}/bootcamp_scripts/5_walker_3D_control/f_walker_3D/dynamics/**",
-        "${workspaceFolder}/bootcamp_scripts/5_walker_3D_control/f_walker_3D/dynamics/**"
+        "${workspaceFolder}/bootcamp_scripts/5_walker_3D_control/f_walker_3D/dynamics/**",
+        "./biped_ctrl_scripts/5_walker_3D_control/f_walker_3D"
     ],
     "python.autoComplete.extraPaths": [
         "/home/patty/leg_boot_ws/devel/lib/python3/dist-packages",
