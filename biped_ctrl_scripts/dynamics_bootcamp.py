@@ -604,6 +604,14 @@ class Simulation3D(RobotUtils, Walker3DModelling):
         self.foot1 = plt.Circle((0, 0), 0.05, color='green', fill=True)
         self.foot2 = plt.Circle((0, 0), 0.05, color='green', fill=True)
         
+        self.foot = None 
+        self.knee = None 
+        self.hip = None 
+        self.body = None 
+        self.l_hip = None 
+        self.l_thigh = None
+        self.l_calf = None
+        
         self.x_states = []
         
         self.sim_object = 'ball'
@@ -673,8 +681,27 @@ class Simulation3D(RobotUtils, Walker3DModelling):
                 max(self.x_states[0])+self.sim_info['w']+0.5,
                 min(self.x_states[1])-self.sim_info['w']-0.5,
                 max(self.x_states[1])+self.sim_info['w']+0.5,
-                min(self.x_states[2])-self.sim_info['l0']-0.05,
+                0.0-0.05,
                 max(self.x_states[2])+self.sim_info['l0']+0.5,
+            )
+            
+        elif self.sim_object == '3Dleg':
+            self.body, = self.ax.plot([],[],[], 'o', color='red', markersize=10)
+            self.hip, = self.ax.plot([],[],[], 'o', color='cyan', markersize=10)
+            self.knee, = self.ax.plot([],[],[], 'o', color='orange', markersize=10)
+            self.foot, = self.ax.plot([],[],[], 'o', color='cyan', markersize=10)
+            
+            self.l_hip, = self.ax.plot([], [], [], color='gray', linewidth=5)
+            self.l_thigh, = self.ax.plot([], [], [], color='gray', linewidth=5)
+            self.l_calf, = self.ax.plot([], [], [], color='blue', linewidth=5)
+            
+            self.set_sim_range(
+                -2.0,
+                2.0,
+                -2.0,
+                2.0,
+                -2.0,
+                2.0
             )
             
     def set_sim_range(self, xmin, xmax, ymin, ymax, zmin, zmax):
@@ -682,7 +709,7 @@ class Simulation3D(RobotUtils, Walker3DModelling):
         # Set plot limits and labels
         self.ax.set_xlim(xmin, xmax)
         self.ax.set_ylim(ymin, ymax)
-        self.ax.set_zlim(0, zmax)
+        self.ax.set_zlim(zmin, zmax)
         self.ax.set_xlabel('X')
         self.ax.set_ylabel('Y')
         self.ax.set_zlabel('Z')
@@ -822,6 +849,40 @@ class Simulation3D(RobotUtils, Walker3DModelling):
             
             return self.head, self.hip, self.hipl, self.hipr, self.kneel, self.kneer, self.anklel, self.ankler, self.torso_com, self.thighl_com, self.thighr_com, self.calfl_com, self.calfr_com, self.torso, self.hip, self.thighl, self.thighr, self.calfl, self.calfr,
         
+        elif self.sim_object == '3Dleg':
+            q_now = np.array([
+                self.x_states[0][frame], 
+                self.x_states[1][frame], 
+                self.x_states[2][frame], 
+                self.x_states[3][frame], 
+                self.x_states[4][frame], 
+                self.x_states[5][frame]
+            ])
+            
+            p_foot = self.get_p_foot_3Dleg(q_now)
+            p_knee = self.get_p_knee_3Dleg(q_now)
+            p_hip  = self.get_p_hip_3Dleg(q_now)
+            
+            # set dots
+            self.foot.set_data([p_foot[0]], [p_foot[1]])
+            self.foot.set_3d_properties([p_foot[2]])
+            self.knee.set_data([p_knee[0]], [p_knee[1]])
+            self.knee.set_3d_properties([p_knee[2]])
+            self.hip.set_data([p_hip[0]], [p_hip[1]])
+            self.hip.set_3d_properties([p_hip[2]])
+            self.body.set_data([0], [0])
+            self.body.set_3d_properties([0])
+            
+            # set lines
+            self.l_hip.set_data([0, p_hip[0]], [0, p_hip[1]])
+            self.l_hip.set_3d_properties([0, p_hip[2]])
+            self.l_thigh.set_data([p_hip[0], p_knee[0]], [p_hip[1], p_knee[1]])
+            self.l_thigh.set_3d_properties([p_hip[2], p_knee[2]])
+            self.l_calf.set_data([p_knee[0], p_foot[0]], [p_knee[1], p_foot[1]])
+            self.l_calf.set_3d_properties([p_knee[2], p_foot[2]])
+            
+            return self.foot, self.knee, self.hip, self.body, self.l_hip, self.l_thigh, self.l_calf        
+            
     def get_rod_cartesian(self, x_rod_start, pitch, yaw):
         x_rod_end = self.get_rod_end(pitch, yaw, self.sim_info['rod_length']) + x_rod_start
         return x_rod_start, x_rod_end
@@ -833,3 +894,53 @@ class Simulation3D(RobotUtils, Walker3DModelling):
         x_end_I = R @ x_end_B
         
         return x_end_I
+    
+    def get_p_foot_3Dleg(self, q):
+        phi0 = q[0]
+        theta1 = q[1]
+        theta2 = q[2]
+        
+        l_hip = self.sim_info['l_hip']
+        l_thigh = self.sim_info['l_thigh']
+        l_knee = self.sim_info['l_knee']
+        
+        p_foot = np.array([
+            -l_knee*(-sin(theta1)*cos(theta2) - sin(theta2)*cos(theta1)) + l_thigh*sin(theta1), 
+            l_hip*cos(phi0) - l_knee*(-sin(phi0)*sin(theta1)*sin(theta2) - sin(phi0)*cos(theta1)*cos(theta2)) + l_thigh*sin(phi0)*cos(theta1), l_hip*sin(phi0) - l_knee*(sin(theta1)*sin(theta2)*cos(phi0) + cos(phi0)*cos(theta1)*cos(theta2)) - l_thigh*cos(phi0)*cos(theta1)
+        ])
+        
+        return p_foot
+    
+    def get_p_knee_3Dleg(self, q):
+        phi0 = q[0]
+        theta1 = q[1]
+        theta2 = q[2]
+        
+        l_hip = self.sim_info['l_hip']
+        l_thigh = self.sim_info['l_thigh']
+        l_knee = self.sim_info['l_knee']
+        
+        p_calf = np.array([
+            l_thigh*sin(theta1),
+            l_hip*cos(phi0) + l_thigh*sin(phi0)*cos(theta1),
+            l_hip*sin(phi0) - l_thigh*cos(phi0)*cos(theta1)
+        ])
+        
+        return p_calf    
+    
+    def get_p_hip_3Dleg(self, q):
+        phi0 = q[0]
+        theta1 = q[1]
+        theta2 = q[2]
+        
+        l_hip = self.sim_info['l_hip']
+        l_thigh = self.sim_info['l_thigh']
+        l_knee = self.sim_info['l_knee']
+        
+        p_hip = np.array([
+            0,
+            l_hip*cos(phi0),
+            l_hip*sin(phi0)
+        ])
+        
+        return p_hip

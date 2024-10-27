@@ -2,28 +2,98 @@
 import sympy as sp
 
 # Define symbols
-M, m1, m2, I1, I2 = sp.symbols('M m1 m2 I1 I2', real=True)
+m_q0, m_q1, m_q2 = sp.symbols('m_q0, m_q1, m_q2', real=True)
+I_hx, I_hy, I_hz = sp.symbols('I_hx, I_hy, I_hz', real=True)
+I_tx, I_ty, I_tz = sp.symbols('I_tx, I_ty, I_tz', real=True)
+I_kx, I_ky, I_kz = sp.symbols('I_kx, I_ky, I_kz', real=True)
   
 # Mass hinge, leg, Inertia
-l_abed, l_hip, l_knee = sp.symbols('l_abed, l_hip, l_knee', real=True)  # length
+l_hip, l_thigh, l_knee = sp.symbols('l_hip, l_thigh, l_knee', real=True)  # length
 
 g = sp.symbols('g', real=True)  # Slope of ramp, gravity
-theta0, theta1, theta2 = sp.symbols('theta0 theta1 theta2', real=True)  # Angles
+phi0, theta1, theta2 = sp.symbols('phi0 theta1 theta2', real=True)  # Angles
 omega0, omega1, omega2 = sp.symbols('omega0 omega1 omega2', real=True)  # Angular velocity
 alpha0, alpha1, alpha2 = sp.symbols('alpha0 alpha1 alpha2', real=True)  # Angular acceleration
 
-
 # Generalized Coordinates in ground frame {I}
-q = [theta0, theta1, theta2]
+q = [phi0, theta1, theta2]
 qdot = [omega0, omega1, omega2]
 
 # Rotation matrices
 R_1_to_0 = sp.Matrix([
     [1, 0, 0],
-    [0, sp.sin(theta0), sp.cos(theta0)]])
+    [0, sp.cos(phi0), -sp.sin(phi0)],
+    [0, sp.sin(phi0), sp.cos(phi0)]
+])
 
-R_B2_2_B1 = sp.Matrix([[sp.cos(theta1), -sp.sin(theta1)],
-                 [sp.sin(theta1), sp.cos(theta1)]])
+R_2_to_1 = sp.Matrix([
+    [sp.cos(theta1), 0, -sp.sin(theta1)],
+    [0, 1, 0],
+    [-sp.sin(theta1), 0, sp.cos(theta1)]
+])
+
+R_3_to_2 = sp.Matrix([
+    [sp.cos(theta2), 0, -sp.sin(theta2)],
+    [0, 1, 0],
+    [-sp.sin(theta2), 0, sp.cos(theta2)]
+])
+
+t_1_to_0 = sp.Matrix([0, 0, 0])
+T_1_to_0 = sp.Matrix([[R_1_to_0, t_1_to_0], [0, 0, 0, 1]])
+
+t_2_to_1 = sp.Matrix([0, 0, 0])
+T_2_to_1 = sp.Matrix([[R_2_to_1, t_2_to_1], [0, 0, 0, 1]])
+
+t_3_to_2 = sp.Matrix([0, l_hip, -l_thigh])
+T_3_to_2 = sp.Matrix([[R_3_to_2, t_3_to_2], [0, 0, 0, 1]])
+
+
+
+# point of foot, calf_com, knee, thigh_com, hip, hip_com
+p_foot_in_3 = sp.Matrix([0, 0, -l_knee, 1])
+p_foot_in_0 = T_1_to_0 @ T_2_to_1 @ T_3_to_2 @ p_foot_in_3
+
+print()
+print("=======================")
+print("p_foot")
+print(p_foot_in_0)
+
+p_calf_com_in_3 = sp.Matrix([0, 0, -l_knee/2, 1])
+p_calf_com_in_0 = T_1_to_0 @ T_2_to_1 @ T_3_to_2 @ p_calf_com_in_3
+
+# print(p_calf_com_in_0)
+
+p_knee_in_2 = sp.Matrix([0, l_hip, -l_thigh, 1])
+p_knee_in_0 = T_1_to_0 @ T_2_to_1 @ p_knee_in_2
+
+print()
+print("=======================")
+print("p_knee")
+print(p_knee_in_0)
+
+p_thigh_com_in_2 = sp.Matrix([0, l_hip, -l_thigh/2, 1])
+p_thigh_com_in_0 = T_1_to_0 @ T_2_to_1 @ p_thigh_com_in_2
+
+# print(p_thigh_com_in_0)
+
+p_hip_in_2 = sp.Matrix([0, l_hip, 0, 1])
+p_hip_in_0 = T_1_to_0 @ T_2_to_1 @ p_hip_in_2
+
+print()
+print("=======================")
+print("p_hip")
+print(p_hip_in_0)
+
+p_hip_com_in_2 = sp.Matrix([0, l_hip/2, 0, 1])
+p_hip_com_in_0 = T_1_to_0 @ T_2_to_1 @ p_hip_com_in_2
+
+# print(p_hip_com_in_0)
+
+
+exit()
+
+
+
 CP_I = sp.Matrix([x, y]) # contact point in ground frame {I}
 HP_B1 = sp.Matrix([l1, 0]) # hinge point in body frame 1 {B1}
 
