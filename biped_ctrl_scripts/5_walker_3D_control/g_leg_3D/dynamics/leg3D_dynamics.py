@@ -2,7 +2,7 @@
 import sympy as sp
 
 # Define symbols
-m_q0, m_q1, m_q2 = sp.symbols('m_q0, m_q1, m_q2', real=True)
+m_foot, m_calf, m_knee, m_thigh, m_hip = sp.symbols('m_foot, m_calf, m_knee, m_thigh, m_hip', real=True)
 I_hx, I_hy, I_hz = sp.symbols('I_hx, I_hy, I_hz', real=True)
 I_tx, I_ty, I_tz = sp.symbols('I_tx, I_ty, I_tz', real=True)
 I_kx, I_ky, I_kz = sp.symbols('I_kx, I_ky, I_kz', real=True)
@@ -53,10 +53,10 @@ T_3_to_2 = sp.Matrix([[R_3_to_2, t_3_to_2], [0, 0, 0, 1]])
 p_foot_in_3 = sp.Matrix([0, 0, -l_knee, 1])
 p_foot_in_0 = T_1_to_0 @ T_2_to_1 @ T_3_to_2 @ p_foot_in_3
 
-print()
-print("=======================")
-print("p_foot")
-print(p_foot_in_0)
+# print()
+# print("=======================")
+# print("p_foot")
+# print(p_foot_in_0)
 
 p_calf_com_in_3 = sp.Matrix([0, 0, -l_knee/2, 1])
 p_calf_com_in_0 = T_1_to_0 @ T_2_to_1 @ T_3_to_2 @ p_calf_com_in_3
@@ -66,10 +66,10 @@ p_calf_com_in_0 = T_1_to_0 @ T_2_to_1 @ T_3_to_2 @ p_calf_com_in_3
 p_knee_in_2 = sp.Matrix([0, l_hip, -l_thigh, 1])
 p_knee_in_0 = T_1_to_0 @ T_2_to_1 @ p_knee_in_2
 
-print()
-print("=======================")
-print("p_knee")
-print(p_knee_in_0)
+# print()
+# print("=======================")
+# print("p_knee")
+# print(p_knee_in_0)
 
 p_thigh_com_in_2 = sp.Matrix([0, l_hip, -l_thigh/2, 1])
 p_thigh_com_in_0 = T_1_to_0 @ T_2_to_1 @ p_thigh_com_in_2
@@ -79,49 +79,56 @@ p_thigh_com_in_0 = T_1_to_0 @ T_2_to_1 @ p_thigh_com_in_2
 p_hip_in_2 = sp.Matrix([0, l_hip, 0, 1])
 p_hip_in_0 = T_1_to_0 @ T_2_to_1 @ p_hip_in_2
 
-print()
-print("=======================")
-print("p_hip")
-print(p_hip_in_0)
+# print()
+# print("=======================")
+# print("p_hip")
+# print(p_hip_in_0)
 
 p_hip_com_in_2 = sp.Matrix([0, l_hip/2, 0, 1])
 p_hip_com_in_0 = T_1_to_0 @ T_2_to_1 @ p_hip_com_in_2
 
 # print(p_hip_com_in_0)
 
+x_foot, y_foot, z_foot = p_foot_in_0[0], p_foot_in_0[1], p_foot_in_0[2]
+x_calf_com, y_calf_com, z_calf_com = p_calf_com_in_0[0], p_calf_com_in_0[1], p_calf_com_in_0[2]
+x_knee, y_knee, z_knee = p_knee_in_0[0], p_knee_in_0[1], p_knee_in_0[2]
+x_thigh_com, y_thigh_com, z_thigh_com = p_thigh_com_in_0[0], p_thigh_com_in_0[1], p_thigh_com_in_0[2]
+x_hip, y_hip, z_hip = p_hip_in_0[0], p_hip_in_0[1], p_hip_in_0[2]
+x_hip_com, y_hip_com, z_hip_com = p_hip_com_in_0[0], p_hip_com_in_0[1], p_hip_com_in_0[2]
+
+# linear velocities
+v_foot = sp.Matrix([sp.simplify(sp.Matrix([x_foot, y_foot, z_foot]).jacobian(q) @ sp.Matrix(qdot))])
+v_calf_com = sp.Matrix([sp.simplify(sp.Matrix([x_calf_com, y_calf_com, z_calf_com]).jacobian(q) @ sp.Matrix(qdot))])
+v_knee = sp.Matrix([sp.simplify(sp.Matrix([x_knee, y_knee, z_knee]).jacobian(q) @ sp.Matrix(qdot))])
+v_thigh_com = sp.Matrix([sp.simplify(sp.Matrix([x_thigh_com, y_thigh_com, z_thigh_com]).jacobian(q) @ sp.Matrix(qdot))])
+v_hip_com = sp.Matrix([sp.simplify(sp.Matrix([x_hip_com, y_hip_com, z_hip_com]).jacobian(q) @ sp.Matrix(qdot))])
+
+# angular velocities
+
+print("POSI IN {0} ACQUIRED")
+print("VELO IN {0} ACQUIRED")
+
+
+# potential
+zp_foot = p_foot_in_0[2]
+zp_calf_com = p_calf_com_in_0[2]
+zp_knee = p_knee_in_0[2]
+zp_thigh_com = p_thigh_com_in_0[2]
+zp_hip = p_hip_in_0[2]
+zp_hip_com = p_hip_com_in_0[2]
+
+print("HEIGHT IN {I} ACQUIRED")
+
+# Kinetic and potential energy
+T = 0.5 * (m_foot * v_foot.dot(v_foot) + m_calf * v_calf_com.dot(v_calf_com) + m_knee * v_knee.dot(v_knee) + m_thigh * v_thigh_com.dot(v_thigh_com) + m_hip * v_hip_com.dot(v_hip_com) 
+           
+           + I1 * omega0**2 + I2 * (omega0 + omega1)**2)
+V = sp.simplify(m1 * g * Y_G1 + m2 * g * Y_G2 + M * g * Y_H)
+L = T - V
+print("LAGRANGIAN ACQUIRED")
 
 exit()
 
-
-
-CP_I = sp.Matrix([x, y]) # contact point in ground frame {I}
-HP_B1 = sp.Matrix([l1, 0]) # hinge point in body frame 1 {B1}
-
-T_B1_2_I = sp.Matrix([[R_B1_2_I, CP_I], [0, 0, 1]])
-T_B2_2_B1 = sp.Matrix([[R_B2_2_B1, HP_B1], [0, 0, 1]])
-
-# Position of hinge, CoM of legs, and foot in {I}
-R_H = T_B1_2_I @ sp.Matrix([l1, 0, 1]) # hinge
-x_H, y_H = R_H[0], R_H[1]
-
-R_G1 = T_B1_2_I @ sp.Matrix([l1/2, 0, 1]) # CoM of leg 1
-R_G1 = sp.simplify(R_G1)
-x_G1, y_G1 = R_G1[0], R_G1[1]
-
-R_G2 = T_B1_2_I @ T_B2_2_B1 @ sp.Matrix([l2/2, 0, 1]) # CoM of leg 2
-R_G2 = sp.simplify(R_G2)
-x_G2, y_G2 = R_G2[0], R_G2[1]
-
-R_C2 = T_B1_2_I @ T_B2_2_B1 @ sp.Matrix([l2, 0, 1]) # foot of air leg
-R_C2 = sp.simplify(R_C2)
-x_C2, y_C2 = R_C2[0], R_C2[1]
-
-v_H = sp.Matrix([sp.simplify(sp.Matrix([x_H, y_H]).jacobian(q) @ sp.Matrix(qdot))])
-v_G1 = sp.Matrix([sp.simplify(sp.Matrix([x_G1, y_G1]).jacobian(q) @ sp.Matrix(qdot))])
-v_G2 = sp.Matrix([sp.simplify(sp.Matrix([x_G2, y_G2]).jacobian(q) @ sp.Matrix(qdot))])
-
-print("POSI IN {I} ACQUIRED")
-print("VELO IN {I} ACQUIRED")
 
 # Potential energy
 Y_H = R_H[1]
@@ -130,11 +137,7 @@ Y_G2 = R_G2[1]
 
 print("HEIGHT IN {I} ACQUIRED")
 
-# Kinetic and potential energy
-T = 0.5 * sp.simplify(m1 * v_G1.dot(v_G1) + m2 * v_G2.dot(v_G2) + M * v_H.dot(v_H) + I1 * omega0**2 + I2 * (omega0 + omega1)**2)
-V = sp.simplify(m1 * g * Y_G1 + m2 * g * Y_G2 + M * g * Y_H)
-L = T - V
-print("LAGRANGIAN ACQUIRED")
+
 
 # Derive equations of motion
 qddot = [ax, ay, alpha0, alpha1]
