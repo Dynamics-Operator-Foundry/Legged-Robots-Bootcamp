@@ -5,7 +5,7 @@ import scipy.optimize as opt
 from scipy.integrate import solve_ivp
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
-from dynamics_bootcamp import Integrator as inte, Simulation2D as sim2D, RobotUtils as util
+from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation2D as sim2D, RobotUtils as util
 
 # basic parameters for a walker
 hip_m = 1.0 # kg, mass of hip

@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
-from dynamics_bootcamp import Integrator as inte, Simulation3D as sim3D, RobotUtils as util
+from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation3D as sim3D, RobotUtils as util
 
 l = 1
 # q_all

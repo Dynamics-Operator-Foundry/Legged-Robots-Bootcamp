@@ -3,7 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation2D as sim2D, RobotUtils as util
 
 g = 9.81
@@ -25,8 +25,8 @@ t_step = 1e-3
 t_all = []
 u_all = []
 
-q0=-np.pi/2 - 0.5
-q1=0.0
+q0=-0.5
+q1=2.0
 u0=-0.0
 u1=-0.0
 
@@ -38,53 +38,139 @@ Kd = 2 * np.sqrt(Kp)
 event_thres = 1e-2
 
 t0 = 0
-tf = 3
-t0_p0 = 0
-tf_p0 = 1.5
-t0_p1 = 1.5
-tf_p1 = 3.0
+tf = 5
+
+def cartesian_traj_setting():
+    A = 0.5
+    B = A
+    a = 2
+    b = 1
+    r_x0 = 1
+    r_y0 = 0
+
+    t = np.arange(0,5,1e-3)
+    tf = 5
+
+    r_x =  A*np.sin(2*np.pi*a*(6*t**5/tf**5 - 15*t**4/tf**4 + 10*t**3/tf**3)) + r_x0
+    r_y =  B*np.cos(2*np.pi*b*(6*t**5/tf**5 - 15*t**4/tf**4 + 10*t**3/tf**3)) + r_y0
+    r_xdot =  2*np.pi*A*a*(30*t**4/tf**5 - 60*t**3/tf**4 + 30*t**2/tf**3)*np.cos(2*np.pi*a*(6*t**5/tf**5 - 15*t**4/tf**4 + 10*t**3/tf**3))
+    r_ydot =  -2*np.pi*B*b*(30*t**4/tf**5 - 60*t**3/tf**4 + 30*t**2/tf**3)*np.sin(2*np.pi*b*(6*t**5/tf**5 - 15*t**4/tf**4 + 10*t**3/tf**3))
+    r_xddot =  -4*np.pi**2*A*a**2*(30*t**4/tf**5 - 60*t**3/tf**4 + 30*t**2/tf**3)**2*np.sin(2*np.pi*a*(6*t**5/tf**5 - 15*t**4/tf**4 + 10*t**3/tf**3)) + 2*np.pi*A*a*(120*t**3/tf**5 - 180*t**2/tf**4 + 60*t/tf**3)*np.cos(2*np.pi*a*(6*t**5/tf**5 - 15*t**4/tf**4 + 10*t**3/tf**3))
+    r_yddot =  -4*np.pi**2*B*b**2*(30*t**4/tf**5 - 60*t**3/tf**4 + 30*t**2/tf**3)**2*np.cos(2*np.pi*b*(6*t**5/tf**5 - 15*t**4/tf**4 + 10*t**3/tf**3)) - 2*np.pi*B*b*(120*t**3/tf**5 - 180*t**2/tf**4 + 60*t/tf**3)*np.sin(2*np.pi*b*(6*t**5/tf**5 - 15*t**4/tf**4 + 10*t**3/tf**3))
+    
+    # r_ref = np.vstack([r_x, r_y, r_xdot, r_ydot, r_xddot, r_yddot])
+    r_ref = np.vstack([r_x, r_y])
+    rdot_ref = np.vstack([r_xdot, r_ydot])
+    rddot_ref = np.vstack([r_xddot, r_yddot])
+    
+    return r_ref, rdot_ref, rddot_ref
+
+def forward_kinematics(q):
+    theta0 = q[0]
+    theta1 = q[1]
+    R0 =  l1*np.cos(theta0) + l2*(-np.sin(theta0)*np.sin(theta1) + np.cos(theta0)*np.cos(theta1))
+    R1 =  l1*np.sin(theta0) + l2*(np.sin(theta0)*np.cos(theta1) + np.sin(theta1)*np.cos(theta0))
+    
+    return np.array([R0, R1])
+
+def solve_inverse_kinematics(q0, r_ref):
+    q_k = q0
+    dq_norm = np.inf
+    
+    # dr = J dq
+    while dq_norm > 1e-6:
+        theta0 = q_k[0]
+        theta1 = q_k[1]
+        
+        J00 =  -l1*np.sin(theta0) - l2*np.sin(theta0 + theta1)
+        J01 =  -l2*np.sin(theta0 + theta1)
+        J10 =  l1*np.cos(theta0) + l2*np.cos(theta0 + theta1)
+        J11 =  l2*np.cos(theta0 + theta1)
+        J = np.array([[J00, J01], [J10, J11]])
+        
+        dr = r_ref - forward_kinematics(q_k)
+        dq = np.linalg.pinv(J) @ dr
+        q_k = q_k + dq
+        # save_for_viz(q_k)
+        
+        dq_norm = np.linalg.norm(dq)
+        
+    return q_k
+
+def get_q(r_ref):
+    r_ref_len = r_ref.shape[1]
+    q_i = np.array([-0.5, 2.0])
+    
+    q0_all = []
+    q1_all = []
+    
+    for i in range(r_ref_len):
+        q_i = solve_inverse_kinematics(q0=q_i, r_ref=r_ref[:,i])
+
+        q0_all.append(util().rad_2_pi_range(q_i[0]))
+        q1_all.append(util().rad_2_pi_range(q_i[1]))
+    
+    return q0_all, q1_all
+
+def get_Jacobian(q):
+    theta0 = q[0]
+    theta1 = q[1]
+    
+    J00 =  -l1*np.sin(theta0) - l2*np.sin(theta0 + theta1)
+    J01 =  -l2*np.sin(theta0 + theta1)
+    J10 =  l1*np.cos(theta0) + l2*np.cos(theta0 + theta1)
+    J11 =  l2*np.cos(theta0 + theta1)
+    J = np.array([[J00, J01], [J10, J11]])
+    
+    return J
+
+def get_Jacobian_dot(q, qdot):
+    theta0 = q[0]
+    theta1 = q[1]
+    theta0dot = qdot[0]
+    theta1dot = qdot[1]
+    
+    Jdot00 =  -l1*theta0dot*np.cos(theta0) - l2*theta0dot*np.cos(theta0 + theta1) - l2*theta1dot*np.cos(theta0 + theta1)
+    Jdot01 =  l2*(-theta0dot - theta1dot)*np.cos(theta0 + theta1)
+    Jdot10 =  -l1*theta0dot*np.sin(theta0) - l2*theta0dot*np.sin(theta0 + theta1) - l2*theta1dot*np.sin(theta0 + theta1)
+    Jdot11 =  l2*(-theta0dot - theta1dot)*np.sin(theta0 + theta1)
+    Jdot = np.array([[Jdot00, Jdot01], [Jdot10, Jdot11]])
+    
+    return Jdot
+
+def get_qdot(rdot_ref, rddot_ref, q0_all, q1_all):
+    rdot_ref_len = rdot_ref.shape[1]
+    
+    q0dot_all = []
+    q1dot_all = []
+    q0ddot_all = []
+    q1ddot_all = []
+    
+    for i in range(rdot_ref_len):
+        q = [q0_all[i], q1_all[i]]
+        J = get_Jacobian(q)
+        
+        # r_dot = J * q_dot
+        qdot_i = np.linalg.pinv(J) @ rdot_ref[:,i]
+        
+        # r_ddot = J_dot * q_dot + J * q_ddot
+        Jdot = get_Jacobian_dot(q=q,qdot=qdot_i)
+        qddot_i = np.linalg.pinv(J) @ (rddot_ref[:,i] - Jdot @ np.linalg.pinv(J) @ rdot_ref[:,i])
+        
+        q0dot_all.append(qdot_i[0])
+        q1dot_all.append(qdot_i[1])
+        q0ddot_all.append(qddot_i[0])
+        q1ddot_all.append(qddot_i[1])
+    
+    return q0dot_all, q1dot_all, q0ddot_all, q1ddot_all
 
 def traj_setting():
+
+    r_ref, rdot_ref, rddot_ref = cartesian_traj_setting()
+    q0_all, q1_all = get_q(r_ref)
+    q0dot_all, q1dot_all, q0ddot_all, q1ddot_all = get_qdot(rdot_ref, rddot_ref, q0_all, q1_all)
     
-    # theta0
-    al0_0 =  -np.pi/2 - 0.5
-    al0_1 =  0
-    al0_2 =  0.333333333333333
-    al0_3 =  -0.0740740740740741
-    
-    t_local = np.arange(t0, tf, t_step)
-    q0_ref = al0_0 + al0_1*t_local + al0_2*t_local**2 + al0_3*t_local**3
-    q0dot_ref = al0_1 + 2*al0_2*t_local + 3*al0_3*t_local**2
-    q0ddot_ref = 2*al0_2 + 6*al0_3*t_local
-    
-    # theta1
-    al1_p0_0 =  0
-    al1_p0_1 =  0
-    al1_p0_2 =  1.33333333333333 - 0.666666666666667*np.pi
-    al1_p0_3 =  -0.592592592592593 + 0.296296296296296*np.pi
-    al1_p1_0 =  -4.0 + 2.0*np.pi
-    al1_p1_1 =  8.0 - 4.0*np.pi
-    al1_p1_2 =  -4.0 + 2.0*np.pi
-    al1_p1_3 =  0.592592592592593 - 0.296296296296296*np.pi
-    
-    t_local = np.arange(t0_p0, tf_p0, t_step)
-    q1_ref_p0 = al1_p0_0 + al1_p0_1*t_local + al1_p0_2*t_local**2 + al1_p0_3*t_local**3
-    q1dot_ref_p0 = al1_p0_1 + 2*al1_p0_2*t_local + 3*al1_p0_3*t_local**2
-    q1ddot_ref_p0 = 2*al1_p0_2 + 6*al1_p0_3*t_local
-    
-    t_local = np.arange(t0_p1, tf_p1, t_step)
-    q1_ref_p1 = al1_p1_0 + al1_p1_1*t_local + al1_p1_2*t_local**2 + al1_p1_3*t_local**3
-    q1dot_ref_p1 = al1_p1_1 + 2*al1_p1_2*t_local + 3*al1_p1_3*t_local**2
-    q1ddot_ref_p1 = 2*al1_p1_2 + 6*al1_p1_3*t_local
-    
-    q1_ref = np.hstack([q1_ref_p0, q1_ref_p1])
-    q1dot_ref = np.hstack([q1dot_ref_p0, q1dot_ref_p1])
-    q1ddot_ref = np.hstack([q1ddot_ref_p0, q1ddot_ref_p1])
-    
-    q_ref = np.vstack([q0_ref, q1_ref, q0dot_ref, q1dot_ref, q0ddot_ref, q1ddot_ref])
-    
-    # print(q_ref.shape)
-    # print(q_ref[:,1])
+    q_ref = np.vstack([q0_all, q1_all, q0dot_all, q1dot_all, q0ddot_all, q1ddot_all])
     
     return q_ref
 
@@ -96,10 +182,10 @@ def draw_anime(success):
     print()
     if success:
         print('SYSTEM INTEGRATION SUCCEEDED...')
-        save_name = "double_pendulum_traj_tracking"
+        save_name = "double_pendulum_cartesian_control"
     else:
         print('SYSTEM INTEGRATION FAILED...')
-        save_name = "double_pendulum_traj_tracking" + "_failed"
+        save_name = "double_pendulum_cartesian_control" + "_failed"
     
     sim2D().anime(
         t=t_all[::sample_factor], 
@@ -217,6 +303,9 @@ t_lim = 10.0
 
 q_ref = traj_setting()
 no_all_steps = q_ref.shape[1]
+
+# print(no_all_steps)
+# exit()
 
 for i in range(no_all_steps):
     

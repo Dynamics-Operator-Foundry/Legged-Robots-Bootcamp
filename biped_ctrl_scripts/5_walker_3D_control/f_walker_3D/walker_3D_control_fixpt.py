@@ -25,7 +25,7 @@ from P_R.wrapper_module_0 import autofunc_c as get_P_R_cy
 # exit()
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
-from dynamics_bootcamp import Integrator as inte, Simulation3D as sim3D, RobotUtils as util
+from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation3D as sim3D, RobotUtils as util
 
 # SAVE DATA FOR VISUALIZATION
 t_all = []

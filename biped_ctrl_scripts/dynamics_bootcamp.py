@@ -5,7 +5,7 @@ from sympy import *
 
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './biped_ctrl_scripts/5_walker_3D_Control/f_walker_3D/')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './5_walker_3D_Control/f_walker_3D/')))
 from walker3D_model import Walker3DModelling
 
 class RobotUtils:

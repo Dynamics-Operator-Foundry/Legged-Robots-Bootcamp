@@ -5,7 +5,7 @@ import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../../')))
-from dynamics_bootcamp import Integrator as inte, Simulation2D as sim2D, RobotUtils as util
+from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation2D as sim2D, RobotUtils as util
 
 A = 0.5
 B = A

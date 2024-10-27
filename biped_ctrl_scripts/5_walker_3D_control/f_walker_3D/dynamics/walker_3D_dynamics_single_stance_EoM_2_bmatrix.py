@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './libs'
 from cython_acc_func import cython_acc_func as cy
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../')))
-from dynamics_bootcamp import Walker3DModelling as model
+from biped_ctrl_scripts.dynamics_bootcamp import Walker3DModelling as model
 
 def gen_func_file(expr_name, expr, var, datatype):
     file_name = 'get_'+expr_name + '.py'

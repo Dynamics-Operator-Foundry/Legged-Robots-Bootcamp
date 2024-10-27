@@ -6,7 +6,7 @@ import os
 # Add the path to the upper two-level folder to the system path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
-from dynamics_bootcamp import Integrator
+from biped_ctrl_scripts.dynamics_bootcamp import Integrator
 
 
 x0 = 0
