@@ -1,7 +1,9 @@
 # Bootcamp for Legged Robots
 ## Introduction
 This is a learning bootcamp of mine for legged robotics, i.e., bipeds and quadrupeds. In which, we have 2 main camps:
-1. **3D Walker**: Naive simulator from scratch, which consists the development of:
+1. **3D Walker**: 
+
+Naive simulator from scratch, which consists the development of:
     - [Hopper](/biped_ctrl_scripts/1_hopper_dynamics/README.md)
     - [Hopper Control](/biped_ctrl_scripts/2_hopper_control/README.md)
     - [Passive Walker](/biped_ctrl_scripts/3_passive_walker/README.md)
