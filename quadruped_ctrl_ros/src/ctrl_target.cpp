@@ -50,6 +50,9 @@ void ctrl_server::set_target_ctrl()
         0.0, 0.67, -1.3,
         0.0, 0.67, -1.3,
         0.0, 0.67, -1.3;
+
+    // q_target[2] = 2.0;
+    // q_target.setZero();
     
         
     for(int i = 0; i < DoF; i++)

@@ -166,6 +166,18 @@ void ctrl_server::RLcalfCallback(
     stateNow.motorState[11].q = msg->q;
     stateNow.motorState[11].dq = msg->dq;
     stateNow.motorState[11].tauEst = msg->tauEst;
+
+    push_back_state_vector();
+}
+
+void ctrl_server::push_back_state_vector()
+{
+    for (int i = 0; i < DoF; i++)
+    {
+        q_state[i] = stateNow.motorState[i].q;
+        dq_state[i] = stateNow.motorState[i].dq;
+        tau_state[i] = stateNow.motorState[i].tauEst;
+    }
 }
 
 void ctrl_server::fsmCallback(

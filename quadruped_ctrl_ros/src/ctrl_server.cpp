@@ -52,6 +52,8 @@ void ctrl_server::config()
     nh.getParam("/robot_name", ROBOT_NAME);
     nh.getParam("CTRL_MODE", CTRL_MODE);
 
+    q_state.resize(DoF);
+    dq_state.resize(DoF);
     q_start.resize(DoF);
     q_target.resize(DoF);
 

@@ -63,12 +63,21 @@ private:
 // quadruped parameters & objects
     bool sys_started = false;
     double ctrl_freq = 400.0;
+
+    Eigen::VectorXd q_state;
+    Eigen::VectorXd dq_state;
+    Eigen::VectorXd tau_state;
+
     std::string ROBOT_NAME;
     int DoF = 12;
     int leg_no = 4;
     unitree_legged_msgs::LowCmd cmdNow;
     unitree_legged_msgs::LowCmd cmdSet;
     unitree_legged_msgs::LowState stateNow;
+
+    double l_abad = 0.08;
+    double l_hip = 0.213;
+    double l_knee = 0.213;
 
 // quadruped fsm and control mode
     std::string CTRL_MODE = DAMP_MODE;
@@ -98,6 +107,8 @@ private:
     void RLhipCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
     void RLthighCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
     void RLcalfCallback(const unitree_legged_msgs::MotorState::ConstPtr& msg);
+
+    void push_back_state_vector();
 
     void fsmCallback(const std_msgs::String::ConstPtr& msg);
 
@@ -134,7 +145,23 @@ private:
 // config
     void config();
 
-// keyboard cmd
+// math
+    Eigen::Vector3d forward_kinematics(
+        int leg_i, 
+        Eigen::VectorXd& q_state
+    );
+    Eigen::Vector3d inverse_kinematics(
+        int leg_i, 
+        Eigen::VectorXd& q_state,
+        Eigen::Vector3d& r_E
+    );
+
+    Eigen::Matrix3d get_Jacobian(
+        int leg_i, 
+        Eigen::VectorXd& q_state
+    );
+
+
     
 
 
