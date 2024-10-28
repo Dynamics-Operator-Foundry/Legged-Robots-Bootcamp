@@ -9,9 +9,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../.
 from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation3D as sim3D, RobotUtils as util
 
 
-l_hip = 0.4
-l_thigh = 1.4
-l_knee = 1.2
+l_hip = 0.08
+l_thigh = 0.213
+l_knee = 0.213
 
 q = np.zeros(6)
 
