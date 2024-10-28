@@ -37,7 +37,10 @@ Please refer to [this](/biped_ctrl_scripts/4_walker_control/g_control_partitioni
 - Observe the dynamics via [integration](/dynamics_bootcamp.py) (RK4 or Euler forward). The script is written [here](/biped_ctrl_scripts/5_walker_3D_control/f_walker_3D/walker_3D_control.py).
 - The script is not perfectly done, as we are using our naive integrator (not advanced ones like $\texttt{RK4}$), so we could not really get a real good fixpoint on the Poincare map. 
   
-Remarks: 
-- We set the trajectories and initial conditions via trial-error, and therefore, the robot performance is not perfect at this moment.
-- We refer to people who are interested to [this](https://pab47.github.io/legs.html) for a better performance.
+  Remarks: 
+  - We set the trajectories and initial conditions via trial-error, and therefore, the robot performance is not perfect at this moment.
+  - We refer to people who are interested to [this](https://pab47.github.io/legs.html) for a better performance.
+
+### G. Leg 3D
+- As we will be visiting quadruped in the next bootcamp, [here](/biped_ctrl_scripts/5_walker_3D_control/g_leg_3D/) we revisit the inverse kinematics for the 3D leg of a quadruped robot.
   
