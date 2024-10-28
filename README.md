@@ -19,6 +19,8 @@ This is a learning bootcamp of mine for legged robotics, i.e., bipeds and quadru
       - forward and inverse kinematics, 
       - trajectory optimization, and 
       - feedback linearization.
+      </br>
+      </br>
     <table align="center">
       <tr>
         <td align="center">
