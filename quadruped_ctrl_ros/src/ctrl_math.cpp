@@ -25,8 +25,8 @@
 
 #include "quadruped_ctrl_ros/ctrl_server.h"
 
-Eigen::Vector3d ctrl_server::forward_kinematics(
-    int leg_i, 
+Eigen::VectorXd ctrl_server::get_leg_posi(
+    int leg_i,
     Eigen::VectorXd& q_state
 )
 {
@@ -72,10 +72,75 @@ Eigen::Vector3d ctrl_server::forward_kinematics(
         break;
     
     default:
-        ROS_ERROR("WRONG FOOT IN FORWARD KINEMATICS!");
+        ROS_ERROR("WRONG FOOT ID IN FORWARD KINEMATICS!");
         break;
     }
+
+    Eigen::VectorXd states;
+    states.resize(6);
+    states <<
+        theta0, theta1, theta2,
+        l0, l1, l2;
+
+    return states;
+}
+
+Eigen::VectorXd ctrl_server::get_leg_velo(
+    int leg_i,
+    Eigen::VectorXd& dq_state
+)
+{
+    double dtheta0, dtheta1, dtheta2;
+
+    switch (leg_i)
+    {
+    case 0:
+        dtheta0 = dq_state[0];
+        dtheta1 = dq_state[1];
+        dtheta2 = dq_state[2];
+        break;
+
+    case 1:
+        dtheta0 = dq_state[3];
+        dtheta1 = dq_state[4];
+        dtheta2 = dq_state[5];
+        break;
+
+    case 2:
+        dtheta0 = dq_state[6];
+        dtheta1 = dq_state[7];
+        dtheta2 = dq_state[8];
+        break;
+
+    case 3:
+        dtheta0 = dq_state[9];
+        dtheta1 = dq_state[10];
+        dtheta2 = dq_state[11];
+        break;
     
+    default:
+        ROS_ERROR("WRONG FOOT ID IN FORWARD KINEMATICS!");
+        break;
+    }
+
+    Eigen::VectorXd states;
+    states.resize(3);
+    states <<
+        dtheta0, dtheta1, dtheta2;
+
+    return states;
+}
+
+Eigen::Vector3d ctrl_server::forward_kinematics(
+    int leg_i, 
+    Eigen::VectorXd& q_state
+)
+{
+    Eigen::VectorXd states = get_leg_posi(leg_i, q_state);
+
+    double theta0 = states(0), theta1 = states(1), theta2 = states(2);
+    double l0 = states(3), l1 = states(4), l2 = states(5);
+
     return Eigen::Vector3d(
         l2 * sin(theta1 + theta2) + l1 * sin(theta1),
         -l2 * sin(theta0) * cos(theta1 + theta2) + l0 * cos(theta0) - l1 * cos(theta1) * sin(theta0),
@@ -141,51 +206,10 @@ Eigen::Matrix3d ctrl_server::get_Jacobian(
     Eigen::VectorXd& q_state
 )
 {
-    double l0, l1, l2;
-    double theta0, theta1, theta2;
+    Eigen::VectorXd states = get_leg_posi(leg_i, q_state);
 
-    switch (leg_i)
-    {
-    case 0:
-        l0 = -l_abad;
-        l1 = -l_hip;
-        l2 = -l_knee;
-        theta0 = q_state[0];
-        theta1 = q_state[1];
-        theta2 = q_state[2];
-        break;
-
-    case 1:
-        l0 = l_abad;
-        l1 = -l_hip;
-        l2 = -l_knee;
-        theta0 = q_state[3];
-        theta1 = q_state[4];
-        theta2 = q_state[5];
-        break;
-
-    case 2:
-        l0 = -l_abad;
-        l1 = -l_hip;
-        l2 = -l_knee;
-        theta0 = q_state[6];
-        theta1 = q_state[7];
-        theta2 = q_state[8];
-        break;
-
-    case 3:
-        l0 = l_abad;
-        l1 = -l_hip;
-        l2 = -l_knee;
-        theta0 = q_state[9];
-        theta1 = q_state[10];
-        theta2 = q_state[11];
-        break;
-    
-    default:
-        ROS_ERROR("WRONG FOOT IN FORWARD KINEMATICS!");
-        break;
-    }
+    double theta0 = states(0), theta1 = states(1), theta2 = states(2);
+    double l0 = states(3), l1 = states(4), l2 = states(5);
 
     Eigen::Matrix3d J;
 
@@ -201,4 +225,17 @@ Eigen::Matrix3d ctrl_server::get_Jacobian(
         -l2*sin(theta1 + theta2)*cos(theta0);
 
     return J;
+}
+
+Eigen::Vector3d ctrl_server::get_linear_velocity(
+    int leg_i,
+    Eigen::VectorXd& q_state
+)
+{
+    Eigen::Matrix3d J = get_Jacobian(leg_i, q_state);
+
+    Eigen::VectorXd states = get_leg_velo(leg_i, q_state);
+    Eigen::Vector3d qdot = Eigen::Vector3d(states(0), states(1), states(2));
+
+    return J * qdot;
 }

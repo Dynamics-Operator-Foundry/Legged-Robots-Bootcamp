@@ -38,7 +38,7 @@
 #define TROT "TROT" // 6
 
 static std::map<char, bool> key_states;
-static std::string FSM_STATE;
+static std::string FSM_STATE, pre_FSM_STATE;
 static ros::Publisher fsm_pub;
 
 void keyboardCallback(const ros::TimerEvent &e);
@@ -51,6 +51,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh("~");
 
     nh.getParam("FSM_STATE", FSM_STATE);
+    pre_FSM_STATE = FSM_STATE;
 
     fsm_pub = nh.advertise<std_msgs::String>("/FSM", 1, true);
 
@@ -102,12 +103,17 @@ void keyboardCallback(
         }
     }
     else if (key_states['3']) 
-    {
+    {   
         if(!(FSM_STATE == SWING_LEG))
         {
-            ROS_WARN("CHANGE FSM!");
-            FSM_STATE = SWING_LEG;
-            ROS_GREEN_STREAM(FSM_STATE);
+            if (FSM_STATE != STAND)
+                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO SWING LEG!");
+            else
+            {
+                ROS_WARN("CHANGE FSM!");
+                FSM_STATE = SWING_LEG;
+                ROS_GREEN_STREAM(FSM_STATE);
+            }
         }
     }
     else if (key_states['4']) 

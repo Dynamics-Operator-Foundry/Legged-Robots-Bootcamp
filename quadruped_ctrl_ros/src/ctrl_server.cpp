@@ -29,11 +29,12 @@ ctrl_server::ctrl_server(ros::NodeHandle& _nh) :
 nh(_nh)
 {
     using namespace std;
-    
+
+    config();
+
     ros::AsyncSpinner spinner(0);
     spinner.start();
 
-    config();
     register_callbacks();
     register_publishers();
 
@@ -54,6 +55,8 @@ void ctrl_server::config()
 
     q_state.resize(DoF);
     dq_state.resize(DoF);
+    tau_state.resize(DoF);
+
     q_start.resize(DoF);
     q_target.resize(DoF);
 
@@ -81,9 +84,7 @@ void ctrl_server::fsm_manager()
     else if(FSM_STATE == STAND)
         target_ctrl();
     else if(FSM_STATE == SWING_LEG)
-    {
         swing_leg_ctrl();
-    }
     else if(FSM_STATE == SQUIGGLE)
         squiggle_ctrl();
     else if(FSM_STATE == CRAWL)
@@ -93,18 +94,15 @@ void ctrl_server::fsm_manager()
     else    
         ROS_ERROR("Please Check System...");
 
-    
 }
 
 void ctrl_server::check_fsm_change()
 {
-    if (FSM_STATE != pre_FSM_STATE)
-    {
-        pre_FSM_STATE = FSM_STATE;
+    if (FSM_STATE == pre_FSM_STATE)
+        return;
 
-        target_reset();
-    }
-
+    pre_FSM_STATE = FSM_STATE;
+    target_reset();
 }
 
 

@@ -146,6 +146,15 @@ private:
     void config();
 
 // math
+    Eigen::VectorXd get_leg_posi(
+        int leg_i,
+        Eigen::VectorXd& q_state
+    );
+    Eigen::VectorXd get_leg_velo(
+        int leg_i,
+        Eigen::VectorXd& q_state
+    );
+
     Eigen::Vector3d forward_kinematics(
         int leg_i, 
         Eigen::VectorXd& q_state
@@ -158,6 +167,11 @@ private:
 
     Eigen::Matrix3d get_Jacobian(
         int leg_i, 
+        Eigen::VectorXd& q_state
+    );
+
+    Eigen::Vector3d get_linear_velocity(
+        int leg_i,
         Eigen::VectorXd& q_state
     );
 
