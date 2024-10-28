@@ -69,7 +69,7 @@ void ctrl_server::mainspinCallback(const ros::TimerEvent &e)
     using namespace std;
 
     fsm_manager();
-    // publish_servos(cmdSet);
+    publish_servos(cmdSet);
 
     return;
 }

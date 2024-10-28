@@ -25,47 +25,34 @@
 
 #include "quadruped_ctrl_ros/ctrl_server.h"
 
-Eigen::VectorXd ctrl_server::get_leg_q(
+Eigen::Vector3d ctrl_server::get_leg_q(
     int leg_i,
     Eigen::VectorXd& q_state
 )
 {
-    double l0, l1, l2;
     double theta0, theta1, theta2;
 
     switch (leg_i)
     {
     case 0:
-        l0 = -l_abad;
-        l1 = -l_hip;
-        l2 = -l_knee;
         theta0 = q_state[0];
         theta1 = q_state[1];
         theta2 = q_state[2];
         break;
 
     case 1:
-        l0 = l_abad;
-        l1 = -l_hip;
-        l2 = -l_knee;
         theta0 = q_state[3];
         theta1 = q_state[4];
         theta2 = q_state[5];
         break;
 
     case 2:
-        l0 = -l_abad;
-        l1 = -l_hip;
-        l2 = -l_knee;
         theta0 = q_state[6];
         theta1 = q_state[7];
         theta2 = q_state[8];
         break;
 
     case 3:
-        l0 = l_abad;
-        l1 = -l_hip;
-        l2 = -l_knee;
         theta0 = q_state[9];
         theta1 = q_state[10];
         theta2 = q_state[11];
@@ -76,16 +63,14 @@ Eigen::VectorXd ctrl_server::get_leg_q(
         break;
     }
 
-    Eigen::VectorXd states;
-    states.resize(6);
-    states <<
-        theta0, theta1, theta2,
-        l0, l1, l2;
+    Eigen::Vector3d _q;
+    _q <<
+        theta0, theta1, theta2;
 
-    return states;
+    return _q;
 }
 
-Eigen::VectorXd ctrl_server::get_leg_dq(
+Eigen::Vector3d ctrl_server::get_leg_dq(
     int leg_i,
     Eigen::VectorXd& dq_state
 )
@@ -123,22 +108,64 @@ Eigen::VectorXd ctrl_server::get_leg_dq(
         break;
     }
 
-    Eigen::VectorXd states;
-    states.resize(3);
-    states <<
+    Eigen::Vector3d _dq;
+    _dq <<
         dtheta0, dtheta1, dtheta2;
 
-    return states;
+    return _dq;
+}
+
+Eigen::Vector3d ctrl_server::get_leg_kine_param(int leg_i)
+{
+    double l0, l1, l2;
+
+    switch (leg_i)
+    {
+    case 0:
+        l0 = -l_abad;
+        l1 = -l_hip;
+        l2 = -l_knee;
+        break;
+
+    case 1:
+        l0 = l_abad;
+        l1 = -l_hip;
+        l2 = -l_knee;
+        break;
+
+    case 2:
+        l0 = -l_abad;
+        l1 = -l_hip;
+        l2 = -l_knee;
+        break;
+
+    case 3:
+        l0 = l_abad;
+        l1 = -l_hip;
+        l2 = -l_knee;
+        break;
+    
+    default:
+        ROS_ERROR("WRONG FOOT ID IN FORWARD KINEMATICS!");
+        break;
+    }
+
+    Eigen::Vector3d param;
+    param <<
+        l0, l1, l2;
+
+    return param;
 }
 
 Eigen::Vector3d ctrl_server::forward_kinematics(
     int leg_i
 )
 {
-    Eigen::VectorXd states = get_leg_q(leg_i, q_state);
+    Eigen::Vector3d leg_q = get_leg_q(leg_i, q_state);
+    Eigen::Vector3d leg_param = get_leg_kine_param(leg_i);
 
-    double theta0 = states(0), theta1 = states(1), theta2 = states(2);
-    double l0 = states(3), l1 = states(4), l2 = states(5);
+    double theta0 = leg_q(0), theta1 = leg_q(1), theta2 = leg_q(2);
+    double l0 = leg_param(0), l1 = leg_param(1), l2 = leg_param(2);
 
     return Eigen::Vector3d(
         l2 * sin(theta1 + theta2) + l1 * sin(theta1),
@@ -156,10 +183,13 @@ Eigen::Vector3d ctrl_server::inverse_kinematics(
     double yp = r_E(1);
     double zp = r_E(2);
 
+    Eigen::Vector3d leg_param = get_leg_kine_param(leg_i);
+    double l0 = leg_param(0), l1 = leg_param(1), l2 = leg_param(2);
+    
     // get theta0
     double L = sqrt(pow(yp,2) + pow(zp,2) - pow(l_abad,2));
     double theta0 = atan2(
-        zp * l_abad + yp * L, yp * l_abad - zp * L
+        zp * l0 + yp * L, yp * l0 - zp * L
     );
     if (leg_i == 0 || leg_i == 2)
         theta0 = (-1) * theta0;
@@ -168,15 +198,15 @@ Eigen::Vector3d ctrl_server::inverse_kinematics(
     // get theta2
     double ap = sqrt(pow(xp,2) + pow(zp,2) + pow(yp,2) - pow(l_abad,2));
     double theta2 = -M_PI + acos(
-        (pow(l_hip,2) + pow(l_knee,2) - pow(ap,2)) /
-        (2 * l_hip * l_knee)
+        (pow(l1,2) + pow(l2,2) - pow(ap,2)) /
+        (2 * l1 * l2)
     );
 
     // get theta1
     double a1 = yp * sin(theta0) - zp * cos(theta0);
     double a2 = xp;
-    double m1 = l_knee * sin(theta2);
-    double m2 = l_knee * cos(theta2) + l_hip;
+    double m1 = l2 * sin(theta2);
+    double m2 = l2 * cos(theta2) + l1;
     double theta1 = atan2(
         a1 * m1 + a2 * m2,
         a2 * m1 - a1 * m2
@@ -191,7 +221,7 @@ Eigen::Vector3d ctrl_server::inverse_kinematics(
         (theta0 > 49.0/180 * M_PI) ||
         (theta1 < -39.0/180 * M_PI) ||
         (theta1 > 257.0/180 * M_PI) ||
-        (theta2 > -161.0/180 * M_PI) ||
+        (theta2 < -161.0/180 * M_PI) ||
         (theta2 > -51.0/180 * M_PI) 
     )
         ROS_WARN("ANGLE HITS MECHANICAL LIMITS!");
@@ -203,10 +233,11 @@ Eigen::Matrix3d ctrl_server::get_Jacobian(
     int leg_i
 )
 {
-    Eigen::VectorXd states = get_leg_q(leg_i, q_state);
+    Eigen::Vector3d leg_q = get_leg_q(leg_i, q_state);
+    Eigen::Vector3d leg_param = get_leg_kine_param(leg_i);
 
-    double theta0 = states(0), theta1 = states(1), theta2 = states(2);
-    double l0 = states(3), l1 = states(4), l2 = states(5);
+    double theta0 = leg_q(0), theta1 = leg_q(1), theta2 = leg_q(2);
+    double l0 = leg_param(0), l1 = leg_param(1), l2 = leg_param(2);
 
     Eigen::Matrix3d J;
 
@@ -229,9 +260,7 @@ Eigen::Vector3d ctrl_server::get_linear_velocity(
 )
 {
     Eigen::Matrix3d J = get_Jacobian(leg_i);
+    Eigen::VectorXd leg_dq = get_leg_dq(leg_i, q_state);
 
-    Eigen::VectorXd states = get_leg_dq(leg_i, q_state);
-    Eigen::Vector3d qdot = Eigen::Vector3d(states(0), states(1), states(2));
-
-    return J * qdot;
+    return J * leg_dq;
 }

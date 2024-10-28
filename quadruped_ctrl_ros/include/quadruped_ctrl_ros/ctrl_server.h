@@ -136,7 +136,7 @@ private:
 
     void swing_leg_ctrl();
     void set_swing_leg_ctrl();
-    void set_swing_leg_ctrl_gain();
+    void set_swing_leg_ctrl_gain(int leg_i);
     void swing_leg_ctrl_reset();
     Eigen::Vector3d p_swing_target, q_swing_target;
     Eigen::Matrix3d Kp, Kd;
@@ -154,14 +154,15 @@ private:
     void config();
 
 // math
-    Eigen::VectorXd get_leg_q(
+    Eigen::Vector3d get_leg_q(
         int leg_i,
         Eigen::VectorXd& q_state
     );
-    Eigen::VectorXd get_leg_dq(
+    Eigen::Vector3d get_leg_dq(
         int leg_i,
         Eigen::VectorXd& q_state
     );
+    Eigen::Vector3d get_leg_kine_param(int leg_i);
 
     Eigen::Vector3d forward_kinematics(
         int leg_i
