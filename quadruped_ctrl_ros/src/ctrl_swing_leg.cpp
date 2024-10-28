@@ -34,8 +34,6 @@ void ctrl_server::swing_leg_ctrl()
         swing_track_start = true;
     }
 
-    
-
     Eigen::Vector3d p_swing_now = forward_kinematics(0);
     Eigen::Vector3d v_swing_now = get_linear_velocity(0);
     Eigen::Vector3d accl = Kp * (p_swing_target - p_swing_now) + Kd * (Eigen::Vector3d::Zero() - v_swing_now);
@@ -45,13 +43,11 @@ void ctrl_server::swing_leg_ctrl()
     Eigen::Vector3d tau = J.transpose() * accl;
     int which_leg = 0;
 
-    
     for (int i = which_leg * 3; i < which_leg * 3 + 3; i++)
     {
         cmdSet.motorCmd[i].q = q_swing_target(i - which_leg * 3);
         cmdSet.motorCmd[i].tau = tau(i - which_leg * 3);
     }
-        
 }
 
 void ctrl_server::set_swing_leg_ctrl()
