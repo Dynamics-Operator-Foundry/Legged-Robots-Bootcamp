@@ -13,7 +13,7 @@ This is a learning bootcamp of mine for legged robotics, i.e., bipeds and quadru
       <img src="/viz/walker3D_control_partition_gif.gif" alt="Walker 3D Control Partition" style="width: 100%;"/>
     </p>
 
-    via:
+    via - dynamics modelling (Euler-Lagrange Equations), fixed points with Poicare maps, forward and inverse kinematics, trajectory optimization, and feedback linearization.
     <table align="center">
       <tr>
         <td align="center">
