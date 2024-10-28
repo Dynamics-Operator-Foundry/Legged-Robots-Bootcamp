@@ -179,7 +179,8 @@ void checkKeyPress() {
     std::cout<<"q: QUIT"<<std::endl;
     std::cout<<"\n"<<std::endl;
 
-    while (read(STDIN_FILENO, &ch, 1) == 1) {
+    while (read(STDIN_FILENO, &ch, 1) == 1) 
+    {
         key_states[ch] = true;
         if (ch == 'e' || ch == 'E')
             break;

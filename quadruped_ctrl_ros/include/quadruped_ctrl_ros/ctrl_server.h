@@ -121,19 +121,27 @@ private:
     void mainspinCallback(const ros::TimerEvent &e);
 
 // main functions
-    void passive_ctrl();
+    void fsm_reset();
 
+    void passive_ctrl();
+    
     void target_ctrl();
     void set_target_ctrl();
-    void set_gain();
-    void target_reset();
+    void set_target_ctrl_gain();
+    void target_ctrl_reset();
     Eigen::VectorXd q_start;
     Eigen::VectorXd q_target;
     bool target_track_start = false;
     double target_percent = 0;
 
-
     void swing_leg_ctrl();
+    void set_swing_leg_ctrl();
+    void set_swing_leg_ctrl_gain();
+    void swing_leg_ctrl_reset();
+    Eigen::Vector3d p_swing_target, q_swing_target;
+    Eigen::Matrix3d Kp, Kd;
+    bool swing_track_start = false;
+    
     void squiggle_ctrl();
     void crawl_ctrl();
     void trot_ctrl();
@@ -146,33 +154,29 @@ private:
     void config();
 
 // math
-    Eigen::VectorXd get_leg_posi(
+    Eigen::VectorXd get_leg_q(
         int leg_i,
         Eigen::VectorXd& q_state
     );
-    Eigen::VectorXd get_leg_velo(
+    Eigen::VectorXd get_leg_dq(
         int leg_i,
         Eigen::VectorXd& q_state
     );
 
     Eigen::Vector3d forward_kinematics(
-        int leg_i, 
-        Eigen::VectorXd& q_state
+        int leg_i
     );
     Eigen::Vector3d inverse_kinematics(
         int leg_i, 
-        Eigen::VectorXd& q_state,
         Eigen::Vector3d& r_E
     );
 
     Eigen::Matrix3d get_Jacobian(
-        int leg_i, 
-        Eigen::VectorXd& q_state
+        int leg_i
     );
 
     Eigen::Vector3d get_linear_velocity(
-        int leg_i,
-        Eigen::VectorXd& q_state
+        int leg_i
     );
 
 

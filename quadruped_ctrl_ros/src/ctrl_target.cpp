@@ -30,38 +30,30 @@ void ctrl_server::target_ctrl()
     if(!target_track_start)
     {
         set_target_ctrl();
-        set_gain();
+        set_target_ctrl_gain();
         target_track_start = true;
     }
 
     target_percent = target_percent + 1.0 / ctrl_freq;
     target_percent = target_percent > 1 ? 1 : target_percent;
+
     for (int i = 0; i < DoF; i++)
-    {
         cmdSet.motorCmd[i].q = (1.0 - target_percent) * q_start[i] + target_percent * q_target[i];
-    }
 }
 
 void ctrl_server::set_target_ctrl()
 {
-    
     q_target << 
         0.0, 0.67, -1.3,
         0.0, 0.67, -1.3,
         0.0, 0.67, -1.3,
         0.0, 0.67, -1.3;
-
-    // q_target[2] = 2.0;
-    // q_target.setZero();
-    
         
     for(int i = 0; i < DoF; i++)
-    {
-        q_start[i] = stateNow.motorState[i].q;
-    }
+        q_start[i] = stateNow.motorState[i].q;   
 }
 
-void ctrl_server::set_gain()
+void ctrl_server::set_target_ctrl_gain()
 {
     for(int leg_i = 0; leg_i < leg_no; leg_i++)
     {
@@ -86,7 +78,7 @@ void ctrl_server::set_gain()
 }
 
 
-void ctrl_server::target_reset()
+void ctrl_server::target_ctrl_reset()
 {
     q_target.setZero();
     target_track_start = false;

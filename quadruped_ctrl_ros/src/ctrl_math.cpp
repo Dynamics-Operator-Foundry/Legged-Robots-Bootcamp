@@ -25,7 +25,7 @@
 
 #include "quadruped_ctrl_ros/ctrl_server.h"
 
-Eigen::VectorXd ctrl_server::get_leg_posi(
+Eigen::VectorXd ctrl_server::get_leg_q(
     int leg_i,
     Eigen::VectorXd& q_state
 )
@@ -85,7 +85,7 @@ Eigen::VectorXd ctrl_server::get_leg_posi(
     return states;
 }
 
-Eigen::VectorXd ctrl_server::get_leg_velo(
+Eigen::VectorXd ctrl_server::get_leg_dq(
     int leg_i,
     Eigen::VectorXd& dq_state
 )
@@ -132,11 +132,10 @@ Eigen::VectorXd ctrl_server::get_leg_velo(
 }
 
 Eigen::Vector3d ctrl_server::forward_kinematics(
-    int leg_i, 
-    Eigen::VectorXd& q_state
+    int leg_i
 )
 {
-    Eigen::VectorXd states = get_leg_posi(leg_i, q_state);
+    Eigen::VectorXd states = get_leg_q(leg_i, q_state);
 
     double theta0 = states(0), theta1 = states(1), theta2 = states(2);
     double l0 = states(3), l1 = states(4), l2 = states(5);
@@ -150,7 +149,6 @@ Eigen::Vector3d ctrl_server::forward_kinematics(
 
 Eigen::Vector3d ctrl_server::inverse_kinematics(
     int leg_i,
-    Eigen::VectorXd& q_state,
     Eigen::Vector3d& r_E
 )
 {
@@ -202,11 +200,10 @@ Eigen::Vector3d ctrl_server::inverse_kinematics(
 }
 
 Eigen::Matrix3d ctrl_server::get_Jacobian(
-    int leg_i, 
-    Eigen::VectorXd& q_state
+    int leg_i
 )
 {
-    Eigen::VectorXd states = get_leg_posi(leg_i, q_state);
+    Eigen::VectorXd states = get_leg_q(leg_i, q_state);
 
     double theta0 = states(0), theta1 = states(1), theta2 = states(2);
     double l0 = states(3), l1 = states(4), l2 = states(5);
@@ -228,13 +225,12 @@ Eigen::Matrix3d ctrl_server::get_Jacobian(
 }
 
 Eigen::Vector3d ctrl_server::get_linear_velocity(
-    int leg_i,
-    Eigen::VectorXd& q_state
+    int leg_i
 )
 {
-    Eigen::Matrix3d J = get_Jacobian(leg_i, q_state);
+    Eigen::Matrix3d J = get_Jacobian(leg_i);
 
-    Eigen::VectorXd states = get_leg_velo(leg_i, q_state);
+    Eigen::VectorXd states = get_leg_dq(leg_i, q_state);
     Eigen::Vector3d qdot = Eigen::Vector3d(states(0), states(1), states(2));
 
     return J * qdot;

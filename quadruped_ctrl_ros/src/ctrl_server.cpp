@@ -76,7 +76,6 @@ void ctrl_server::mainspinCallback(const ros::TimerEvent &e)
 
 void ctrl_server::fsm_manager()
 {
-    // std::cout<<FSM_STATE<<std::endl;
     check_fsm_change();
 
     if(FSM_STATE == PASSIVE)
@@ -102,7 +101,13 @@ void ctrl_server::check_fsm_change()
         return;
 
     pre_FSM_STATE = FSM_STATE;
-    target_reset();
+    fsm_reset();
+}
+
+void ctrl_server::fsm_reset()
+{
+    target_ctrl_reset();
+    swing_leg_ctrl_reset();
 }
 
 
