@@ -1,9 +1,7 @@
 # Bootcamp for Legged Robots
 ## Introduction
 This is a learning bootcamp of mine for legged robotics, i.e., bipeds and quadrupeds. In which, we have 2 main camps:
-1. **3D Walker**: 
-
-Naive simulator from scratch, which consists the development of:
+1. **3D Walker**: Naive simulator from scratch, which consists the development of:
     - [Hopper](/biped_ctrl_scripts/1_hopper_dynamics/README.md)
     - [Hopper Control](/biped_ctrl_scripts/2_hopper_control/README.md)
     - [Passive Walker](/biped_ctrl_scripts/3_passive_walker/README.md)
@@ -15,7 +13,12 @@ Naive simulator from scratch, which consists the development of:
       <img src="/viz/walker3D_control_partition_gif.gif" alt="Walker 3D Control Partition" style="width: 100%;"/>
     </p>
 
-    via - dynamics modelling (Euler-Lagrange Equations), fixed points with Poicare maps, forward and inverse kinematics, trajectory optimization, and feedback linearization.
+    via:
+      - dynamics modelling (Euler-Lagrange Equations), 
+      - fixed points with Poicare maps, 
+      - forward and inverse kinematics, 
+      - trajectory optimization, and 
+      - feedback linearization.
     <table align="center">
       <tr>
         <td align="center">
