@@ -698,12 +698,12 @@ class Simulation3D(RobotUtils, Walker3DModelling, Leg3DModelling):
             self.l_calf, = self.ax.plot([], [], [], color='blue', linewidth=5)
             
             self.set_sim_range(
-                -2.0,
-                2.0,
-                -2.0,
-                2.0,
-                -2.0,
-                2.0
+                -0.2,
+                0.2,
+                -0.2,
+                0.2,
+                -0.5,
+                0.2
             )
             
     def set_sim_range(self, xmin, xmax, ymin, ymax, zmin, zmax):

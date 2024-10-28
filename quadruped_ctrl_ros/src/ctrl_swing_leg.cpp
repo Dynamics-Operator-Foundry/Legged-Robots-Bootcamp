@@ -53,7 +53,7 @@ void ctrl_server::swing_leg_ctrl()
 void ctrl_server::set_swing_leg_ctrl()
 {
     p_swing_target <<
-        0.0, 0.0, 0.0;
+        -0.0465797849175114, 0.139635096607956, -0.286162393820798;
 
     q_swing_target = inverse_kinematics(0, p_swing_target);
     

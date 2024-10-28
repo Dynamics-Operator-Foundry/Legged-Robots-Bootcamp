@@ -6,7 +6,7 @@ import importlib
 import time as time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
-from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation3D as sim3D, RobotUtils as util
+from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation3D as sim3D, RobotUtils as util, Leg3DModelling as leg3D
 
 
 l_hip = 0.08
@@ -15,9 +15,9 @@ l_knee = 0.213
 
 q = np.zeros(6)
 
-phi0 = 0
-theta1 = 0
-theta2 = 0
+phi0 = 0.2
+theta1 = 0.9
+theta2 = -1.50
 
 q = np.array([phi0, theta1, theta2, 0, 0, 0])
 
@@ -39,6 +39,10 @@ def save_data(q):
     return
 
 save_data(q)
+
+p = leg3D().get_p_foot_3Dleg(q, sim_info={'l_hip': l_hip, 'l_thigh': l_thigh, 'l_knee': l_knee})
+print(p)
+exit()
 
 sim3D().anime(
     t=t_all,

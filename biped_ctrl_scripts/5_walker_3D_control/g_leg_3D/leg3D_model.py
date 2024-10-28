@@ -8,10 +8,12 @@ class Leg3DModelling():
     def __init__(self):
         pass
     
-    def get_p_foot_3Dleg(self, q):
+    def get_p_foot_3Dleg(self, q, sim_info):
         phi0 = q[0]
         theta1 = q[1]
         theta2 = q[2]
+        
+        self.sim_info = sim_info
         
         l_hip = self.sim_info['l_hip']
         l_thigh = self.sim_info['l_thigh']
