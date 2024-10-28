@@ -1,32 +1,65 @@
 import sympy as sp, numpy as np
 import matplotlib.pyplot as plt
 
-r_x0, r_y0 = sp.symbols('r_x0, r_y0', real=True)
-theta0, theta1 = sp.symbols('theta0 theta1', real=True)  # Angles
-theta0dot, theta1dot = sp.symbols('theta0dot theta1dot', real=True)  # Angles
-l1, l2 = sp.symbols('l1, l2', real=True)  # Distances
+l_hip, l_thigh, l_knee = sp.symbols('l_hip, l_thigh, l_knee', real=True)  # length
 
-R_B1_2_I = sp.Matrix([[sp.cos(theta0), -sp.sin(theta0)],
-                 [sp.sin(theta0), sp.cos(theta0)]])
-R_B2_2_B1 = sp.Matrix([[sp.cos(theta1), -sp.sin(theta1)],
-                 [sp.sin(theta1), sp.cos(theta1)]])
+g = sp.symbols('g', real=True)  # Slope of ramp, gravity
+phi0, theta1, theta2 = sp.symbols('phi0 theta1 theta2', real=True)  # Angles
+omega0, omega1, omega2 = sp.symbols('omega0 omega1 omega2', real=True)  # Angular velocity
 
-CP_I = sp.Matrix([0, 0]) # contact point in ground frame {I}
-HP_B1 = sp.Matrix([l1, 0]) # hinge point in body frame 1 {B1}
+# Rotation matrices
+R_1_to_0 = sp.Matrix([
+    [1, 0, 0],
+    [0, sp.cos(phi0), -sp.sin(phi0)],
+    [0, sp.sin(phi0), sp.cos(phi0)]
+])
 
-T_B1_2_I = sp.Matrix([[R_B1_2_I, CP_I], [0, 0, 1]])
-T_B2_2_B1 = sp.Matrix([[R_B2_2_B1, HP_B1], [0, 0, 1]])
+R_2_to_1 = sp.Matrix([
+    [sp.cos(theta1), 0, sp.sin(theta1)],
+    [0, 1, 0],
+    [-sp.sin(theta1), 0, sp.cos(theta1)]
+])
 
-R_H = T_B1_2_I @ sp.Matrix([l1, 0, 1]) # hinge
-R_E = T_B1_2_I @ T_B2_2_B1 @ sp.Matrix([l2, 0, 1]) # CoM of leg 2
+R_3_to_2 = sp.Matrix([
+    [sp.cos(theta2), 0, sp.sin(theta2)],
+    [0, 1, 0],
+    [-sp.sin(theta2), 0, sp.cos(theta2)]
+])
+
+t_1_to_0 = sp.Matrix([0, 0, 0])
+T_1_to_0 = sp.Matrix([[R_1_to_0, t_1_to_0], [0, 0, 0, 1]])
+
+t_2_to_1 = sp.Matrix([0, 0, 0])
+T_2_to_1 = sp.Matrix([[R_2_to_1, t_2_to_1], [0, 0, 0, 1]])
+
+t_3_to_2 = sp.Matrix([0, l_hip, -l_thigh])
+T_3_to_2 = sp.Matrix([[R_3_to_2, t_3_to_2], [0, 0, 0, 1]])
 
 
-# Joint variables
-q = [theta0, theta1]
+
+# point of foot, calf_com, knee, thigh_com, hip, hip_com
+p_foot_in_3 = sp.Matrix([0, 0, -l_knee, 1])
+p_foot_in_0 = T_1_to_0 @ T_2_to_1 @ T_3_to_2 @ p_foot_in_3
+
+# print()
+# print("=======================")
+# print("p_foot")
+# print(sp.simplify(p_foot_in_0))
+
+r_E = sp.Matrix([p_foot_in_0[0:3]])
+
+# print(sp.simplify(r_E))
+# exit()
+
+# Generalized Coordinates in ground frame {I}
+q = [phi0, theta1, theta2]
+qdot = [omega0, omega1, omega2]
 
 # Jacobian matrix (only the first two rows for 2D position)
-R_E = sp.Matrix(R_E[0:2])
-J = sp.simplify(R_E.jacobian(q))
+J = sp.simplify(r_E.jacobian(q))
+
+print(J)
+exit()
 
 # print()
 # print('FORWARD KINEMATICS')
@@ -43,8 +76,8 @@ for i in range(2):
         
 
 # Compute J_dot using the chain rule
-qdot = [theta0dot, theta1dot]
-J_dot = sp.Matrix([[sp.diff(J[i, j], theta0) * theta0dot + sp.diff(J[i, j], theta1) * theta1dot for j in range(J.shape[1])] for i in range(J.shape[0])])
+qdot = [phi0dot, theta1dot]
+J_dot = sp.Matrix([[sp.diff(J[i, j], phi0) * phi0dot + sp.diff(J[i, j], theta1) * theta1dot for j in range(J.shape[1])] for i in range(J.shape[0])])
 print()
 print('JACOBIAN DOT')
 J_dot = sp.simplify(J_dot)

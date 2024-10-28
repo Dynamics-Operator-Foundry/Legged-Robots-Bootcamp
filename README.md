@@ -25,6 +25,14 @@ This is a learning bootcamp of mine for legged robotics, i.e., bipeds and quadru
       </tr>
       <tr>
         <td align="center">
+          <img src="/viz/3Dleg_inverse_kinematics.gif" alt="Inverse Kinematics 3D" width="300"/>
+        </td>
+        <td align="center">
+          <img src="/viz/2Dleg_inverse_kinematics.gif" alt="Inverse Kinematics 2D" width="300"/>
+        </td>
+      </tr>
+      <tr>
+        <td align="center">
           <img src="/viz/spring_mass_damper.gif" alt="Spring Mass Damper" width="300"/>
         </td>
         <td align="center">

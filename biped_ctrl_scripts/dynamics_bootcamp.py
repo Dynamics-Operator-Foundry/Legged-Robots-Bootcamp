@@ -7,6 +7,8 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './5_walker_3D_Control/f_walker_3D/')))
 from walker3D_model import Walker3DModelling
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './5_walker_3D_Control/g_leg_3D/')))
+from leg3D_model import Leg3DModelling
 
 class RobotUtils:
     def __init__(self):
@@ -590,7 +592,7 @@ class Simulation2D(RobotUtils):
         return fixation, end_effector[0:2]
 
 
-class Simulation3D(RobotUtils, Walker3DModelling):
+class Simulation3D(RobotUtils, Walker3DModelling, Leg3DModelling):
     def __init__(self):
         super().__init__() 
         self.ball = None
@@ -691,7 +693,7 @@ class Simulation3D(RobotUtils, Walker3DModelling):
             self.knee, = self.ax.plot([],[],[], 'o', color='orange', markersize=10)
             self.foot, = self.ax.plot([],[],[], 'o', color='cyan', markersize=10)
             
-            self.l_hip, = self.ax.plot([], [], [], color='gray', linewidth=5)
+            self.l_hip, = self.ax.plot([], [], [], color='black', linewidth=5)
             self.l_thigh, = self.ax.plot([], [], [], color='gray', linewidth=5)
             self.l_calf, = self.ax.plot([], [], [], color='blue', linewidth=5)
             
@@ -853,10 +855,7 @@ class Simulation3D(RobotUtils, Walker3DModelling):
             q_now = np.array([
                 self.x_states[0][frame], 
                 self.x_states[1][frame], 
-                self.x_states[2][frame], 
-                self.x_states[3][frame], 
-                self.x_states[4][frame], 
-                self.x_states[5][frame]
+                self.x_states[2][frame]
             ])
             
             p_foot = self.get_p_foot_3Dleg(q_now)
@@ -895,52 +894,4 @@ class Simulation3D(RobotUtils, Walker3DModelling):
         
         return x_end_I
     
-    def get_p_foot_3Dleg(self, q):
-        phi0 = q[0]
-        theta1 = q[1]
-        theta2 = q[2]
-        
-        l_hip = self.sim_info['l_hip']
-        l_thigh = self.sim_info['l_thigh']
-        l_knee = self.sim_info['l_knee']
-        
-        p_foot = np.array([
-            -l_knee*(-sin(theta1)*cos(theta2) - sin(theta2)*cos(theta1)) + l_thigh*sin(theta1), 
-            l_hip*cos(phi0) - l_knee*(-sin(phi0)*sin(theta1)*sin(theta2) - sin(phi0)*cos(theta1)*cos(theta2)) + l_thigh*sin(phi0)*cos(theta1), l_hip*sin(phi0) - l_knee*(sin(theta1)*sin(theta2)*cos(phi0) + cos(phi0)*cos(theta1)*cos(theta2)) - l_thigh*cos(phi0)*cos(theta1)
-        ])
-        
-        return p_foot
     
-    def get_p_knee_3Dleg(self, q):
-        phi0 = q[0]
-        theta1 = q[1]
-        theta2 = q[2]
-        
-        l_hip = self.sim_info['l_hip']
-        l_thigh = self.sim_info['l_thigh']
-        l_knee = self.sim_info['l_knee']
-        
-        p_calf = np.array([
-            l_thigh*sin(theta1),
-            l_hip*cos(phi0) + l_thigh*sin(phi0)*cos(theta1),
-            l_hip*sin(phi0) - l_thigh*cos(phi0)*cos(theta1)
-        ])
-        
-        return p_calf    
-    
-    def get_p_hip_3Dleg(self, q):
-        phi0 = q[0]
-        theta1 = q[1]
-        theta2 = q[2]
-        
-        l_hip = self.sim_info['l_hip']
-        l_thigh = self.sim_info['l_thigh']
-        l_knee = self.sim_info['l_knee']
-        
-        p_hip = np.array([
-            0,
-            l_hip*cos(phi0),
-            l_hip*sin(phi0)
-        ])
-        
-        return p_hip

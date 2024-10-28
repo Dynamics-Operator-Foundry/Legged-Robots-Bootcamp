@@ -11,7 +11,7 @@ from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation3
 
 l_hip = 0.4
 l_thigh = 1.4
-l_knee = 0.6
+l_knee = 1.2
 
 q = np.zeros(6)
 
@@ -19,7 +19,7 @@ phi0 = 0
 theta1 = 0
 theta2 = 0
 
-phi0, theta1, theta2, dphi0, dtheta1, dtheta2 = q
+q = np.array([phi0, theta1, theta2, 0, 0, 0])
 
 t_all = []
 t_all.append(0)
@@ -35,9 +35,6 @@ def save_data(q):
     x0_all_rk4.append(q[0])
     x1_all_rk4.append(q[1])
     x2_all_rk4.append(q[2])
-    x3_all_rk4.append(q[3])
-    x4_all_rk4.append(q[4])
-    x5_all_rk4.append(q[5])
     
     return
 
@@ -57,7 +54,7 @@ sim3D().anime(
     mission='3D Leg',
     sim_object='3Dleg',
     sim_info={'l_hip': l_hip, 'l_thigh': l_thigh, 'l_knee': l_knee},
-    save=True,
+    save=False,
     save_name='3Dleg'
 )
 

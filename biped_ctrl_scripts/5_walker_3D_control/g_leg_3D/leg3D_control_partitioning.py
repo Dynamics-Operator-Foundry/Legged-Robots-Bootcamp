@@ -4,69 +4,58 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
-from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation2D as sim2D, RobotUtils as util
+from biped_ctrl_scripts.dynamics_bootcamp import Integrator as inte, Simulation3D as sim3D, RobotUtils as util, Leg3DModelling as leg3D
 
 g = 9.81
-l1 = 1.0
-l2 = 0.5
-m1 = 1.0
-m2 = 0.5
-I1 = 0.02
-I2 = 0.02 / 8
+
+l_hip = 0.4
+l_thigh = 1.4
+l_knee = 1.2
+m_foot = 0.1
+m_calf = 0.3 
+m_knee = 0.1 
+m_thigh = 0.4 
+m_hip = 0.1
+Ihx = 0.1
+Ihy = 0.1
+Ihz = 0.2
+Itx = 0.2
+Ity = 0.2
+Itz = 0.4
+Icx = 0.1
+Icy = 0.1
+Icz = 0.3
+
+param = [l_hip, l_thigh, l_knee, m_foot, m_calf, m_knee, m_thigh, m_hip, Ihx, Ihy, Ihz, Itx, Ity, Itz, Icx, Icy, Icz, g]
 
 t = 0
 sample_factor = 10
 
 # simulation environment
-q0_all_rk4 = []
-q1_all_rk4 = []
+x0_all_rk4 = []
+x1_all_rk4 = []
+x2_all_rk4 = []
+x3_all_rk4 = []
+x4_all_rk4 = []
+x5_all_rk4 = []
 
-t_step = 1e-3
 t_all = []
-u_all = []
 
-q0=-np.pi
-q1=0.0
-u0=-0.0
-u1=-0.0
-
-x_rk4 = np.array([q0, q1, u0, u1])
-
-q0_ref = np.pi/2
-q1_ref = 0
-
-q_ref = np.array([q0_ref, q1_ref])
-
-Kp = 100 * np.identity(2)
+Kp = 100 * np.identity(3)
 Kd = 2 * np.sqrt(Kp)
 
 event_thres = 1e-2
+q_ref = np.array([0.1,0.67,-1.3])
 
-def draw_anime(success):
-    print('INTEGRATION END')
-    print('TIME NOW: ', t)
-    print()
-    if success:
-        print('SYSTEM INTEGRATION SUCCEEDED...')
-        save_name = "double_pendulum_control_partitioning"
-    else:
-        print('SYSTEM INTEGRATION FAILED...')
-        save_name = "double_pendulum_control_partitioning" + "_failed"
+def save_data(q):
+    x0_all_rk4.append(q[0])
+    x1_all_rk4.append(q[1])
+    x2_all_rk4.append(q[2])
+    x3_all_rk4.append(q[3])
+    x4_all_rk4.append(q[4])
+    x5_all_rk4.append(q[5])
     
-    sim2D().anime(
-        t=t_all[::sample_factor], 
-        x_states=[
-            q0_all_rk4[::sample_factor], 
-            q1_all_rk4[::sample_factor]
-        ], 
-        ms=1000 * t_step * sample_factor,
-        mission="Swing", 
-        sim_object="double_pendulum",
-        sim_info={'l1': l1, 'l2': l2},
-        save=False,
-        save_name=save_name
-    )
-    exit()
+    return
 
 def generate_noise():
     mean = 0
@@ -81,97 +70,141 @@ def generate_noise_matrix(n, m):
 
 def tau_control(x):
     
-    theta0 = util().rad_2_pi_range(x[0] + generate_noise()) 
-    theta1 = util().rad_2_pi_range(x[1] + generate_noise()) 
+    phi0 = x[0]
+    theta1 = x[1]
+    theta2 = x[2]
+    omega0 = x[3]
+    omega1 = x[4]
+    omega2 = x[5]
     
-    omega0 = x[2] + generate_noise()
-    omega1 = x[3] + generate_noise()
+    q = np.array([phi0, theta1, theta2])
+    qdot = np.array([omega0, omega1, omega2])
     
-    q = np.array([theta0, theta1])
-    qdot = np.array([omega0, omega1])
-    
+    M = leg3D().get_mass_mat(*q, *qdot, *param)    
+    N = leg3D().get_N_vec(*q, *qdot, *param)
+    N = N.flatten()
+        
     # M * qddot + C(qdot) + G(q)
     # = tau
     # = M^ * (-Kp * (q - q_ref) - Kd * qdot) + C^ * qdot + G^ * q 
     
-    M00 =  1.0*I1 + 1.0*I2 + 0.25*l1**2*m1 + 1.0*l1**2*m2 + 1.0*l1*l2*m2*np.cos(theta1) + 0.25*l2**2*m2
-    M01 =  1.0*I2 + 0.5*l1*l2*m2*np.cos(theta1) + 0.25*l2**2*m2
-    M10 =  1.0*I2 + 0.5*l1*l2*m2*np.cos(theta1) + 0.25*l2**2*m2
-    M11 =  1.0*I2 + 0.25*l2**2*m2
+    M_hat = M
+    N_hat = N
+    # + generate_noise_matrix(3,1).transpose().flatten()
     
-    M = np.array([[M00, M01],[M10, M11]])
-    M_hat = M + generate_noise_matrix(2,2)
+    # print("herererererere")
+    # print(M_hat.shape)
+    # print(q.shape)
+    # print(q_ref.shape)
+    # print(qdot.shape)
+    # print(N_hat.shape)
     
-    C = np.zeros([2,2])
-    C_hat = C + generate_noise_matrix(2,2)
-    
-    g_0 = 0.5*g*l1*m1*np.cos(theta0) + 1.0*g*l1*m2*np.cos(theta0) + 0.5*g*l2*m2*np.cos(theta0 + theta1) - 1.0*l1*l2*m2*omega0*omega1*np.sin(theta1) - 0.5*l1*l2*m2*omega1**2*np.sin(theta1)
-    g_1 =  0.5*l2*m2*(g*np.cos(theta0 + theta1) + l1*omega0**2*np.sin(theta1))
-    
-    G = np.array([g_0, g_1])
-    G_hat = G + generate_noise_matrix(2,1).transpose().flatten()
-    
-    tau = M_hat @ (- Kp @ (q-q_ref) - Kd @ qdot) + C_hat @ qdot + G_hat
-    
+    tau = M_hat @ (- Kp @ (q-q_ref) - Kd @ qdot) + N_hat
+    # print(tau.shape)
+    # exit()
     return tau
 
 def f_double_pendulum(x, tau):
     
-    theta0 = util().rad_2_pi_range(x[0] + generate_noise()) 
-    theta1 = util().rad_2_pi_range(x[1] + generate_noise()) 
+    phi0 = x[0]
+    theta1 = x[1]
+    theta2 = x[2]
+    omega0 = x[3]
+    omega1 = x[4]
+    omega2 = x[5]
     
-    omega0 = x[2] + generate_noise()
-    omega1 = x[3] + generate_noise()
+    q = np.array([phi0, theta1, theta2])
+    qdot = np.array([omega0, omega1, omega2])
     
-    q = np.array([theta0, theta1])
-    qdot = np.array([omega0, omega1])
+    M = leg3D().get_mass_mat(*q, *qdot, *param)    
+    N = leg3D().get_N_vec(*q, *qdot, *param)
+    N = N.flatten()
     
-    M00 =  1.0*I1 + 1.0*I2 + 0.25*l1**2*m1 + 1.0*l1**2*m2 + 1.0*l1*l2*m2*np.cos(theta1) + 0.25*l2**2*m2
-    M01 =  1.0*I2 + 0.5*l1*l2*m2*np.cos(theta1) + 0.25*l2**2*m2
-    M10 =  1.0*I2 + 0.5*l1*l2*m2*np.cos(theta1) + 0.25*l2**2*m2
-    M11 =  1.0*I2 + 0.25*l2**2*m2
-    
-    M = np.array([[M00, M01],[M10, M11]])
-    
-    g_0 = 0.5*g*l1*m1*np.cos(theta0) + 1.0*g*l1*m2*np.cos(theta0) + 0.5*g*l2*m2*np.cos(theta0 + theta1) - 1.0*l1*l2*m2*omega0*omega1*np.sin(theta1) - 0.5*l1*l2*m2*omega1**2*np.sin(theta1)
-    g_1 =  0.5*l2*m2*(g*np.cos(theta0 + theta1) + l1*omega0**2*np.sin(theta1))
-    
-    C = np.zeros([2,2])
-    G = np.array([g_0, g_1])
-    
-    # M * qddot + C(qdot) + G(q)
+    # M * qddot + N
     # = tau
     # = M^ * (-Kp * (q - q_ref) - Kd * qdot) + C^ * qdot + G^ * q
-    b = tau - C @ qdot - G
+    # print('gan')
+    # print(tau.shape)
+    # print(N.shape)
+    b = tau - N
     A = M
+    
+    # print("jererere")
+    # print(A)
+    # print("jererere")
+    # print(b)
+    # print("jererere")
+    
+    # exit()
+    A = np.array(A, dtype=np.float64)
+    b = np.array(b, dtype=np.float64)
     qddot = np.linalg.solve(A,b)
  
     return np.array([
         omega0, 
         omega1, 
+        omega2, 
         qddot[0], 
-        qddot[1] 
+        qddot[1],
+        qddot[2] 
         ])
+
+def draw_anime(success):
+    print('INTEGRATION END')
+    print('TIME NOW: ', t)
+    print()
+    if success:
+        print('SYSTEM INTEGRATION SUCCEEDED...')
+        save_name = "double_pendulum_control_partitioning"
+    else:
+        print('SYSTEM INTEGRATION FAILED...')
+        save_name = "double_pendulum_control_partitioning" + "_failed"
+    
+    
+    sim3D().anime(
+        t=t_all[::sample_factor],
+        x_states=[
+            x0_all_rk4[::sample_factor],
+            x1_all_rk4[::sample_factor],
+            x2_all_rk4[::sample_factor],
+            x3_all_rk4[::sample_factor],
+            x4_all_rk4[::sample_factor],
+            x5_all_rk4[::sample_factor]
+        ],
+        ms=10,
+        mission='3D Leg',
+        sim_object='3Dleg',
+        sim_info={'l_hip': l_hip, 'l_thigh': l_thigh, 'l_knee': l_knee},
+        save=False,
+        save_name='3Dleg_partition_control'
+    )
+    exit()
+
+
     
 t_lim = 10.0
+
+x_rk4 = np.array([0,0,0,0,0,0])
+t_step = 1e-3
 
 while True:
     tau = tau_control(x_rk4)
     x_rk4_new = inte().rk4(f_double_pendulum, x=x_rk4, u=tau, h=t_step, ctrl_on=True)
     
-    q0_all_rk4.append(x_rk4_new[0])
-    q1_all_rk4.append(x_rk4_new[1])
-    
     t = t + t_step
     t_all.append(t)
-    u_all.append(tau)
+    save_data(x_rk4_new)
 
     x_rk4 = x_rk4_new
-    theta0_current = util().rad_2_pi_range(x_rk4[0])
-    theta1_current = util().rad_2_pi_range(x_rk4[1])
+    # theta0_current = util().rad_2_pi_range(x_rk4[0])
+    # theta1_current = util().rad_2_pi_range(x_rk4[1])
+    
+    print(t)
+    print(np.linalg.norm(x_rk4[0:3] - q_ref))
     
     # print(np.abs(theta0_current - q0_ref))
-    if np.abs(theta0_current - q0_ref) < event_thres and np.abs(theta1_current - q1_ref) < event_thres or t > t_lim:
+    if np.linalg.norm(x_rk4[0:3] - q_ref) < event_thres or t > t_lim:
+        print('h')
         break
     
 draw_anime(True)
