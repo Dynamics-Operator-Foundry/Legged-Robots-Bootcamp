@@ -27,5 +27,45 @@
 
 void ctrl_server::squiggle_ctrl()
 {
-    
+    if(!swing_track_start)
+    {
+        set_squiggle_ctrl();
+        set_squiggle_ctrl_gain();
+    }
+}
+
+void ctrl_server::set_squiggle_ctrl()
+{
+
+
+
+}
+
+void ctrl_server::set_squiggle_ctrl_gain()
+{
+    for(int leg_i = 0; leg_i < leg_no; leg_i++)
+    {
+        cmdSet.motorCmd[leg_i*3+0].mode = 10;
+        cmdSet.motorCmd[leg_i*3+0].dq = 0;
+        cmdSet.motorCmd[leg_i*3+0].Kp = 180;
+        cmdSet.motorCmd[leg_i*3+0].Kd = 8;
+        cmdSet.motorCmd[leg_i*3+0].tau = 0;
+
+        cmdSet.motorCmd[leg_i*3+1].mode = 10;
+        cmdSet.motorCmd[leg_i*3+1].dq = 0;
+        cmdSet.motorCmd[leg_i*3+1].Kp = 180;
+        cmdSet.motorCmd[leg_i*3+1].Kd = 8;
+        cmdSet.motorCmd[leg_i*3+1].tau = 0;
+
+        cmdSet.motorCmd[leg_i*3+2].mode = 10;
+        cmdSet.motorCmd[leg_i*3+2].dq = 0;
+        cmdSet.motorCmd[leg_i*3+2].Kp = 300;
+        cmdSet.motorCmd[leg_i*3+2].Kd = 15;
+        cmdSet.motorCmd[leg_i*3+2].tau = 0;
+    }
+}
+
+void ctrl_server::squiggle_ctrl_reset()
+{
+    squiggle_track_start = false;
 }

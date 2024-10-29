@@ -30,10 +30,10 @@
 
 // FSM_STATE
 #define PASSIVE "PASSIVE" // 0
-#define TIP "TIP" // 1
-#define STAND "STAND" // 2
-#define SWING_LEG "SWING_LEG" // 3
-#define SQUIGGLE "SQUIGGLE" // 4
+#define STAND "STAND" // 1
+#define SWING_LEG "SWING_LEG" // 2
+#define SQUIGGLE "SQUIGGLE" // 3
+#define BALANCE "BALANCE" // 4
 #define CRAWL "CRAWL" // 5
 #define TROT "TROT" // 6
 
@@ -86,15 +86,6 @@ void keyboardCallback(
     } 
     else if (key_states['1']) 
     {
-        if(!(FSM_STATE == TIP))
-        {
-            ROS_WARN("CHANGE FSM!");
-            FSM_STATE = TIP;
-            ROS_GREEN_STREAM(FSM_STATE);
-        }
-    }
-    else if (key_states['2']) 
-    {
         if(!(FSM_STATE == STAND))
         {
             ROS_WARN("CHANGE FSM!");
@@ -102,7 +93,7 @@ void keyboardCallback(
             ROS_GREEN_STREAM(FSM_STATE);
         }
     }
-    else if (key_states['3']) 
+    else if (key_states['2']) 
     {   
         if(!(FSM_STATE == SWING_LEG))
         {
@@ -116,12 +107,21 @@ void keyboardCallback(
             }
         }
     }
-    else if (key_states['4']) 
+    else if (key_states['3']) 
     {
         if(!(FSM_STATE == SQUIGGLE))
         {
             ROS_WARN("CHANGE FSM!");
             FSM_STATE = SQUIGGLE;
+            ROS_GREEN_STREAM(FSM_STATE);
+        }
+    }
+    else if (key_states['4']) 
+    {
+        if(!(FSM_STATE == BALANCE))
+        {
+            ROS_WARN("CHANGE FSM!");
+            FSM_STATE = BALANCE;
             ROS_GREEN_STREAM(FSM_STATE);
         }
     }
@@ -155,8 +155,6 @@ void keyboardCallback(
     fsm_pub.publish(fsm_pub_object);
 }
 
-
-
 void keyboardInitTerminal() {
     termios settings;
     tcgetattr(STDIN_FILENO, &settings);
@@ -168,10 +166,10 @@ void checkKeyPress() {
     char ch;
     std::cout<<"\n"<<std::endl;
     std::cout<<"0: PASSIVE"<<std::endl;
-    std::cout<<"1: TIP"<<std::endl;
-    std::cout<<"2: STAND"<<std::endl;
-    std::cout<<"3: SWING_LEG"<<std::endl;
-    std::cout<<"4: SQUIGGLE"<<std::endl;
+    std::cout<<"1: STAND"<<std::endl;
+    std::cout<<"2: SWING_LEG"<<std::endl;
+    std::cout<<"3: SQUIGGLE"<<std::endl;
+    std::cout<<"4: BALANCE"<<std::endl;
     std::cout<<"5: CRAWL"<<std::endl;
     std::cout<<"6: TROT"<<std::endl;
     std::cout<<"\n"<<std::endl;

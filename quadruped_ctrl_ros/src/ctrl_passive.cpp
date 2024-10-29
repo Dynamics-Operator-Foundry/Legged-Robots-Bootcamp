@@ -38,5 +38,4 @@ void ctrl_server::passive_ctrl()
         cmdSet.motorCmd[i].Kd = 8.0;
         cmdSet.motorCmd[i].tau = 0.0;
     }
-    
 }

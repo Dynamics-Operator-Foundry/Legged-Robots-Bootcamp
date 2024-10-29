@@ -34,10 +34,10 @@
 
 // FSM_STATE
 #define PASSIVE "PASSIVE" // 0
-#define TIP "TIP" // 1
-#define STAND "STAND" // 2
-#define SWING_LEG "SWING_LEG" // 3
-#define SQUIGGLE "SQUIGGLE" // 4
+#define STAND "STAND" // 1
+#define SWING_LEG "SWING_LEG" // 2
+#define SQUIGGLE "SQUIGGLE" // 3
+#define BALANCE "BALANCE" // 4
 #define CRAWL "CRAWL" // 5
 #define TROT "TROT" // 6
 
@@ -78,6 +78,7 @@ private:
     double l_abad = 0.08;
     double l_hip = 0.213;
     double l_knee = 0.213;
+    Eigen::Vector3d r_base2FRhip, r_base2FLhip, r_base2RRhip, r_base2RLhip;
 
 // quadruped fsm and control mode
     std::string CTRL_MODE = DAMP_MODE;
@@ -123,8 +124,10 @@ private:
 // main functions
     void fsm_reset();
 
+    // PASSIVE
     void passive_ctrl();
     
+    // STAND
     void target_ctrl();
     void set_target_ctrl();
     void set_target_ctrl_gain();
@@ -134,6 +137,7 @@ private:
     bool target_track_start = false;
     double target_percent = 0;
 
+    // SWING LEG
     void swing_leg_ctrl();
     void set_swing_leg_ctrl();
     void set_swing_leg_ctrl_gain(int leg_i);
@@ -142,13 +146,19 @@ private:
     Eigen::Matrix3d Kp, Kd;
     bool swing_track_start = false;
     
+    // SQUIGGLE
     void squiggle_ctrl();
+    void set_squiggle_ctrl();
+    void set_squiggle_ctrl_gain();
+    void squiggle_ctrl_reset();
+    double row_min, row_max, pitch_min, pitch_max, yaw_min, yaw_max;
+    bool squiggle_track_start = false;
+
     void crawl_ctrl();
     void trot_ctrl();
 
     std::string pre_FSM_STATE;
     void check_fsm_change();
-
 
 // config
     void config();
@@ -180,9 +190,7 @@ private:
         int leg_i
     );
 
-
-    
-
+    Eigen::Vector3d get_foot_p_B(int leg_i);
 
 public:
     ctrl_server(ros::NodeHandle& _nh);

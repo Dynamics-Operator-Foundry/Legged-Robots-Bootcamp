@@ -72,7 +72,6 @@ void ctrl_server::set_swing_leg_ctrl()
 
 void ctrl_server::set_swing_leg_ctrl_gain(int leg_i)
 {
-    
     cmdSet.motorCmd[leg_i*3+0].mode = 10;
     cmdSet.motorCmd[leg_i*3+0].dq = 0;
     cmdSet.motorCmd[leg_i*3+0].Kp = 3;

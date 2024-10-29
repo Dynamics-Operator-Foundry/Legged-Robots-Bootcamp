@@ -1,4 +1,4 @@
-# Passive Walker
+# Walker 3D
 ## Tasks
 ### A. Rotation 3D
 Rotation 3D revision at [here](/biped_ctrl_scripts/5_walker_3D_control/a_rotation_3D/bounce3D.py) and [here](/biped_ctrl_scripts/5_walker_3D_control/a_rotation_3D/rotation3D.py). In which, we also tried out 3D animation via $\texttt{matplotlib}$.

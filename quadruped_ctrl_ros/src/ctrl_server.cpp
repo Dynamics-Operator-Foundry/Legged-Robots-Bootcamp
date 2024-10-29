@@ -60,6 +60,12 @@ void ctrl_server::config()
     q_start.resize(DoF);
     q_target.resize(DoF);
 
+    r_base2FRhip <<  0.1881, -0.04675, 0;
+    r_base2FLhip <<  0.1881,  0.04675, 0;
+    r_base2RRhip << -0.1881, -0.04675, 0;
+    r_base2RLhip << -0.1881,  0.04675, 0;
+
+
     pre_FSM_STATE = FSM_STATE;
 }
 
@@ -86,13 +92,14 @@ void ctrl_server::fsm_manager()
         swing_leg_ctrl();
     else if(FSM_STATE == SQUIGGLE)
         squiggle_ctrl();
+    else if(FSM_STATE == BALANCE)
+        squiggle_ctrl();
     else if(FSM_STATE == CRAWL)
         crawl_ctrl();
     else if(FSM_STATE == TROT)
         trot_ctrl();
     else    
         ROS_ERROR("Please Check System...");
-
 }
 
 void ctrl_server::check_fsm_change()
@@ -108,6 +115,7 @@ void ctrl_server::fsm_reset()
 {
     target_ctrl_reset();
     swing_leg_ctrl_reset();
+    squiggle_ctrl_reset();
 }
 
 
