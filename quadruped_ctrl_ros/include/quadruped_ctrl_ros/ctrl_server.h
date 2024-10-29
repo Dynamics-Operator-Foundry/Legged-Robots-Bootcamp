@@ -157,9 +157,11 @@ private:
     Sophus::SE3d base_pose_S;
         // T_B_2_S
     Eigen::Vector3d p_footFR_S, p_footFL_S, p_footRR_S, p_footRL_S;
-    double row_mag, pitch_mag, yaw_mag, height_mag;
+    Eigen::Matrix<double, 3, 4> p_foots_S, p_foots_B, q_foots;
+    // Eigen::Matrix
+    double roll_mag, pitch_mag, yaw_mag, height_mag;
     double ctrl_param = 0;
-    double row_base, pitch_base, yaw_base, height_base;
+    double roll_base, pitch_base, yaw_base, height_base;
     std::string squiggle_fsm;
     bool squiggle_track_start = false;
 

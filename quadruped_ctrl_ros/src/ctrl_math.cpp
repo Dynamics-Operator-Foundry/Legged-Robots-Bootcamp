@@ -191,8 +191,8 @@ Eigen::Vector3d ctrl_server::inverse_kinematics(
     double theta0 = atan2(
         zp * l0 + yp * L, yp * l0 - zp * L
     );
-    if (leg_i == 0 || leg_i == 2)
-        theta0 = (-1) * theta0;
+    // if (leg_i == 0 || leg_i == 2)
+    //     theta0 = (-1) * theta0;
     
 
     // get theta2
@@ -321,6 +321,15 @@ Eigen::Vector3d ctrl_server::get_q_from_B(
     default:
         break;
     }
-    Eigen::Vector3d r_E_L; // in leg frame
+
+    // _r_base2hip + r_E_L = r_E_B
+    Eigen::Vector3d r_E_L = r_E_B - _r_base2hip; // in leg frame
+    // std::cout<<"here in get_q_from_B"<<std::endl<<std::endl;
+    // std::cout<<_r_base2hip<<std::endl<<std::endl;
+
+    // std::cout<<r_E_L<<std::endl<<std::endl;
+
+    // ros::shutdown();
+
     return inverse_kinematics(leg_i, r_E_L);
 }

@@ -109,11 +109,16 @@ void keyboardCallback(
     }
     else if (key_states['3']) 
     {
-        if(!(FSM_STATE == SQUIGGLE))
+        if(!(FSM_STATE == SWING_LEG))
         {
-            ROS_WARN("CHANGE FSM!");
-            FSM_STATE = SQUIGGLE;
-            ROS_GREEN_STREAM(FSM_STATE);
+            if (FSM_STATE != STAND)
+                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO SWING LEG!");
+            else
+            {
+                ROS_WARN("CHANGE FSM!");
+                FSM_STATE = SQUIGGLE;
+                ROS_GREEN_STREAM(FSM_STATE);
+            }
         }
     }
     else if (key_states['4']) 
