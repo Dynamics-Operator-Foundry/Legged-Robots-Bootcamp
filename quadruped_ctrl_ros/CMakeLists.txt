@@ -58,3 +58,10 @@ target_link_libraries(keyboard_cmd
     ${catkin_LIBRARIES}
 )
 
+add_executable(wrench
+    src/wrench.cpp
+)
+target_link_libraries(wrench
+    ${catkin_LIBRARIES}
+)
+

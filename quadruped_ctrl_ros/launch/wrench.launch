@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="quadruped_ctrl_ros" type="wrench" name="quadruped_ctrl_ros" output="screen">
+        <param name="wrench_x" type="double" value="0.0"/>
+        <param name="wrench_y" type="double" value="0.0"/>
+        <param name="wrench_z" type="double" value="100.0"/>
+	</node>
+</launch>
