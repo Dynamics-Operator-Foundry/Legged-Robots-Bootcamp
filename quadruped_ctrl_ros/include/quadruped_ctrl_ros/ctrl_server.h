@@ -151,7 +151,16 @@ private:
     void set_squiggle_ctrl();
     void set_squiggle_ctrl_gain();
     void squiggle_ctrl_reset();
-    double row_min, row_max, pitch_min, pitch_max, yaw_min, yaw_max;
+    Eigen::Vector3d base_S; 
+        // s_frame: squiggle frame
+        // based frame original: FR_foot
+    Sophus::SE3d base_pose_S;
+        // T_B_2_S
+    Eigen::Vector3d p_footFR_S, p_footFL_S, p_footRR_S, p_footRL_S;
+    double row_mag, pitch_mag, yaw_mag, height_mag;
+    double ctrl_param = 0;
+    double row_base, pitch_base, yaw_base, height_base;
+    std::string squiggle_fsm;
     bool squiggle_track_start = false;
 
     void crawl_ctrl();
@@ -191,6 +200,7 @@ private:
     );
 
     Eigen::Vector3d get_foot_p_B(int leg_i);
+    Eigen::Vector3d get_q_from_B(int leg_i, Eigen::Vector3d r_E_B);
 
 public:
     ctrl_server(ros::NodeHandle& _nh);

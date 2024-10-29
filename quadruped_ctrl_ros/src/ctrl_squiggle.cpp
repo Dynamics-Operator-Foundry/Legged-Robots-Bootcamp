@@ -32,13 +32,118 @@ void ctrl_server::squiggle_ctrl()
         set_squiggle_ctrl();
         set_squiggle_ctrl_gain();
     }
+
+    if (squiggle_fsm == "ROW")
+    {
+        row_base = row_mag * sin(ctrl_param);
+        ctrl_param = ctrl_param + 2.0 * M_PI / 6.0 * 1.0 / ctrl_freq;
+
+        if (ctrl_param > 2 * M_PI)
+        {
+            ctrl_param = 0;
+            squiggle_fsm = "PITCH";
+
+            row_base = 0;
+            pitch_base = 0;
+            yaw_base = 0;
+            height_base = 0;
+        }
+    }
+    else if (squiggle_fsm == "PITCH")
+    {
+        pitch_base = pitch_mag * sin(ctrl_param);
+        ctrl_param = ctrl_param + 2.0 * M_PI / 6.0 * 1.0 / ctrl_freq;
+
+        if (ctrl_param > 2 * M_PI)
+        {
+            ctrl_param = 0;
+            squiggle_fsm = "YAW";
+
+            row_base = 0;
+            pitch_base = 0;
+            yaw_base = 0;
+            height_base = 0;
+        }
+    }
+    else if (squiggle_fsm == "YAW")
+    {
+        yaw_base = yaw_mag * sin(ctrl_param);
+        ctrl_param = ctrl_param + 2.0 * M_PI / 6.0 * 1.0 / ctrl_freq;
+
+        if (ctrl_param > 2 * M_PI)
+        {
+            ctrl_param = 0;
+            squiggle_fsm = "HEIGHT";
+
+            row_base = 0;
+            pitch_base = 0;
+            yaw_base = 0;
+            height_base = 0;
+        }
+    }
+    else if (squiggle_fsm == "HEIGHT")
+    {
+        height_base = height_mag * sin(ctrl_param);
+        ctrl_param = ctrl_param + 2.0 * M_PI / 6.0 * 1.0 / ctrl_freq;
+
+        if (ctrl_param > 2 * M_PI)
+        {
+            ctrl_param = 0;
+            squiggle_fsm = "ROW";
+
+            row_base = 0;
+            pitch_base = 0;
+            yaw_base = 0;
+            height_base = 0;
+        }
+    }
+
+    Eigen::Matrix3d _rot = rpy2q(
+        Eigen::Vector3d(
+            row_base, pitch_base, yaw_base
+            )).toRotationMatrix();
+    
+    base_pose_S = Sophus::SE3d(_rot.normalized(), Eigen::Vector3d(0,0,height_base)); 
+    // T_B_2_S
+    // T_S_2_B = base_pose_S.inv()
+
+    Sophus::SE3d T_S_2_B = base_pose_S.inverse();
+    Eigen::Vector3d p_footFR_B = T_S_2_B.rotationMatrix() * p_footFR_S;
+    Eigen::Vector3d p_footFL_B = T_S_2_B.rotationMatrix() * p_footFL_S;
+    Eigen::Vector3d p_footRR_B = T_S_2_B.rotationMatrix() * p_footRR_S;
+    Eigen::Vector3d p_footRL_B = T_S_2_B.rotationMatrix() * p_footRL_S;
+
+    Eigen::Vector3d q_footFR_B = get_q_from_B(0, p_footFR_B);
+    Eigen::Vector3d q_footFL_B = get_q_from_B(1, p_footFL_B);
+    Eigen::Vector3d q_footRR_B = get_q_from_B(2, p_footRR_B);
+    Eigen::Vector3d q_footRL_B = get_q_from_B(3, p_footRL_B);
+
+
 }
 
 void ctrl_server::set_squiggle_ctrl()
 {
+    base_S = -get_foot_p_B(0);
+    base_pose_S = Sophus::SE3d(
+        Eigen::Matrix3d::Identity(),
+        base_S
+    );
 
+    p_footFR_S.setZero();
+    p_footFL_S = base_S + get_foot_p_B(1);
+    p_footRR_S = base_S + get_foot_p_B(2);
+    p_footRL_S = base_S + get_foot_p_B(3);
 
+    row_mag = 20 * M_PI / 180;
+    pitch_mag = 15 * M_PI / 180;
+    yaw_mag = 20 * M_PI / 180;
+    height_mag = 0.04;
 
+    squiggle_fsm = "ROW";
+    row_base = 0;
+    pitch_base = 0;
+    yaw_base = 0;
+    height_base = 0;
 }
 
 void ctrl_server::set_squiggle_ctrl_gain()

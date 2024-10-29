@@ -293,4 +293,34 @@ Eigen::Vector3d ctrl_server::get_foot_p_B(int leg_i)
     return _r_base2hip + forward_kinematics(leg_i);
 }
 
+Eigen::Vector3d ctrl_server::get_q_from_B(
+    int leg_i, 
+    Eigen::Vector3d r_E_B
+)
+{
+    Eigen::Vector3d _r_base2hip;
+    
+    switch (leg_i)
+    {
+    case 0:
+        _r_base2hip = r_base2FRhip;
+        break;
+    
+    case 1:
+        _r_base2hip = r_base2FLhip;
+        break;
+        
+    case 2:
+        _r_base2hip = r_base2RRhip;
+        break;
 
+    case 3:
+        _r_base2hip = r_base2RLhip;
+        break;
+    
+    default:
+        break;
+    }
+    Eigen::Vector3d r_E_L; // in leg frame
+    return inverse_kinematics(leg_i, r_E_L);
+}
