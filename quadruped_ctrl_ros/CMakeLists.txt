@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
 )
 find_package(Boost)
+find_package(osqp REQUIRED)
+find_package(OsqpEigen REQUIRED)
 
 catkin_package(
     INCLUDE_DIRS include
@@ -32,36 +34,48 @@ link_directories(
 )
 
 add_executable(ctrl_node
-    src/ctrl_node.cpp
-    src/ctrl_server.cpp
-    src/ctrl_math.cpp
+    src/ctrl/ctrl_node.cpp
+    src/ctrl/ctrl_server.cpp
+    src/ctrl/ctrl_math.cpp
     
-    src/ctrl_IO.cpp
-    src/ctrl_passive.cpp
-    src/ctrl_target.cpp
-    src/ctrl_swing_leg.cpp
-    src/ctrl_squiggle.cpp
-    src/ctrl_crawl.cpp
-    src/ctrl_trot.cpp
+    src/ctrl/ctrl_IO.cpp
+    src/ctrl/ctrl_passive.cpp
+    src/ctrl/ctrl_target.cpp
+    src/ctrl/ctrl_swing_leg.cpp
+    src/ctrl/ctrl_squiggle.cpp
+    src/ctrl/ctrl_crawl.cpp
+    src/ctrl/ctrl_trot.cpp
 )
 target_link_libraries(ctrl_node
     ${catkin_LIBRARIES}
+    osqp::osqp
+    OsqpEigen#::OsqpEigen
 )
 add_dependencies(ctrl_node
     unitree_legged_msgs_generate_messages_cpp
 )
 
 add_executable(keyboard_cmd
-    src/keyboard_cmd.cpp
+    src/misc/keyboard_cmd.cpp
 )
 target_link_libraries(keyboard_cmd
     ${catkin_LIBRARIES}
 )
 
 add_executable(wrench
-    src/wrench.cpp
+    src/misc/wrench.cpp
 )
 target_link_libraries(wrench
     ${catkin_LIBRARIES}
+)
+
+add_executable(lala
+    src/qpsolve/lala.cpp
+    src/qpsolve/osqpwrapper.cpp
+)
+target_link_libraries(lala
+    ${catkin_LIBRARIES}
+    osqp::osqp
+    OsqpEigen#::OsqpEigen
 )
 

@@ -27,6 +27,7 @@
 #define CTRL_SERVER_H
 
 #include <ros_utilities/ros_utilities.h>
+#include "quadruped_ctrl_ros/osqpwrapper.h"
 #include "unitree_legged_msgs/LowCmd.h"
 #include "unitree_legged_msgs/LowState.h"
 #include "unitree_legged_msgs/MotorCmd.h"
@@ -50,7 +51,7 @@
 #define MIX_MODE "MIX_MODE"
 
 
-class ctrl_server : private ros_utilities
+class ctrl_server : private ros_utilities, osqpwrapper
 {
     
 private:
