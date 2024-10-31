@@ -68,5 +68,22 @@ void osqpwrapper::qp_opt(
     if(result != OsqpEigen::ErrorExitFlag::NoError)
         std::cout<<"not yet solved"<<std::endl;
 
+    auto start = std::chrono::high_resolution_clock::now();
     _qpsol = _qpsolver.getSolution();
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    std::cout << "Computation time: " << elapsed.count() << " ms" << std::endl;
+
+    reset_solver();
+}
+
+void osqpwrapper::reset_solver()
+{
+    _qpsolver.clearSolver();
+    // _qpsolver
+    _qpsolver.data()->clearHessianMatrix();
+    _qpsolver.data()->clearLinearConstraintsMatrix();
+    // _qpsolver.data()->c;
+
 }

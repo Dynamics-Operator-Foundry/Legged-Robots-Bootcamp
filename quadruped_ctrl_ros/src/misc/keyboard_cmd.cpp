@@ -125,9 +125,14 @@ void keyboardCallback(
     {
         if(!(FSM_STATE == BALANCE))
         {
-            ROS_WARN("CHANGE FSM!");
-            FSM_STATE = BALANCE;
-            ROS_GREEN_STREAM(FSM_STATE);
+            if (FSM_STATE != STAND)
+                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO SWING LEG!");
+            else
+            {
+                ROS_WARN("CHANGE FSM!");
+                FSM_STATE = BALANCE;
+                ROS_GREEN_STREAM(FSM_STATE);
+            }
         }
     }
     else if (key_states['5']) 

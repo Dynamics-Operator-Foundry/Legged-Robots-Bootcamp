@@ -2,13 +2,11 @@
 #define QPSOLVER_H
 
 #include <OsqpEigen/OsqpEigen.h>
+#include <chrono>
 
 class osqpwrapper
 {
 private:
-    // solver itself
-    OsqpEigen::Solver _qpsolver;
-
     // solutions
     Eigen::VectorXd _qpsol;
     std::vector<Eigen::VectorXd> _qpsol_array;
@@ -24,6 +22,11 @@ public:
         Eigen::MatrixXd _ub, 
         Eigen::MatrixXd _lb
     );
+
+    void reset_solver();
+
+    // solver itself
+    OsqpEigen::Solver _qpsolver;
 
     inline Eigen::VectorXd getQpsol(){return _qpsol;}
 };

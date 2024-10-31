@@ -14,7 +14,8 @@
                 "${workspaceFolder}/quadruped_ctrl_ros/include",
                 "/home/patty/leg_boot_ws/devel/include/**",
                 "/home/patty/leg_boot_ws/devel/include",
-                "/usr/local/include/osqp"
+                "/usr/local/include/osqp",
+                "${workspaceFolder}/quadruped_esti_ros/include"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x64",

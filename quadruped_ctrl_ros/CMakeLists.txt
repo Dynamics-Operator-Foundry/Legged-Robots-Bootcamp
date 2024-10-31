@@ -37,14 +37,17 @@ add_executable(ctrl_node
     src/ctrl/ctrl_node.cpp
     src/ctrl/ctrl_server.cpp
     src/ctrl/ctrl_math.cpp
-    
     src/ctrl/ctrl_IO.cpp
-    src/ctrl/ctrl_passive.cpp
-    src/ctrl/ctrl_target.cpp
-    src/ctrl/ctrl_swing_leg.cpp
-    src/ctrl/ctrl_squiggle.cpp
-    src/ctrl/ctrl_crawl.cpp
-    src/ctrl/ctrl_trot.cpp
+
+    src/ctrl/passive.cpp
+    src/ctrl/target.cpp
+    src/ctrl/swing_leg.cpp
+    src/ctrl/squiggle.cpp
+    src/ctrl/balance.cpp
+    src/ctrl/crawl.cpp
+    src/ctrl/trot.cpp
+
+    src/qpsolve/osqpwrapper.cpp
 )
 target_link_libraries(ctrl_node
     ${catkin_LIBRARIES}
@@ -62,20 +65,4 @@ target_link_libraries(keyboard_cmd
     ${catkin_LIBRARIES}
 )
 
-add_executable(wrench
-    src/misc/wrench.cpp
-)
-target_link_libraries(wrench
-    ${catkin_LIBRARIES}
-)
-
-add_executable(lala
-    src/qpsolve/lala.cpp
-    src/qpsolve/osqpwrapper.cpp
-)
-target_link_libraries(lala
-    ${catkin_LIBRARIES}
-    osqp::osqp
-    OsqpEigen#::OsqpEigen
-)
 

@@ -93,7 +93,7 @@ void ctrl_server::fsm_manager()
     else if(FSM_STATE == SQUIGGLE)
         squiggle_ctrl();
     else if(FSM_STATE == BALANCE)
-        squiggle_ctrl();
+        balance_ctrl();
     else if(FSM_STATE == CRAWL)
         crawl_ctrl();
     else if(FSM_STATE == TROT)

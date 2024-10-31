@@ -32,6 +32,7 @@
 #include "unitree_legged_msgs/LowState.h"
 #include "unitree_legged_msgs/MotorCmd.h"
 #include "unitree_legged_msgs/MotorState.h"
+#include <gazebo_msgs/ModelStates.h>
 
 // FSM_STATE
 #define PASSIVE "PASSIVE" // 0
@@ -90,7 +91,7 @@ private:
 
 //ros related
     // subscriber
-    ros::Subscriber fsm_sub;
+    ros::Subscriber fsm_sub, robot_base_sub;
     void register_callbacks();
     // callbacks
         // front right
@@ -113,6 +114,10 @@ private:
     void push_back_state_vector();
 
     void fsmCallback(const std_msgs::String::ConstPtr& msg);
+    
+    void robotBaseCallback(const gazebo_msgs::ModelStates::ConstPtr &msg);
+    Sophus::SE3d pose_SE3_robot_base;
+    Sophus::Vector6d twist_robot_base;
 
     // publisher
     void register_publishers();
@@ -135,8 +140,8 @@ private:
     void target_ctrl_reset();
     Eigen::VectorXd q_start;
     Eigen::VectorXd q_target;
-    bool target_track_start = false;
     double target_percent = 0;
+    bool target_track_start = false;
 
     // SWING LEG
     void swing_leg_ctrl();
@@ -165,6 +170,15 @@ private:
     double roll_base, pitch_base, yaw_base, height_base;
     std::string squiggle_fsm;
     bool squiggle_track_start = false;
+
+    // balance
+    void balance_ctrl();
+    void set_balance_ctrl();
+    void set_balance_ctrl_gain();
+    void balance_ctrl_reset();
+    double x_mag, y_mag, z_mag;
+
+    bool balance_track_start = false;
 
     void crawl_ctrl();
     void trot_ctrl();
