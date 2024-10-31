@@ -34,12 +34,116 @@ void ctrl_server::balance_ctrl()
         balance_track_start = true;
     }   
 
+    if (balance_fsm == "X") 
+        x_base = x_mag * sin(ctrl_param);
+    else if (balance_fsm == "Y") 
+        y_base = y_mag * sin(ctrl_param);
+    else if (balance_fsm == "Z") 
+        z_base = z_mag * sin(ctrl_param);
+    else 
+        yaw_base = yaw_mag * sin(ctrl_param);
+    
+    std::cout<<x_base<<std::endl;
+    ctrl_param = ctrl_param + 2 * M_PI / 6.0 * 1 / ctrl_freq;
+
+    if (ctrl_param > 2 * M_PI)
+    {
+        ctrl_param = 0;
+        x_base = y_base = z_base = yaw_base = 0;
+
+        if (balance_fsm == "X") 
+            balance_fsm = "X";
+        else if (balance_fsm == "Y") 
+            balance_fsm = "Z";
+        else if (balance_fsm == "Z") 
+            balance_fsm = "YAW";
+        else 
+            balance_fsm = "X";
+    }
+    x_base = -0.01;
+    y_base = 0;
+    z_base = 0;
+
+    Eigen::Vector3d acc_p = 
+        Kp_p * (pose_SE3_robot_base.rotationMatrix() * Eigen::Vector3d(x_base, y_base, z_base)) 
+        +
+        Kd_p * (
+            Eigen::Vector3d::Zero() 
+            - 
+            // pose_SE3_robot_base.rotationMatrix() * 
+            twist_robot_base.head(3));
+    
+    Eigen::Matrix3d dR = rpy2q(Eigen::Vector3d(0.0,0.0,yaw_base)).toRotationMatrix() * pose_SE3_robot_base.rotationMatrix().inverse();
+
+    Eigen::Vector3d acc_w = 
+        Kp_w * Sophus::SO3d(dR).unit_quaternion().vec().normalized() 
+        + 
+        Kd_w * (Eigen::Vector3d::Zero() - twist_robot_base.tail(3));
+
+    std::vector<Eigen::Vector3d> feet_posi_I;
+
+    for (int leg_i = 0; leg_i < leg_no; leg_i ++)
+        feet_posi_I.emplace_back(pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i));
+        
+    Sophus::Vector6d acc;
+    acc.head(3) = acc_p;
+    acc.tail(3) = acc_w;
+    acc.tail(3).setZero();
+    std::cout<<acc<<std::endl<<std::endl;
+    std::cout<<"======="<<std::endl;
+
+    f_now = (-1) * get_f(feet_posi_I, acc);
+    f_prev = f_now;
+    set_tau(f_now);
+
+    for(int i = 0; i < DoF; i++)
+        cmdSet.motorCmd[i].tau = balance_tau[i];
+    // std::cout<<6<<std::endl;
 }
 
 void ctrl_server::set_balance_ctrl()
 {
-    
+    x_mag = 0.04;
+    y_mag = 0.04;
+    z_mag = 0.04;
+    yaw_mag = 20 * M_PI / 180;
 
+    Kp_p = Eigen::Vector3d(150,150,150).asDiagonal();
+    Kd_p = Eigen::Vector3d(25, 25, 25).asDiagonal();
+
+    Kp_w = 200;
+    Kd_w = Eigen::Vector3d(30, 30, 30).asDiagonal();
+
+    x_base = 0.0;
+    y_base = 0.0;
+    z_base = 0.0;
+
+    yaw_base = q2rpy(pose_SE3_robot_base.unit_quaternion())(2);
+
+    m = 12.0;
+    mI = Eigen::Vector3d(0.0792, 0.2085, 0.2265).asDiagonal();
+
+    bVec.setZero();
+    set_AMat();
+
+    f_prev.resize(12);
+    f_prev.setZero();
+
+    Eigen::Matrix<double, 6, 1> s;
+    s << 20, 20, 50, 450, 450, 450; 
+    S_w = s.asDiagonal();
+
+    Eigen::Matrix<double, 12, 1> w;
+    w << 10, 10, 4, 10, 10, 4, 10, 10, 4, 10, 10, 4;
+    W_w = w.asDiagonal();
+
+    Eigen::Matrix<double, 12, 1> u;
+    u << 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3;
+    U_w = u.asDiagonal();
+    alpha = 0.001;
+    beta = 0.1;
+
+    balance_fsm = "X";
 }
 
 void ctrl_server::set_balance_ctrl_gain()
@@ -66,4 +170,84 @@ void ctrl_server::set_balance_ctrl_gain()
 void ctrl_server::balance_ctrl_reset()
 {
     balance_track_start = false;
+}
+
+Eigen::VectorXd ctrl_server::get_f(
+    std::vector<Eigen::Vector3d> feet_posi, 
+    Sophus::Vector6d acc
+)
+{
+    set_HMat(feet_posi);
+    set_fVec(acc);
+
+    Eigen::Matrix<double, 20, 1> ci_inf;
+    ci_inf.setConstant(INFINITY);
+
+    qp_opt(HMat, AMat, fVec, ci_inf, bVec);
+
+    return getQpsol();
+}
+
+void ctrl_server::set_HMat(
+    const std::vector<Eigen::Vector3d> feet_posi
+)
+{
+    // A
+    A_dyn.setZero();
+    A_dyn.block<3,3>(0,0).setIdentity();
+    A_dyn.block<3,3>(0,3).setIdentity();
+    A_dyn.block<3,3>(0,6).setIdentity();
+    A_dyn.block<3,3>(0,9).setIdentity();
+    A_dyn.block<3,3>(3,0) = Sophus::SO3d::hat(feet_posi[0]);
+    A_dyn.block<3,3>(3,3) = Sophus::SO3d::hat(feet_posi[1]);
+    A_dyn.block<3,3>(3,6) = Sophus::SO3d::hat(feet_posi[2]);
+    A_dyn.block<3,3>(3,9) = Sophus::SO3d::hat(feet_posi[3]);
+
+    // HMat
+    HMat = A_dyn.transpose() * S_w * A_dyn + alpha * W_w + beta * U_w;
+}
+
+void ctrl_server::set_fVec(const Sophus::Vector6d acc)
+{
+    // b
+    Eigen::Matrix<double, 6, 1> b;
+    b.head(3) = m * (acc.head(3) - Eigen::Vector3d(0,0,-9.81));
+    b.tail(3) = pose_SE3_robot_base.rotationMatrix() * mI * pose_SE3_robot_base.rotationMatrix().inverse() * acc.tail(3);
+
+    // fVec
+    fVec = -1 * b.transpose() * S_w * A_dyn - f_prev.transpose() * beta * U_w;
+}
+
+void ctrl_server::set_AMat()
+{
+    AMat.setZero();
+    Eigen::Matrix<double, 5, 3> oneblock;
+    oneblock <<
+         1, 0, mu,
+        -1, 0 ,mu,
+         0, 1, mu,
+         0, -1, mu,
+         0, 0, 1;
+
+    AMat.block<5,3>(0,0) = oneblock;
+    AMat.block<5,3>(5,3) = oneblock;
+    AMat.block<5,3>(10,6) = oneblock;
+    AMat.block<5,3>(15,9) = oneblock;
+}
+
+void ctrl_server::set_tau(
+    Eigen::Matrix<double, 12, 1> f_I
+)
+{
+    // std::cout<<"==========="<<std::endl;
+    for (int leg_i = 0; leg_i < leg_no; leg_i++)
+    {
+        // std::cout<<balance_tau.segment(leg_i * 3, 3)<<std::endl<<std::endl;
+        balance_tau.segment(leg_i * 3, 3) = 
+            get_Jacobian(leg_i).transpose() * 
+            pose_SE3_robot_base.rotationMatrix().inverse() * 
+            f_I.segment(leg_i * 3, 3);
+        // std::cout<<balance_tau.segment(leg_i * 3, 3)<<std::endl<<std::endl;
+    }
+    // balance_tau = -get_Jacobian
 }

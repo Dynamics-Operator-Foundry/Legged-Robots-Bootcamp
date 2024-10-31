@@ -76,6 +76,7 @@ void ctrl_server::mainspinCallback(const ros::TimerEvent &e)
 
     fsm_manager();
     publish_servos(cmdSet);
+    ////
 
     return;
 }

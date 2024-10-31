@@ -176,9 +176,33 @@ private:
     void set_balance_ctrl();
     void set_balance_ctrl_gain();
     void balance_ctrl_reset();
+    Eigen::VectorXd get_f(
+        std::vector<Eigen::Vector3d> feet_posi, 
+        Sophus::Vector6d acc
+    );
+    void set_HMat(const std::vector<Eigen::Vector3d> feet_posi);
+    void set_fVec(const Sophus::Vector6d acc);
+    void set_AMat();
+    void set_tau(Eigen::Matrix<double, 12, 1> f_I);
+    Eigen::Matrix<double, 6, 6> S_w;
+    Eigen::Matrix<double, 12, 12> W_w, U_w;
+    double alpha, beta;
+    Eigen::VectorXd f_now, f_prev;
     double x_mag, y_mag, z_mag;
-
+    double x_base, y_base, z_base;
+    Eigen::Matrix3d Kp_p, Kd_p, Kd_w;
+    double Kp_w;
+    double m;
+    Eigen::Matrix3d mI;
+    Eigen::Matrix<double, 12, 12> HMat;
+    Eigen::Matrix<double, 12,  1> fVec;
+    Eigen::Matrix<double, 20, 12> AMat;
+    Eigen::Matrix<double, 20,  1> bVec;
+    Eigen::Matrix<double, 6,  12> A_dyn;
+    double mu = 0.4;
+    std::string balance_fsm;
     bool balance_track_start = false;
+    Eigen::Matrix<double, 12, 1> balance_tau;
 
     void crawl_ctrl();
     void trot_ctrl();

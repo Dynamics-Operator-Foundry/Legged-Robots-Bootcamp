@@ -46,7 +46,7 @@ void ctrl_server::squiggle_ctrl()
     else 
         height_base = height_mag * sin(ctrl_param);
 
-    ctrl_param = ctrl_param + 2 * M_PI / 6.0 * 1 / ctrl_freq;
+    ctrl_param = ctrl_param + 2 * M_PI / 3.0 * 1 / ctrl_freq;
 
     if (ctrl_param > 2 * M_PI)
     {
@@ -61,8 +61,6 @@ void ctrl_server::squiggle_ctrl()
             squiggle_fsm = "HEIGHT";
         else 
             squiggle_fsm = "ROLL";
-
-        // std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" << squiggle_fsm << std::endl;
     }
 
     Eigen::Matrix3d _rot = rpy2q(
