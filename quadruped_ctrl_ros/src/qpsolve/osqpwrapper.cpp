@@ -73,7 +73,7 @@ void osqpwrapper::qp_opt(
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double, std::milli> elapsed = end - start;
-    std::cout << "Computation time: " << elapsed.count() << " ms" << std::endl;
+    // std::cout << "Computation time: " << elapsed.count() << " ms" << std::endl;
 
     reset_solver();
 }

@@ -35,24 +35,23 @@ void ctrl_server::balance_ctrl()
     }   
 
     if (balance_fsm == "X") 
-        x_base = x_mag * sin(ctrl_param);
+        posi_delta_B.x() = x_mag * sin(ctrl_param);
     else if (balance_fsm == "Y") 
-        y_base = y_mag * sin(ctrl_param);
+        posi_delta_B.y() = y_mag * sin(ctrl_param);
     else if (balance_fsm == "Z") 
-        z_base = z_mag * sin(ctrl_param);
+        posi_delta_B.z() = z_mag * sin(ctrl_param);
     else 
         yaw_base = yaw_mag * sin(ctrl_param);
     
-    std::cout<<x_base<<std::endl;
-    ctrl_param = ctrl_param + 2 * M_PI / 6.0 * 1 / ctrl_freq;
+    ctrl_param = ctrl_param + 2 * M_PI / 3.0 * 1 / ctrl_freq;
 
     if (ctrl_param > 2 * M_PI)
     {
         ctrl_param = 0;
-        x_base = y_base = z_base = yaw_base = 0;
+        posi_delta_B.setZero();
 
         if (balance_fsm == "X") 
-            balance_fsm = "X";
+            balance_fsm = "Y";
         else if (balance_fsm == "Y") 
             balance_fsm = "Z";
         else if (balance_fsm == "Z") 
@@ -60,23 +59,31 @@ void ctrl_server::balance_ctrl()
         else 
             balance_fsm = "X";
     }
-    x_base = -0.01;
-    y_base = 0;
-    z_base = 0;
 
+    // posi_delta_B.setZero();
+    // in inertial frame
     Eigen::Vector3d acc_p = 
-        Kp_p * (pose_SE3_robot_base.rotationMatrix() * Eigen::Vector3d(x_base, y_base, z_base)) 
+        Kp_p * (
+            posi_base_I + pose_SE3_robot_base.rotationMatrix() * posi_delta_B - 
+            pose_SE3_robot_base.translation()
+        ) 
         +
         Kd_p * (
             Eigen::Vector3d::Zero() 
             - 
-            // pose_SE3_robot_base.rotationMatrix() * 
-            twist_robot_base.head(3));
-    
-    Eigen::Matrix3d dR = rpy2q(Eigen::Vector3d(0.0,0.0,yaw_base)).toRotationMatrix() * pose_SE3_robot_base.rotationMatrix().inverse();
+            pose_SE3_robot_base.rotationMatrix() * 
+            twist_robot_base.head(3)
+        );
 
-    Eigen::Vector3d acc_w = 
-        Kp_w * Sophus::SO3d(dR).unit_quaternion().vec().normalized() 
+    Eigen::Matrix3d dR = rpy2q(Eigen::Vector3d(0.0,0.0,yaw_base)).normalized().toRotationMatrix() * pose_SE3_robot_base.rotationMatrix().inverse();
+
+    Eigen::JacobiSVD<Eigen::Matrix3d> svd(dR, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    dR = svd.matrixU() * svd.matrixV().transpose();
+    if (dR.determinant() < 0)
+        dR = -dR;  
+    
+    Eigen::Vector3d acc_w = // Eigen::Vector3d::Zero();
+        Kp_w * rotMatToExp(dR) 
         + 
         Kd_w * (Eigen::Vector3d::Zero() - twist_robot_base.tail(3));
 
@@ -88,9 +95,6 @@ void ctrl_server::balance_ctrl()
     Sophus::Vector6d acc;
     acc.head(3) = acc_p;
     acc.tail(3) = acc_w;
-    acc.tail(3).setZero();
-    std::cout<<acc<<std::endl<<std::endl;
-    std::cout<<"======="<<std::endl;
 
     f_now = (-1) * get_f(feet_posi_I, acc);
     f_prev = f_now;
@@ -98,7 +102,6 @@ void ctrl_server::balance_ctrl()
 
     for(int i = 0; i < DoF; i++)
         cmdSet.motorCmd[i].tau = balance_tau[i];
-    // std::cout<<6<<std::endl;
 }
 
 void ctrl_server::set_balance_ctrl()
@@ -114,9 +117,8 @@ void ctrl_server::set_balance_ctrl()
     Kp_w = 200;
     Kd_w = Eigen::Vector3d(30, 30, 30).asDiagonal();
 
-    x_base = 0.0;
-    y_base = 0.0;
-    z_base = 0.0;
+    posi_base_I = pose_SE3_robot_base.translation();
+    posi_delta_B.setZero();
 
     yaw_base = q2rpy(pose_SE3_robot_base.unit_quaternion())(2);
 
@@ -250,4 +252,27 @@ void ctrl_server::set_tau(
         // std::cout<<balance_tau.segment(leg_i * 3, 3)<<std::endl<<std::endl;
     }
     // balance_tau = -get_Jacobian
+}
+
+Eigen::Vector3d ctrl_server::rotMatToExp(const Eigen::Matrix3d& rm)
+{
+    double cosValue = rm.trace()/2.0-1/2.0;
+    if(cosValue > 1.0f){
+        cosValue = 1.0f;
+    }else if(cosValue < -1.0f){
+        cosValue = -1.0f;
+    }
+
+    double angle = acos(cosValue);
+    Eigen::Vector3d exp;
+    if (fabs(angle) < 1e-5){
+        exp=Eigen::Vector3d(0,0,0);
+    }
+    else if (fabs(angle - M_PI) < 1e-5){
+        exp = angle * Eigen::Vector3d(rm(0,0)+1, rm(0,1), rm(0,2)) / sqrt(2*(1+rm(0, 0)));
+    }
+    else{
+        exp=angle/(2.0f*sin(angle))*Eigen::Vector3d(rm(2,1)-rm(1,2),rm(0,2)-rm(2,0),rm(1,0)-rm(0,1));
+    }
+    return exp;
 }

@@ -184,12 +184,14 @@ private:
     void set_fVec(const Sophus::Vector6d acc);
     void set_AMat();
     void set_tau(Eigen::Matrix<double, 12, 1> f_I);
+    Eigen::Vector3d rotMatToExp(const Eigen::Matrix3d& rm);
     Eigen::Matrix<double, 6, 6> S_w;
     Eigen::Matrix<double, 12, 12> W_w, U_w;
     double alpha, beta;
     Eigen::VectorXd f_now, f_prev;
     double x_mag, y_mag, z_mag;
-    double x_base, y_base, z_base;
+    Eigen::Vector3d posi_delta_B;
+    Eigen::Vector3d posi_base_I;
     Eigen::Matrix3d Kp_p, Kd_p, Kd_w;
     double Kp_w;
     double m;
