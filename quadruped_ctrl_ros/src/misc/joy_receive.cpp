@@ -38,8 +38,9 @@
 
 static std::string FSM_STATE, pre_FSM_STATE;
 static int key_no, key_no_prev;
-static ros::Publisher fsm_pub;
+static ros::Publisher fsm_pub, vel_pub;
 static bool change_now;
+static geometry_msgs::Twist vcmd;
 void mainSpinCallback(const ros::TimerEvent &e);
 void joyCallback(const sensor_msgs::Joy::ConstPtr& msg);
 
@@ -51,7 +52,11 @@ int main(int argc, char **argv)
     ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>("/joy", 1, joyCallback);
 
     FSM_STATE = PASSIVE;
-    fsm_pub = nh.advertise<std_msgs::String>("/joy", 1, true);
+    key_no = 0;
+    key_no_prev = key_no;
+
+    fsm_pub = nh.advertise<std_msgs::String>("/FSM", 1, true);
+    vel_pub = nh.advertise<geometry_msgs::Twist>("/vcmd_normalized", 1, true);
 
     ros::Timer keyboard_timer = nh.createTimer(
         ros::Duration(1.0/10.0),
@@ -65,7 +70,16 @@ int main(int argc, char **argv)
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr& msg)
 {    
-    if(msg->buttons[5] == 1) // L1
+    vcmd.linear.x = msg->axes[1];
+    vcmd.linear.y = msg->axes[0];
+    vcmd.linear.z = msg->axes[4];
+    vcmd.angular.x = 0;
+    vcmd.angular.y = 0;
+    vcmd.angular.z = msg->axes[3];
+
+    vel_pub.publish(vcmd);
+
+    if(msg->buttons[5] == 1) // R1
     {
         change_now = !change_now;
 
@@ -88,7 +102,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
     if(msg->buttons[4] == 1) // L1
     {
-        key_no = 2;
+        key_no = 1;
         return;
     }
 
@@ -106,21 +120,22 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
     if(msg->buttons[2] == 1) // triangle
     {
-        key_no = 4;
+        key_no = 6;
         return;
     }
-
-    key_no_prev = key_no;
 }
 
 void mainSpinCallback(
     const ros::TimerEvent &e
 )
 {
-    // if(key_no)
-    return;
     if(!change_now)
         return;
+
+    if(key_no == key_no_prev)
+        return;
+
+    
     std::cout<<std::endl;
 
     if (key_no == 0)
@@ -130,8 +145,8 @@ void mainSpinCallback(
             ROS_WARN("CHANGE FSM!");
             FSM_STATE = PASSIVE;
             ROS_GREEN_STREAM(FSM_STATE);
+            key_no_prev = key_no;
         }
-
     } 
     else if (key_no == 1) 
     {
@@ -140,6 +155,7 @@ void mainSpinCallback(
             ROS_WARN("CHANGE FSM!");
             FSM_STATE = STAND;
             ROS_GREEN_STREAM(FSM_STATE);
+            key_no_prev = key_no;
         }
     }
     else if (key_no == 2) 
@@ -147,26 +163,34 @@ void mainSpinCallback(
         if(!(FSM_STATE == SWING_LEG))
         {
             if (FSM_STATE != STAND)
+            {
                 ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO SWING LEG!");
+                key_no = key_no_prev;
+            } 
             else
             {
                 ROS_WARN("CHANGE FSM!");
                 FSM_STATE = SWING_LEG;
                 ROS_GREEN_STREAM(FSM_STATE);
+                key_no_prev = key_no;
             }
         }
     }
     else if (key_no == 3) 
     {
-        if(!(FSM_STATE == SWING_LEG))
+        if(!(FSM_STATE == SQUIGGLE))
         {
             if (FSM_STATE != STAND)
-                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO SWING LEG!");
+            {
+                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO SQUIGGLE!");
+                key_no = key_no_prev;
+            } 
             else
             {
                 ROS_WARN("CHANGE FSM!");
                 FSM_STATE = SQUIGGLE;
                 ROS_GREEN_STREAM(FSM_STATE);
+                key_no_prev = key_no;
             }
         }
     }
@@ -175,12 +199,16 @@ void mainSpinCallback(
         if(!(FSM_STATE == BALANCE))
         {
             if (FSM_STATE != STAND)
-                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO SWING LEG!");
+            {
+                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO BALANCE!");
+                key_no = key_no_prev;
+            }   
             else
             {
                 ROS_WARN("CHANGE FSM!");
                 FSM_STATE = BALANCE;
                 ROS_GREEN_STREAM(FSM_STATE);
+                key_no_prev = key_no;
             }
         }
     }
