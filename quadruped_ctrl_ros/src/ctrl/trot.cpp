@@ -17,7 +17,7 @@
 
 /**
  * \file ctrl_trot.cpp
- * \date 25/10/2024
+ * \date 25/10/20244
  * \author pattylo
  * \copyright (c) AIRO-LAB, RCUAS of Hong Kong Polytechnic University
  * \brief classes for quadruped_ctrl_ros_uav using airo_control_interface

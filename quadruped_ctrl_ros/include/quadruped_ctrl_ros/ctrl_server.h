@@ -207,7 +207,10 @@ private:
     Eigen::Matrix<double, 12, 1> balance_tau;
 
     void crawl_ctrl();
+
+    // trot
     void trot_ctrl();
+    // void 
 
     std::string pre_FSM_STATE;
     void check_fsm_change();

@@ -1,0 +1,7 @@
+<launch>
+  <node name="joy_receive" pkg="quadruped_ctrl_ros" type="joy_receive" output="screen">
+  </node>
+
+  <node name="joy_node" pkg="joy" type="joy_node" output="screen">
+  </node>
+</launch>

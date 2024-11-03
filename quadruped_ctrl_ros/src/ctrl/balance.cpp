@@ -242,7 +242,6 @@ void ctrl_server::set_tau(
     Eigen::Matrix<double, 12, 1> f_I
 )
 {
-    // std::cout<<"==========="<<std::endl;
     for (int leg_i = 0; leg_i < leg_no; leg_i++)
     {
         // std::cout<<balance_tau.segment(leg_i * 3, 3)<<std::endl<<std::endl;
@@ -252,28 +251,34 @@ void ctrl_server::set_tau(
             f_I.segment(leg_i * 3, 3);
         // std::cout<<balance_tau.segment(leg_i * 3, 3)<<std::endl<<std::endl;
     }
-    // balance_tau = -get_Jacobian
 }
 
 Eigen::Vector3d ctrl_server::rotMatToExp(const Eigen::Matrix3d& rm)
 {
     double cosValue = rm.trace()/2.0-1/2.0;
-    if(cosValue > 1.0f){
+    if(cosValue > 1.0f)
+    {
         cosValue = 1.0f;
-    }else if(cosValue < -1.0f){
+    }
+    else if(cosValue < -1.0f)
+    {
         cosValue = -1.0f;
     }
 
     double angle = acos(cosValue);
     Eigen::Vector3d exp;
-    if (fabs(angle) < 1e-5){
+    if (fabs(angle) < 1e-5)
+    {
         exp=Eigen::Vector3d(0,0,0);
     }
-    else if (fabs(angle - M_PI) < 1e-5){
+    else if (fabs(angle - M_PI) < 1e-5)
+    {
         exp = angle * Eigen::Vector3d(rm(0,0)+1, rm(0,1), rm(0,2)) / sqrt(2*(1+rm(0, 0)));
     }
-    else{
+    else
+    {
         exp=angle/(2.0f*sin(angle))*Eigen::Vector3d(rm(2,1)-rm(1,2),rm(0,2)-rm(2,0),rm(1,0)-rm(0,1));
     }
+
     return exp;
 }

@@ -65,4 +65,11 @@ target_link_libraries(keyboard_cmd
     ${catkin_LIBRARIES}
 )
 
+add_executable(joy_receive
+    src/misc/joy_receive.cpp
+)
+target_link_libraries(joy_receive
+    ${catkin_LIBRARIES}
+)
+
 
