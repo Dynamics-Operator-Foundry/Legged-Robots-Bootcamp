@@ -60,7 +60,6 @@ void ctrl_server::balance_ctrl()
             balance_fsm = "X";
     }
 
-    // posi_delta_B.setZero();
     // in inertial frame
     Eigen::Vector3d acc_p = 
         Kp_p * (
@@ -144,6 +143,8 @@ void ctrl_server::set_balance_ctrl()
     U_w = u.asDiagonal();
     alpha = 0.001;
     beta = 0.1;
+
+    ctrl_param = 0;
 
     balance_fsm = "X";
 }

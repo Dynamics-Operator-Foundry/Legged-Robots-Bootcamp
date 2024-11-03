@@ -117,6 +117,5 @@ void ctrl_server::fsm_reset()
     target_ctrl_reset();
     swing_leg_ctrl_reset();
     squiggle_ctrl_reset();
+    balance_ctrl_reset();
 }
-
-
