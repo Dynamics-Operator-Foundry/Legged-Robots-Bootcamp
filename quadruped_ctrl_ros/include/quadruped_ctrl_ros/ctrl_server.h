@@ -65,6 +65,7 @@ private:
 // quadruped parameters & objects
     bool sys_started = false;
     double ctrl_freq = 400.0;
+    double t_start;
 
     Eigen::VectorXd q_state;
     Eigen::VectorXd dq_state;
@@ -210,7 +211,36 @@ private:
 
     // trot
     void trot_ctrl();
-    // void 
+    void trot_set_vel();
+    Eigen::Vector3d trot_vel_B;
+    Eigen::Vector3d trot_vel_I;
+    bool trot_start = false;
+
+    void set_gait();
+    void set_gait_params();
+    void calc_contact_phase();
+    double cycloid_lateral(double start, double end, double phase);
+    double cycloid_vertical(double start, double h, double phase);
+    double cycloid_dlateral(double start, double end, double phase);
+    double cycloid_dvertical(double start, double h, double phase);
+    Eigen::Vector3d get_foot_touchdown_posi(int leg_i, Eigen::Vector2d velo_I, double dw, double phase_i);
+    Eigen::Vector3d get_foot_touchdown_velo(int leg_i, Eigen::Vector2d velo_I, double dw, double phase_i);
+    Eigen::Vector3d gait_vlim_B;
+    double P_gait, r_gait;
+    Eigen::Vector4d b_gait;
+    Eigen::Vector4d phase_gait;
+    Eigen::Vector4i contact_gait;
+    Eigen::Matrix3d Kpb_p_trot;
+    Eigen::Matrix3d Kdb_p_trot;
+    double Kpb_w_trot;
+    Eigen::Matrix3d Kdb_w_trot;
+    Eigen::Matrix3d Kps_trot;
+    Eigen::Matrix3d Kds_trot;
+    std::vector<Eigen::Vector3d> feet_posi_start_I;
+    std::vector<Eigen::Vector3d> feet_posi_I, feet_velo_I;
+    
+
+    void reset_gait();
 
     std::string pre_FSM_STATE;
     void check_fsm_change();

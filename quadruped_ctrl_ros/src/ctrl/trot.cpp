@@ -27,5 +27,17 @@
 
 void ctrl_server::trot_ctrl()
 {
+    if(!trot_start)
+    {
+        set_gait_params();
+    }
     
+    calc_contact_phase();
+    trot_set_vel();
+    set_gait();
+}
+
+void ctrl_server::trot_set_vel()
+{
+    trot_vel_I = Eigen::Vector3d(gait_vlim_B(0) * 0.5,0,0);
 }
