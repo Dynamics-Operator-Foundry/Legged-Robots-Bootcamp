@@ -47,6 +47,8 @@ void ctrl_server::trot_ctrl()
 
     set_tau(f_now);
     f_prev = f_now;    
+
+    set_trot_cmd();
 }
 
 void ctrl_server::set_trot_vel()
@@ -153,13 +155,15 @@ void ctrl_server::set_trot_swing()
 
     Eigen::Matrix3d rot_B2I = pose_SE3_robot_base.rotationMatrix();
     Eigen::Matrix3d rot_I2B = pose_SE3_robot_base.rotationMatrix().inverse();
+    Eigen::Vector3d base_posi = pose_SE3_robot_base.translation();
+
     Eigen::Vector3d v_base_I = twist_robot_base.head(3);
     Eigen::Vector3d w_base_I = twist_robot_base.tail(3);
     Eigen::Vector3d base2foot;
 
     for (int leg_i = 0; leg_i < leg_no; leg_i++)
     {
-        p_swing_now_L = rot_I2B * feet_posi_I[leg_i] - r_all_base2hip[leg_i];
+        p_swing_now_L = rot_I2B * (feet_posi_I[leg_i] - base_posi) - r_all_base2hip[leg_i];
 
         q_swing_gait_target.emplace_back(
             inverse_kinematics(leg_i, p_swing_now_L)
@@ -178,6 +182,8 @@ void ctrl_server::set_trot_swing()
             )
         );
     }
+
+    ros::shutdown();
 }
 
 void ctrl_server::set_trot_cmd()

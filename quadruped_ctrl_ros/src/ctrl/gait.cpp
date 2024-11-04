@@ -45,6 +45,13 @@ void ctrl_server::set_gait_params()
 
     f_prev.setZero();
 
+    set_balance_ctrl();
+    Kp_p = Kpb_p_trot;
+    Kd_p = Kdb_p_trot;
+
+    Kp_w = Kpb_w_trot;
+    Kd_w = Kdb_w_trot;
+
     for (int leg_i = 0; leg_i < leg_no; leg_i ++)
     {
         feet_posi_start_I.emplace_back(pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i));
@@ -85,7 +92,7 @@ void ctrl_server::set_gait()
             if(phase_gait(leg_i) < 0.5)
             {
                 feet_posi_start_I[leg_i] =
-                    pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i);
+                    pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i) + pose_SE3_robot_base.translation();
             }
             feet_posi_I[leg_i] = feet_posi_start_I[leg_i];
             feet_velo_I[leg_i] = Eigen::Vector3d::Zero();
