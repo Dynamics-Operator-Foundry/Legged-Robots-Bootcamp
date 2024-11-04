@@ -239,7 +239,7 @@ Eigen::Matrix3d ctrl_server::get_Jacobian(
     double theta0 = leg_q(0), theta1 = leg_q(1), theta2 = leg_q(2);
     double l0 = leg_param(0), l1 = leg_param(1), l2 = leg_param(2);
 
-    Eigen::Matrix3d J;
+    Eigen::Matrix3d J; // from sympy
 
     J << 
         0, 
@@ -255,7 +255,34 @@ Eigen::Matrix3d ctrl_server::get_Jacobian(
     return J;
 }
 
-Eigen::Vector3d ctrl_server::get_linear_velocity(
+Eigen::Matrix3d ctrl_server::get_Jacobian(
+    int leg_i,
+    Eigen::Vector3d& r_E
+)
+{
+    Eigen::Vector3d leg_q = inverse_kinematics(leg_i, r_E);
+    Eigen::Vector3d leg_param = get_leg_kine_param(leg_i);
+
+    double theta0 = leg_q(0), theta1 = leg_q(1), theta2 = leg_q(2);
+    double l0 = leg_param(0), l1 = leg_param(1), l2 = leg_param(2);
+
+    Eigen::Matrix3d J; // from sympy
+
+    J << 
+        0, 
+        l1*cos(theta1) + l2*cos(theta1 + theta2), 
+        l2*cos(theta1 + theta2), 
+        -l0*sin(theta0) - l1*cos(theta0)*cos(theta1) - l2*cos(theta0)*cos(theta1 + theta2), 
+        (l1*sin(theta1) + l2*sin(theta1 + theta2))*sin(theta0), 
+        l2*sin(theta0)*sin(theta1 + theta2), 
+        l0*cos(theta0) - l1*sin(theta0)*cos(theta1) - l2*sin(theta0)*cos(theta1 + theta2), 
+        -(l1*sin(theta1) + l2*sin(theta1 + theta2))*cos(theta0), 
+        -l2*sin(theta1 + theta2)*cos(theta0);
+
+    return J;
+}
+
+Eigen::Vector3d ctrl_server::forward_diff_kinematics(
     int leg_i
 )
 {
@@ -263,6 +290,27 @@ Eigen::Vector3d ctrl_server::get_linear_velocity(
     Eigen::VectorXd leg_dq = get_leg_dq(leg_i, q_state);
 
     return J * leg_dq;
+}
+
+Eigen::Vector3d ctrl_server::inverse_diff_kinematics(
+    int leg_i, 
+    Eigen::Vector3d& v_E
+)
+{
+    Eigen::Matrix3d J = get_Jacobian(leg_i);
+
+    return J.inverse() * v_E;
+}
+
+Eigen::Vector3d ctrl_server::inverse_diff_kinematics(
+    int leg_i, 
+    Eigen::Vector3d& p_E,
+    Eigen::Vector3d& v_E
+)
+{
+    Eigen::Matrix3d J = get_Jacobian(leg_i, p_E);
+
+    return J.inverse() * v_E;
 }
 
 Eigen::Vector3d ctrl_server::get_foot_p_B(int leg_i)
@@ -330,7 +378,7 @@ Eigen::Vector3d ctrl_server::get_q_from_B(
 double ctrl_server::saturation_check(double val, Eigen::Vector2d range)
 {
     double min = range(0);
-    double max = range(0);
+    double max = range(1);
 
     if (val < min)
         return min;

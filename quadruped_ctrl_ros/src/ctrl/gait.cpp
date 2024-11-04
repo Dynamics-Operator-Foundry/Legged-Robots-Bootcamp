@@ -44,7 +44,7 @@ void ctrl_server::set_gait_params()
     Kds_trot = Eigen::Vector3d(10,10,10).asDiagonal();
 
     f_prev.setZero();
-    
+
     for (int leg_i = 0; leg_i < leg_no; leg_i ++)
     {
         feet_posi_start_I.emplace_back(pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i));
@@ -156,7 +156,9 @@ Eigen::Vector3d ctrl_server::get_raibert_posi(int leg_i, Eigen::Vector2d velo_de
     double kyaw = 0.005;
 
     double dw_now = twist_robot_base(5);
-    Eigen::Vector3d twist_I = pose_SE3_robot_base.rotationMatrix() * twist_robot_base.head(3);
+    Eigen::Vector3d twist_I = 
+    // pose_SE3_robot_base.rotationMatrix() * 
+    twist_robot_base.head(3);
 
     double thetaf = init_angle + q2rpy(pose_SE3_robot_base.unit_quaternion())(2) + dw_now * (1 - phase_i) * t_swing + 0.5 * dw_now * t_stance + kyaw * (dw_now - dw_desired);
 

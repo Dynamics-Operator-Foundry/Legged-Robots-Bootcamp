@@ -81,6 +81,7 @@ private:
     double l_abad = 0.08;
     double l_hip = 0.213;
     double l_knee = 0.213;
+    std::vector<Eigen::Vector3d> r_all_base2hip;
     Eigen::Vector3d r_base2FRhip, r_base2FLhip, r_base2RRhip, r_base2RLhip;
 
 // quadruped fsm and control mode
@@ -215,6 +216,8 @@ private:
     void set_trot_vel();
     void set_trot_base_desired();
     void set_trot_force();
+    void set_trot_swing();
+    void set_trot_cmd();
     Eigen::Vector3d trot_base_posi_desired;
     Eigen::Vector3d trot_base_dposi_desired;
     Eigen::Vector3d trot_base_atti_desired;
@@ -261,6 +264,7 @@ private:
     cv::Mat gait_viz;
     image_transport::Publisher image_pub;
     Eigen::Matrix<double, 3, 4> neutral_stance;
+    std::vector<Eigen::Vector3d> q_swing_gait_target, dq_swing_gait_target;
 
     void reset_gait();
 
@@ -293,8 +297,24 @@ private:
         int leg_i
     );
 
-    Eigen::Vector3d get_linear_velocity(
+    Eigen::Matrix3d get_Jacobian(
+        int leg_i,
+        Eigen::Vector3d& r_E
+    );
+
+    Eigen::Vector3d forward_diff_kinematics(
         int leg_i
+    );
+
+    Eigen::Vector3d inverse_diff_kinematics(
+        int leg_i, 
+        Eigen::Vector3d& r_E
+    );
+
+    Eigen::Vector3d inverse_diff_kinematics(
+        int leg_i, 
+        Eigen::Vector3d& p_E,
+        Eigen::Vector3d& v_E
     );
 
     Eigen::Vector3d get_foot_p_B(int leg_i);

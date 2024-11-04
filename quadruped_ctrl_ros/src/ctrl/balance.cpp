@@ -70,7 +70,7 @@ void ctrl_server::balance_ctrl()
         Kd_p * (
             Eigen::Vector3d::Zero() 
             - 
-            pose_SE3_robot_base.rotationMatrix() * 
+            // pose_SE3_robot_base.rotationMatrix() * 
             twist_robot_base.head(3)
         );
 
@@ -184,13 +184,6 @@ Eigen::VectorXd ctrl_server::get_f(
     set_fVec(acc);
     set_constraints();
 
-    std::cout<<"hihihihi"<<std::endl;
-    std::cout<<HMat.rows()<<" "<<HMat.cols()<<std::endl;
-    std::cout<<fVec.rows()<<" "<<fVec.cols()<<std::endl;
-    std::cout<<AMat.rows()<<" "<<AMat.cols()<<std::endl;
-    std::cout<<lbVec.rows()<<" "<<lbVec.cols()<<std::endl;
-    std::cout<<ubVec.rows()<<" "<<ubVec.cols()<<std::endl;
-
     qp_opt(HMat, fVec, AMat, lbVec, ubVec);
     // Q, g, A, lb, ub
 
@@ -284,12 +277,10 @@ void ctrl_server::set_tau(
 {
     for (int leg_i = 0; leg_i < leg_no; leg_i++)
     {
-        // std::cout<<balance_tau.segment(leg_i * 3, 3)<<std::endl<<std::endl;
         balance_tau.segment(leg_i * 3, 3) = 
             get_Jacobian(leg_i).transpose() * 
             pose_SE3_robot_base.rotationMatrix().inverse() * 
             f_I.segment(leg_i * 3, 3);
-        // std::cout<<balance_tau.segment(leg_i * 3, 3)<<std::endl<<std::endl;
     }
 }
 

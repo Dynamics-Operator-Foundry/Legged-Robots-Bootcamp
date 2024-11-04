@@ -64,6 +64,10 @@ void ctrl_server::config()
     r_base2FLhip <<  0.1881,  0.04675, 0;
     r_base2RRhip << -0.1881, -0.04675, 0;
     r_base2RLhip << -0.1881,  0.04675, 0;
+    r_all_base2hip.emplace_back(r_base2FRhip);
+    r_all_base2hip.emplace_back(r_base2FLhip);
+    r_all_base2hip.emplace_back(r_base2RRhip);
+    r_all_base2hip.emplace_back(r_base2RLhip);
 
     neutral_stance <<   0.1881,  0.1881, -0.1881, -0.1881,
                         -0.1300,  0.1300, -0.1300,  0.1300,

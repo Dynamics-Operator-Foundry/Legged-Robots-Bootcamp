@@ -39,7 +39,7 @@ void ctrl_server::swing_leg_ctrl()
 
     // std::cout<<p_swing_now<<std::endl;
     // std::cout<<std::endl;
-    Eigen::Vector3d v_swing_now = get_linear_velocity(0);
+    Eigen::Vector3d v_swing_now = forward_diff_kinematics(0);
     Eigen::Vector3d accl = Kp * (p_swing_target - p_swing_now) + Kd * (Eigen::Vector3d::Zero() - v_swing_now);
 
     Eigen::Matrix3d J = get_Jacobian(0);
