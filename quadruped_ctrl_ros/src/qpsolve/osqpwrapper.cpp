@@ -1,11 +1,12 @@
 #include "quadruped_ctrl_ros/osqpwrapper.h"
 
 void osqpwrapper::qp_opt(
-        Eigen::MatrixXd _MQM, 
-        Eigen::MatrixXd _A, 
-        Eigen::MatrixXd _g, 
-        Eigen::MatrixXd _ub, 
-        Eigen::MatrixXd _lb)
+    Eigen::MatrixXd _MQM, 
+    Eigen::MatrixXd _g,
+    Eigen::MatrixXd _A, 
+    Eigen::MatrixXd _lb, 
+    Eigen::MatrixXd _ub
+)
 {
     // Load problem data
     

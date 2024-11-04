@@ -25,7 +25,6 @@
 
 #include "quadruped_ctrl_ros/ctrl_server.h"
 
-
 void ctrl_server::set_gait_params()
 {
     P_gait = 0.45;
@@ -44,12 +43,14 @@ void ctrl_server::set_gait_params()
     Kps_trot = Eigen::Vector3d(400,400,400).asDiagonal();
     Kds_trot = Eigen::Vector3d(10,10,10).asDiagonal();
 
-
+    f_prev.setZero();
+    
     for (int leg_i = 0; leg_i < leg_no; leg_i ++)
     {
         feet_posi_start_I.emplace_back(pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i));
         feet_posi_I.emplace_back(Eigen::Vector3d::Zero());
         feet_velo_I.emplace_back(Eigen::Vector3d::Zero());
+        end_posi_I.emplace_back(Eigen::Vector3d::Zero());
     }
 }
 
@@ -93,8 +94,20 @@ void ctrl_server::set_gait()
         {
             // _endP.col(i) = _feetCal->calFootPos(i, _vxyGoal, _dYawGoal, (*_phase)(i));
 
-            feet_posi_I[leg_i] = get_foot_touchdown_posi(leg_i, trot_vel_I.head(2), trot_vel_I(2), phase_gait(leg_i));
-            feet_velo_I[leg_i] = get_foot_touchdown_velo(leg_i, trot_vel_I.head(2), trot_vel_I(2), phase_gait(leg_i));
+            end_posi_I[leg_i] = get_raibert_posi(leg_i, trot_vel_I.head(2), trot_vel_I(2), phase_gait(leg_i));
+
+            feet_posi_I[leg_i] = get_swing_foot_posi(
+                leg_i, 
+                feet_posi_start_I[leg_i],
+                end_posi_I[leg_i],
+                phase_gait(leg_i)
+            );
+            feet_velo_I[leg_i] = get_swing_foot_velo(
+                leg_i,
+                feet_posi_I[leg_i],
+                end_posi_I[leg_i],
+                phase_gait[leg_i]
+            );
         }
     }
     // _pastP = feetPos;
@@ -123,15 +136,142 @@ double ctrl_server::cycloid_dvertical(double start, double h, double phase)
     return M_PI * h / T * sin(2 * M_PI * phase);
 }
 
-Eigen::Vector3d ctrl_server::get_foot_touchdown_posi(int leg_i, Eigen::Vector2d velo_I, double dw, double phase_i)
+Eigen::Vector3d ctrl_server::get_raibert_posi(int leg_i, Eigen::Vector2d velo_desired_I, double dw_desired, double phase_i)
 {
+    double R = sqrt(
+        pow(neutral_stance(0, leg_i), 2) 
+            + 
+        pow(neutral_stance(0, leg_i), 2) 
+    );
 
+    double init_angle = atan2(
+        neutral_stance(1, leg_i), 
+        neutral_stance(0, leg_i)
+    );
+
+    double t_swing = P_gait * (1 - r_gait); // r_gait stance ratio
+    double t_stance = P_gait * r_gait; // r_gait stance ratio
+    double kx = 0.005;
+    double ky = 0.005;
+    double kyaw = 0.005;
+
+    double dw_now = twist_robot_base(5);
+    Eigen::Vector3d twist_I = pose_SE3_robot_base.rotationMatrix() * twist_robot_base.head(3);
+
+    double thetaf = init_angle + q2rpy(pose_SE3_robot_base.unit_quaternion())(2) + dw_now * (1 - phase_i) * t_swing + 0.5 * dw_now * t_stance + kyaw * (dw_now - dw_desired);
+
+    Eigen::Vector3d delta;
+
+    delta.x() = R * cos(thetaf) + twist_I(0) * (1 - phase_i) * t_swing + 0.5 * twist_I(0) * t_stance + kx * (twist_I(0) - velo_desired_I(0));
+
+    delta.y() = R * sin(thetaf) + twist_I(1) * (1 - phase_i) * t_swing + 0.5 * twist_I(1) * t_stance + ky * (twist_I(1) - velo_desired_I(1));
+
+    Eigen::Vector3d raibert_touchdown = Eigen::Vector3d(
+        pose_SE3_robot_base.translation().x() + delta.x(),
+        pose_SE3_robot_base.translation().y() + delta.y(),
+        0
+    );
+
+    return raibert_touchdown;
 }
 
-Eigen::Vector3d ctrl_server::get_foot_touchdown_velo(int leg_i, Eigen::Vector2d velo_I, double dw, double phase_i)
+Eigen::Vector3d ctrl_server::get_swing_foot_posi(
+    int leg_i, 
+    Eigen::Vector3d posi_start, 
+    Eigen::Vector3d posi_end, 
+    double phase_i
+)
 {
+    Eigen::Vector3d swing_posi;
 
+    swing_posi(0) = cycloid_lateral(
+        posi_start(0), 
+        posi_end(0), 
+        phase_gait(leg_i)
+    );
+
+    swing_posi(1) = cycloid_lateral(
+        posi_start(1), 
+        posi_end(1), 
+        phase_gait(leg_i)
+    );
+
+    swing_posi(2) = cycloid_vertical(
+        posi_start(2),
+        gait_height,
+        phase_gait(leg_i)
+    );
+
+    return swing_posi;
 }
+
+Eigen::Vector3d ctrl_server::get_swing_foot_velo(
+    int leg_i, 
+    Eigen::Vector3d posi_start, 
+    Eigen::Vector3d posi_end, 
+    double phase_i
+)
+{
+    Eigen::Vector3d swing_velo;
+
+    swing_velo(0) = cycloid_dlateral(
+        posi_start(0), 
+        posi_end(0), 
+        phase_gait(leg_i)
+    );
+
+    swing_velo(1) = cycloid_dlateral(
+        posi_start(1), 
+        posi_end(1), 
+        phase_gait(leg_i)
+    );
+
+    swing_velo(2) = cycloid_dvertical(
+        posi_start(2),
+        gait_height,
+        phase_gait(leg_i)
+    );
+
+    return swing_velo;
+}
+
+void ctrl_server::draw_gait(
+    cv::Mat &img, 
+    const Eigen::Vector4i &contact
+)
+{
+    int radius = 20;
+    int spacing = 100;
+    cv::Scalar stanceColor(255, 255, 255); // White for contact (stance)
+    cv::Scalar swingColor(0, 0, 0);        // Black for no contact (swing)
+
+    // Define positions for each leg: FR, FL, RR, RL
+    std::vector<cv::Point> legPositions = {
+        cv::Point(3 * spacing, spacing),         // Front Right (FR)
+        cv::Point(spacing, spacing),     // Front Left (FL)
+        cv::Point(3 * spacing, 3 * spacing),     // Rear Right (RR)
+        cv::Point(spacing, 3 * spacing)  // Rear Left (RL)
+    };
+
+    for (int i = 0; i < 4; ++i)
+    {
+        // Determine if the leg is in contact (stance) or not (swing)
+        cv::Scalar color = (contact[i] == 1) ? stanceColor : swingColor;
+
+        // Draw circle for the leg
+        cv::circle(img, legPositions[i], radius, color, -1);
+    }
+
+    // Add text labels for each leg
+    cv::putText(img, "FR", legPositions[0] - cv::Point(20, -40), cv::FONT_HERSHEY_SIMPLEX, 0.5, stanceColor, 1);
+    cv::putText(img, "FL", legPositions[1] - cv::Point(20, -40), cv::FONT_HERSHEY_SIMPLEX, 0.5, stanceColor, 1);
+    cv::putText(img, "RR", legPositions[2] - cv::Point(20, -40), cv::FONT_HERSHEY_SIMPLEX, 0.5, stanceColor, 1);
+    cv::putText(img, "RL", legPositions[3] - cv::Point(20, -40), cv::FONT_HERSHEY_SIMPLEX, 0.5, stanceColor, 1);
+
+    sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();
+    image_pub.publish(msg);
+}
+
 
 void ctrl_server::reset_gait()
 {

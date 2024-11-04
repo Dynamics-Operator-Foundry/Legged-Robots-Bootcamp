@@ -70,6 +70,9 @@ void ctrl_server::register_publishers()
         this
     );
 
+    image_transport::ImageTransport it(nh);
+    image_pub = it.advertise("/gait_viz", 1);
+
     return;
 }
 

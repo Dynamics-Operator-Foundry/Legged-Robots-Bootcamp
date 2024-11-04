@@ -65,8 +65,14 @@ void ctrl_server::config()
     r_base2RRhip << -0.1881, -0.04675, 0;
     r_base2RLhip << -0.1881,  0.04675, 0;
 
+    neutral_stance <<   0.1881,  0.1881, -0.1881, -0.1881,
+                        -0.1300,  0.1300, -0.1300,  0.1300,
+                        -0.3200, -0.3200, -0.3200, -0.3200;
+
 
     pre_FSM_STATE = FSM_STATE;
+
+    gait_viz = cv::Mat(400, 400, CV_8UC3, cv::Scalar(0, 0, 0));
 }
 
 
@@ -76,7 +82,6 @@ void ctrl_server::mainspinCallback(const ros::TimerEvent &e)
 
     fsm_manager();
     publish_servos(cmdSet);
-    ////
 
     return;
 }

@@ -95,7 +95,7 @@ void ctrl_server::balance_ctrl()
     acc.head(3) = acc_p;
     acc.tail(3) = acc_w;
 
-    f_now = (-1) * get_f(feet_posi_I, acc);
+    f_now = (-1) * get_f(feet_posi_I, acc, contact_gait);
     f_prev = f_now;
     set_tau(f_now);
 
@@ -124,8 +124,7 @@ void ctrl_server::set_balance_ctrl()
     m = 12.0;
     mI = Eigen::Vector3d(0.0792, 0.2085, 0.2265).asDiagonal();
 
-    bVec.setZero();
-    set_AMat();
+    contact_gait.setConstant(1);
 
     f_prev.resize(12);
     f_prev.setZero();
@@ -177,16 +176,23 @@ void ctrl_server::balance_ctrl_reset()
 
 Eigen::VectorXd ctrl_server::get_f(
     std::vector<Eigen::Vector3d> feet_posi, 
-    Sophus::Vector6d acc
+    Sophus::Vector6d acc,
+    Eigen::Vector4i contact_i
 )
 {
     set_HMat(feet_posi);
     set_fVec(acc);
+    set_constraints();
 
-    Eigen::Matrix<double, 20, 1> ci_inf;
-    ci_inf.setConstant(INFINITY);
+    std::cout<<"hihihihi"<<std::endl;
+    std::cout<<HMat.rows()<<" "<<HMat.cols()<<std::endl;
+    std::cout<<fVec.rows()<<" "<<fVec.cols()<<std::endl;
+    std::cout<<AMat.rows()<<" "<<AMat.cols()<<std::endl;
+    std::cout<<lbVec.rows()<<" "<<lbVec.cols()<<std::endl;
+    std::cout<<ubVec.rows()<<" "<<ubVec.cols()<<std::endl;
 
-    qp_opt(HMat, AMat, fVec, ci_inf, bVec);
+    qp_opt(HMat, fVec, AMat, lbVec, ubVec);
+    // Q, g, A, lb, ub
 
     return getQpsol();
 }
@@ -221,9 +227,38 @@ void ctrl_server::set_fVec(const Sophus::Vector6d acc)
     fVec = -1 * b.transpose() * S_w * A_dyn - f_prev.transpose() * beta * U_w;
 }
 
-void ctrl_server::set_AMat()
-{
+void ctrl_server::set_constraints()
+{   
+    int leg_no_in_air = 0;
+    std::vector<int> which_legs_in_air, which_legs_on_ground;
+ 
+    for (int leg_i = 0; leg_i < leg_no; leg_i++)
+    {
+        if(contact_gait(leg_i) == 0)
+        {
+            leg_no_in_air++;
+            which_legs_in_air.emplace_back(leg_i);
+        }
+        else
+        {
+            which_legs_on_ground.emplace_back(leg_i);   
+        }
+    }
+
+    int row_no = (leg_no - leg_no_in_air) * 5 + leg_no_in_air * 3;
+    int col_no = 12;
+    AMat.resize(row_no, col_no);
     AMat.setZero();
+
+    ubVec.resize(row_no, 1);
+    ubVec.setZero(); 
+
+    int inf_size = (leg_no - leg_no_in_air) * 5;
+    ubVec.block(0, 0, inf_size, 1).setConstant(INFINITY);
+
+    lbVec.resize(row_no, 1);
+    lbVec.setZero();
+
     Eigen::Matrix<double, 5, 3> oneblock;
     oneblock <<
          1, 0, mu,
@@ -232,10 +267,15 @@ void ctrl_server::set_AMat()
          0, -1, mu,
          0, 0, 1;
 
-    AMat.block<5,3>(0,0) = oneblock;
-    AMat.block<5,3>(5,3) = oneblock;
-    AMat.block<5,3>(10,6) = oneblock;
-    AMat.block<5,3>(15,9) = oneblock;
+    for (int i = 0; i < which_legs_on_ground.size(); i++)
+    {
+        AMat.block<5,3>(i*5,which_legs_on_ground[i]*3) = oneblock;
+    }
+
+    for (int i = 0; i < which_legs_in_air.size(); i++)
+    {
+        AMat.block<3,3>(i*3,which_legs_on_ground[i]*3) = Eigen::Matrix3d::Identity();
+    }
 }
 
 void ctrl_server::set_tau(

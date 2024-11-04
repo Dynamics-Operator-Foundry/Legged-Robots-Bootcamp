@@ -326,3 +326,19 @@ Eigen::Vector3d ctrl_server::get_q_from_B(
 
     return inverse_kinematics(leg_i, r_E_L);
 }
+
+double ctrl_server::saturation_check(double val, Eigen::Vector2d range)
+{
+    double min = range(0);
+    double max = range(0);
+
+    if (val < min)
+        return min;
+    else
+        return val;
+    
+    if (val > max)
+        return max;
+    else
+        return val;
+}

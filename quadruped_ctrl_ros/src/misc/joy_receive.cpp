@@ -225,9 +225,18 @@ void mainSpinCallback(
     {
         if(!(FSM_STATE == TROT))
         {
-            ROS_WARN("CHANGE FSM!");
-            FSM_STATE = TROT;
-            ROS_GREEN_STREAM(FSM_STATE);
+            if (FSM_STATE != STAND)
+            {
+                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO TROT!");
+                key_no = key_no_prev;
+            }   
+            else
+            {
+                ROS_WARN("CHANGE FSM!");
+                FSM_STATE = TROT;
+                ROS_GREEN_STREAM(FSM_STATE);
+                key_no_prev = key_no;
+            }
         }
     }
     // ROS_INFO("MESSAGE RECEIVED!");

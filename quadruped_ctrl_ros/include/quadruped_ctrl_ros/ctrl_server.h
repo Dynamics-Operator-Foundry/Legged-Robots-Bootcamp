@@ -179,11 +179,12 @@ private:
     void balance_ctrl_reset();
     Eigen::VectorXd get_f(
         std::vector<Eigen::Vector3d> feet_posi, 
-        Sophus::Vector6d acc
+        Sophus::Vector6d acc,
+        Eigen::Vector4i contact_i
     );
     void set_HMat(const std::vector<Eigen::Vector3d> feet_posi);
     void set_fVec(const Sophus::Vector6d acc);
-    void set_AMat();
+    void set_constraints();
     void set_tau(Eigen::Matrix<double, 12, 1> f_I);
     Eigen::Vector3d rotMatToExp(const Eigen::Matrix3d& rm);
     Eigen::Matrix<double, 6, 6> S_w;
@@ -199,8 +200,8 @@ private:
     Eigen::Matrix3d mI;
     Eigen::Matrix<double, 12, 12> HMat;
     Eigen::Matrix<double, 12,  1> fVec;
-    Eigen::Matrix<double, 20, 12> AMat;
-    Eigen::Matrix<double, 20,  1> bVec;
+    Eigen::MatrixXd AMat;
+    Eigen::MatrixXd ubVec, lbVec;
     Eigen::Matrix<double, 6,  12> A_dyn;
     double mu = 0.4;
     std::string balance_fsm;
@@ -211,7 +212,12 @@ private:
 
     // trot
     void trot_ctrl();
-    void trot_set_vel();
+    void set_trot_vel();
+    void set_trot_base_desired();
+    void set_trot_force();
+    Eigen::Vector3d trot_base_posi_desired;
+    Eigen::Vector3d trot_base_dposi_desired;
+    Eigen::Vector3d trot_base_atti_desired;
     Eigen::Vector3d trot_vel_B;
     Eigen::Vector3d trot_vel_I;
     bool trot_start = false;
@@ -223,8 +229,21 @@ private:
     double cycloid_vertical(double start, double h, double phase);
     double cycloid_dlateral(double start, double end, double phase);
     double cycloid_dvertical(double start, double h, double phase);
-    Eigen::Vector3d get_foot_touchdown_posi(int leg_i, Eigen::Vector2d velo_I, double dw, double phase_i);
-    Eigen::Vector3d get_foot_touchdown_velo(int leg_i, Eigen::Vector2d velo_I, double dw, double phase_i);
+    Eigen::Vector3d get_raibert_posi(int leg_i, Eigen::Vector2d velo_I, double dw, double phase_i);
+    Eigen::Vector3d get_swing_foot_posi(
+        int leg_i, 
+        Eigen::Vector3d posi_start, 
+        Eigen::Vector3d posi_end, 
+        double phase_i
+    );
+    Eigen::Vector3d get_swing_foot_velo(
+        int leg_i, 
+        Eigen::Vector3d posi_start, 
+        Eigen::Vector3d posi_end, 
+        double phase_i
+    );
+    void draw_gait(cv::Mat &img, const Eigen::Vector4i &contact);
+    // Eigen::Vector3d get_foot_touchdown_velo(int leg_i, Eigen::Vector2d velo_I, double dw, double phase_i);
     Eigen::Vector3d gait_vlim_B;
     double P_gait, r_gait;
     Eigen::Vector4d b_gait;
@@ -237,8 +256,11 @@ private:
     Eigen::Matrix3d Kps_trot;
     Eigen::Matrix3d Kds_trot;
     std::vector<Eigen::Vector3d> feet_posi_start_I;
-    std::vector<Eigen::Vector3d> feet_posi_I, feet_velo_I;
-    
+    std::vector<Eigen::Vector3d> feet_posi_I, feet_velo_I, end_posi_I;
+    double gait_height = 0.08;
+    cv::Mat gait_viz;
+    image_transport::Publisher image_pub;
+    Eigen::Matrix<double, 3, 4> neutral_stance;
 
     void reset_gait();
 
@@ -277,6 +299,7 @@ private:
 
     Eigen::Vector3d get_foot_p_B(int leg_i);
     Eigen::Vector3d get_q_from_B(int leg_i, Eigen::Vector3d r_E_B);
+    double saturation_check(double val, Eigen::Vector2d range);
 
 public:
     ctrl_server(ros::NodeHandle& _nh);
