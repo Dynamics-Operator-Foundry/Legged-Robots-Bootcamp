@@ -161,9 +161,16 @@ void ctrl_server::set_trot_swing()
     Eigen::Vector3d w_base_I = twist_robot_base.tail(3);
     Eigen::Vector3d base2foot;
 
+    std::cout<<"herere"<<std::endl<<std::endl;;
+
     for (int leg_i = 0; leg_i < leg_no; leg_i++)
     {
         p_swing_now_L = rot_I2B * (feet_posi_I[leg_i] - base_posi) - r_all_base2hip[leg_i];
+
+        std::cout<<feet_posi_I[leg_i]<<std::endl<<std::endl;;
+        std::cout<<p_swing_now_L<<std::endl<<std::endl;;
+        std::cout<<inverse_kinematics(leg_i, p_swing_now_L)<<std::endl;
+        std::cout<<"============="<<std::endl;
 
         q_swing_gait_target.emplace_back(
             inverse_kinematics(leg_i, p_swing_now_L)
@@ -183,7 +190,13 @@ void ctrl_server::set_trot_swing()
         );
     }
 
-    ros::shutdown();
+    for(auto what : q_swing_gait_target)
+    {
+        if(what.hasNaN())
+            ros::shutdown();
+    }
+
+    // ros::shutdown();
 }
 
 void ctrl_server::set_trot_cmd()

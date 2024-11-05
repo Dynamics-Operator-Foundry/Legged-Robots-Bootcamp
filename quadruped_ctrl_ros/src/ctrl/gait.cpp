@@ -54,7 +54,7 @@ void ctrl_server::set_gait_params()
 
     for (int leg_i = 0; leg_i < leg_no; leg_i ++)
     {
-        feet_posi_start_I.emplace_back(pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i));
+        feet_posi_start_I.emplace_back(pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i) + pose_SE3_robot_base.translation());
         feet_posi_I.emplace_back(Eigen::Vector3d::Zero());
         feet_velo_I.emplace_back(Eigen::Vector3d::Zero());
         end_posi_I.emplace_back(Eigen::Vector3d::Zero());
