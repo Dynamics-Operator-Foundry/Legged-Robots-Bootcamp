@@ -27,6 +27,7 @@
 
 void ctrl_server::set_gait_params()
 {
+    t_start = ros::Time::now().toSec();
     P_gait = 0.45;
     r_gait = 0.5;
     b_gait << 0, 0.5, 0.5, 0;
@@ -36,10 +37,10 @@ void ctrl_server::set_gait_params()
 
     gait_vlim_B << 0.4, 0.3, 0.5;
 
-    Kpb_p_trot = Eigen::Vector3d(20,20,100).asDiagonal();
-    Kdb_p_trot = Eigen::Vector3d(20,20,20).asDiagonal();
-    Kpb_w_trot = 400;
-    Kdb_w_trot = Eigen::Vector3d(50,50,50).asDiagonal();
+    Kpb_p_trot = Eigen::Vector3d(70,70,70).asDiagonal();
+    Kdb_p_trot = Eigen::Vector3d(10,10,10).asDiagonal();
+    Kpb_w_trot = 780;
+    Kdb_w_trot = Eigen::Vector3d(70,70,70).asDiagonal();
     Kps_trot = Eigen::Vector3d(400,400,400).asDiagonal();
     Kds_trot = Eigen::Vector3d(10,10,10).asDiagonal();
 
@@ -64,8 +65,8 @@ void ctrl_server::set_gait_params()
 void ctrl_server::calc_contact_phase()
 {
     // std::cout<<"time here"<<std::endl;
-
     double t_since_start = ros::Time::now().toSec() - t_start;
+    // std::cout<<t_start<<std::endl<<std::endl;;
     Eigen::Vector4d normalized_time;
 
     for (int leg_i = 0; leg_i < leg_no; leg_i++)
@@ -185,9 +186,7 @@ Eigen::Vector3d ctrl_server::get_raibert_posi(int leg_i, Eigen::Vector2d velo_de
     double kyaw = 0.005;
 
     double dw_now = twist_robot_base(5);
-    Eigen::Vector3d twist_I = 
-    // pose_SE3_robot_base.rotationMatrix() * 
-    twist_robot_base.head(3);
+    Eigen::Vector3d twist_I = twist_robot_base.head(3);
 
     double thetaf = init_angle + q2rpy(pose_SE3_robot_base.unit_quaternion())(2) + dw_now * (1 - phase_i) * t_swing + 0.5 * dw_now * t_stance + kyaw * (dw_now - dw_desired);
 
