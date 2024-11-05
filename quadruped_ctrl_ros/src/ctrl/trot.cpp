@@ -150,9 +150,6 @@ void ctrl_server::set_trot_force()
             twist_robot_base.head(3)
         );
 
-    std::cout<<"atti:\n"<<std::endl;
-    std::cout<<trot_base_atti_desired<<std::endl<<std::endl;;
-
     Eigen::Matrix3d dR = rpy2q(trot_base_atti_desired).normalized().toRotationMatrix() * pose_SE3_robot_base.rotationMatrix().inverse();
 
     Eigen::JacobiSVD<Eigen::Matrix3d> svd(dR, Eigen::ComputeFullU | Eigen::ComputeFullV);
@@ -160,10 +157,10 @@ void ctrl_server::set_trot_force()
     if (dR.determinant() < 0)
         dR = -dR;  
     
-    Eigen::Vector3d acc_w = // Eigen::Vector3d::Zero();
+    Eigen::Vector3d acc_w =  // Eigen::Vector3d::Zero();
         Kp_w * rotMatToExp(dR) 
         + 
-        Kd_w * (Eigen::Vector3d::Zero() - twist_robot_base.tail(3));
+        Kd_w * (trot_base_datti_desired - twist_robot_base.tail(3));
 
     Sophus::Vector6d acc;
     acc.head(3) = acc_p;
@@ -175,12 +172,6 @@ void ctrl_server::set_trot_force()
     acc(3) = saturation_check(acc(3), Eigen::Vector2d(-40,40));
     acc(4) = saturation_check(acc(4), Eigen::Vector2d(-40,40));
     acc(5) = saturation_check(acc(5), Eigen::Vector2d(-10,10));
-
-    std::cout<<"force here"<<std::endl;
-    std::cout<<acc<<std::endl;
-    std::cout<<std::endl;
-    // ros::shutdown();
-    // 
 
     std::vector<Eigen::Vector3d> feet_rBF_I; // vector from base to foot in {I}
     std::vector<Eigen::Vector3d> feet_posi_I;
@@ -197,11 +188,6 @@ void ctrl_server::set_trot_force()
     f_now = (-1) * get_f(feet_rBF_I, acc, contact_gait);
     f_prev = f_now;
 
-    std::cout<<"after opt"<<std::endl;
-    std::cout<<f_now<<std::endl<<std::endl;
-    std::cout<<Kps_trot<<std::endl<<std::endl;
-
-    std::cout<<"swing force:"<<std::endl;
     for (int leg_i = 0; leg_i <leg_no; leg_i++)
     {
         
@@ -211,7 +197,6 @@ void ctrl_server::set_trot_force()
             Kps_trot * (swing_feet_posi_I[leg_i] - feet_posi_I[leg_i]) 
             + Kds_trot * (swing_feet_velo_I[leg_i] - feet_velo_I[leg_i])
             ;   
-            std::cout<<f_now.segment(leg_i * 3, 3).norm()<<std::endl<<std::endl;;
         }
     }
 
@@ -232,30 +217,13 @@ void ctrl_server::set_trot_swing()
     Eigen::Vector3d w_base_I = twist_robot_base.tail(3);
     Eigen::Vector3d base2foot;
 
-    std::cout<<"heresxdfsadfasdfasfasdfasdfd"<<std::endl;
     for (int leg_i = 0; leg_i < leg_no; leg_i++)
     {
         p_swing_now_L = rot_I2B * (swing_feet_posi_I[leg_i] - base_posi) - r_all_base2hip[leg_i];
 
-        if(leg_i == 0)
-        {
-            std::cout<<rot_I2B<<std::endl<<std::endl;;
-            std::cout<<base_posi<<std::endl<<std::endl;
-            std::cout<<swing_feet_posi_I[leg_i]<<std::endl<<std::endl;;
-            std::cout<<p_swing_now_L<<std::endl<<std::endl;;
-        }
-
         q_swing_gait_target.emplace_back(
             inverse_kinematics(leg_i, p_swing_now_L)
         );
-
-        // std::cout<<inverse_kinematics(leg_i, p_swing_now_L)<<std::endl;
-        // std::cout<<"============="<<std::endl;
-        // base2foot = rot_B2I *(r_all_base2hip[leg_i] + p_swing_now_L);
-        // v_swing_now_L = rot_I2B * (
-        //     swing_feet_velo_I[leg_i] - twist_robot_base.head(3) 
-        //     - rot_B2I * Sophus::SO3d::hat(w_base_I) * base2foot
-        // );
 
         v_swing_now_L = rot_I2B * (swing_feet_velo_I[leg_i] - twist_robot_base.head(3));
         dq_swing_gait_target.emplace_back(
@@ -281,15 +249,10 @@ void ctrl_server::set_trot_cmd()
     // q_swing_gait_target;
     // dq_swing_gait_target;
 
-    std::cout<<"final torque here"<<std::endl;
-    std::cout<<balance_tau<<std::endl;
-
     for(int leg_i = 0; leg_i < leg_no; leg_i++)
     {
         if(contact_gait(leg_i) == 0)
         {
-            // std::cout<<"swing now: "<<leg_i<<std::endl;;
-            // std::cout<<swing_feet_posi_I[leg_i]<<std::endl<<std::endl;;
             // swing -> Kp larger
             cmdSet.motorCmd[leg_i*3+0].mode = 10;
             cmdSet.motorCmd[leg_i*3+0].Kp = 3;
@@ -303,8 +266,6 @@ void ctrl_server::set_trot_cmd()
         }
         else
         {
-            // std::cout<<"stance now: "<<leg_i<<std::endl;
-            // std::cout<<swing_feet_posi_I[leg_i]<<std::endl<<std::endl;;
             cmdSet.motorCmd[leg_i*3+0].mode = 10;
             cmdSet.motorCmd[leg_i*3+0].Kp = 0.8;
             cmdSet.motorCmd[leg_i*3+0].Kd = 0.8;
@@ -328,8 +289,6 @@ void ctrl_server::set_trot_cmd()
         cmdSet.motorCmd[leg_i*3+1].dq = dq_swing_gait_target[leg_i](1);
         cmdSet.motorCmd[leg_i*3+2].dq = dq_swing_gait_target[leg_i](2);
     }
-
-    // ros::shutdown();
 }
 
 
