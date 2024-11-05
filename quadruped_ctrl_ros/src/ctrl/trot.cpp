@@ -144,6 +144,26 @@ void ctrl_server::set_trot_force()
     acc(5) = saturation_check(acc(5), Eigen::Vector2d(-10,10));
 
     f_now = (-1) * get_f(feet_posi_I, acc, contact_gait);
+
+    for (int leg_i = 0; leg_i <leg_no; leg_i++)
+    {
+        if(contact_gait(leg_i) == 0)
+        {
+            f_now.segment(leg_i * 3, 3) = 
+            Kps_trot * (swing_feet_posi_I[leg_i] - feet_posi_I[leg_i]) 
+            // + Kds_trot * ()
+            ;
+        }
+    }
+
+    // for(int i(0); i<4; ++i){
+    //     if((*_contact)(i) == 0){
+    //         _forceFeetGlobal.col(i) = _KpSwing*(_posFeetGlobalGoal.col(i) - _posFeetGlobal.col(i)) + _KdSwing*(_velFeetGlobalGoal.col(i)-_velFeetGlobal.col(i));
+    //     }
+    // }
+
+    // std::cout<<"force here"<<std::endl;
+    // std::cout<<f_now<<std::endl<<std::endl;;
     f_prev = f_now;
 }
 
@@ -161,16 +181,14 @@ void ctrl_server::set_trot_swing()
     Eigen::Vector3d w_base_I = twist_robot_base.tail(3);
     Eigen::Vector3d base2foot;
 
-    std::cout<<"herere"<<std::endl<<std::endl;;
-
     for (int leg_i = 0; leg_i < leg_no; leg_i++)
     {
-        p_swing_now_L = rot_I2B * (feet_posi_I[leg_i] - base_posi) - r_all_base2hip[leg_i];
+        p_swing_now_L = rot_I2B * (swing_feet_posi_I[leg_i] - base_posi) - r_all_base2hip[leg_i];
 
-        std::cout<<feet_posi_I[leg_i]<<std::endl<<std::endl;;
-        std::cout<<p_swing_now_L<<std::endl<<std::endl;;
-        std::cout<<inverse_kinematics(leg_i, p_swing_now_L)<<std::endl;
-        std::cout<<"============="<<std::endl;
+        // std::cout<<feet_posi_I[leg_i]<<std::endl<<std::endl;;
+        // std::cout<<p_swing_now_L<<std::endl<<std::endl;;
+        // std::cout<<inverse_kinematics(leg_i, p_swing_now_L)<<std::endl;
+        // std::cout<<"============="<<std::endl;
 
         q_swing_gait_target.emplace_back(
             inverse_kinematics(leg_i, p_swing_now_L)
@@ -178,9 +196,11 @@ void ctrl_server::set_trot_swing()
 
         base2foot = rot_B2I *(r_all_base2hip[leg_i] + p_swing_now_L);
         v_swing_now_L = rot_I2B * (
-            feet_velo_I[leg_i] - twist_robot_base.head(3) 
+            swing_feet_velo_I[leg_i] - twist_robot_base.head(3) 
             - rot_B2I * Sophus::SO3d::hat(w_base_I) * base2foot
         );
+
+        v_swing_now_L = rot_I2B * (swing_feet_velo_I[leg_i] - twist_robot_base.head(3));
         dq_swing_gait_target.emplace_back(
             inverse_diff_kinematics(
                 leg_i,
@@ -195,8 +215,6 @@ void ctrl_server::set_trot_swing()
         if(what.hasNaN())
             ros::shutdown();
     }
-
-    // ros::shutdown();
 }
 
 void ctrl_server::set_trot_cmd()
@@ -206,22 +224,16 @@ void ctrl_server::set_trot_cmd()
     // q_swing_gait_target;
     // dq_swing_gait_target;
 
+    // std::cout<<"final torque here"<<std::endl;
+    // std::cout<<balance_tau<<std::endl;
+
     for(int leg_i = 0; leg_i < leg_no; leg_i++)
     {
         if(contact_gait(leg_i) == 0)
         {
-            cmdSet.motorCmd[leg_i*3+0].mode = 10;
-            cmdSet.motorCmd[leg_i*3+0].Kp = 0.8;
-            cmdSet.motorCmd[leg_i*3+0].Kd = 0.8;
-            cmdSet.motorCmd[leg_i*3+1].mode = 10;
-            cmdSet.motorCmd[leg_i*3+1].Kp = 0.8;
-            cmdSet.motorCmd[leg_i*3+1].Kd = 0.8;
-            cmdSet.motorCmd[leg_i*3+2].mode = 10;
-            cmdSet.motorCmd[leg_i*3+2].Kp = 0.8;
-            cmdSet.motorCmd[leg_i*3+2].Kd = 0.8;
-        }
-        else
-        {
+            std::cout<<"swing now: "<<leg_i<<std::endl;;
+            std::cout<<swing_feet_posi_I[leg_i]<<std::endl<<std::endl;;
+            // swing -> Kp larger
             cmdSet.motorCmd[leg_i*3+0].mode = 10;
             cmdSet.motorCmd[leg_i*3+0].Kp = 3;
             cmdSet.motorCmd[leg_i*3+0].Kd = 2;
@@ -232,7 +244,20 @@ void ctrl_server::set_trot_cmd()
             cmdSet.motorCmd[leg_i*3+2].Kp = 3;
             cmdSet.motorCmd[leg_i*3+2].Kd = 2;
         }
-
+        else
+        {
+            std::cout<<"stance now: "<<leg_i<<std::endl;
+            std::cout<<swing_feet_posi_I[leg_i]<<std::endl<<std::endl;;
+            cmdSet.motorCmd[leg_i*3+0].mode = 10;
+            cmdSet.motorCmd[leg_i*3+0].Kp = 0.8;
+            cmdSet.motorCmd[leg_i*3+0].Kd = 0.8;
+            cmdSet.motorCmd[leg_i*3+1].mode = 10;
+            cmdSet.motorCmd[leg_i*3+1].Kp = 0.8;
+            cmdSet.motorCmd[leg_i*3+1].Kd = 0.8;
+            cmdSet.motorCmd[leg_i*3+2].mode = 10;
+            cmdSet.motorCmd[leg_i*3+2].Kp = 0.8;
+            cmdSet.motorCmd[leg_i*3+2].Kd = 0.8;
+        }
         cmdSet.motorCmd[leg_i*3+0].tau = balance_tau[leg_i*3+0];
         cmdSet.motorCmd[leg_i*3+1].tau = balance_tau[leg_i*3+1];
         cmdSet.motorCmd[leg_i*3+2].tau = balance_tau[leg_i*3+2];
@@ -244,6 +269,14 @@ void ctrl_server::set_trot_cmd()
         cmdSet.motorCmd[leg_i*3+0].dq = dq_swing_gait_target[leg_i](0);
         cmdSet.motorCmd[leg_i*3+1].dq = dq_swing_gait_target[leg_i](1);
         cmdSet.motorCmd[leg_i*3+2].dq = dq_swing_gait_target[leg_i](2);
+
+        // cmdSet.motorCmd[leg_i*3+0].tau = 0;
+        // cmdSet.motorCmd[leg_i*3+1].tau = 0;
+        // cmdSet.motorCmd[leg_i*3+2].tau = 0;
+
+        // cmdSet.motorCmd[leg_i*3+0].dq = 0;
+        // cmdSet.motorCmd[leg_i*3+1].dq = 0;
+        // cmdSet.motorCmd[leg_i*3+2].dq = 0;
 
     }
 

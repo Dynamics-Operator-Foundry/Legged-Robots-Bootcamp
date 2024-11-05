@@ -73,4 +73,11 @@ target_link_libraries(joy_receive
     ${catkin_LIBRARIES}
 )
 
+add_executable(wrench
+    src/misc/wrench.cpp
+)
+target_link_libraries(wrench
+    ${catkin_LIBRARIES}
+)
+
 

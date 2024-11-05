@@ -54,21 +54,25 @@ void ctrl_server::set_gait_params()
 
     for (int leg_i = 0; leg_i < leg_no; leg_i ++)
     {
-        feet_posi_start_I.emplace_back(pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i) + pose_SE3_robot_base.translation());
-        feet_posi_I.emplace_back(Eigen::Vector3d::Zero());
-        feet_velo_I.emplace_back(Eigen::Vector3d::Zero());
-        end_posi_I.emplace_back(Eigen::Vector3d::Zero());
+        swing_start_posi_I.emplace_back(pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i) + pose_SE3_robot_base.translation());
+        swing_feet_posi_I.emplace_back(Eigen::Vector3d::Zero());
+        swing_feet_velo_I.emplace_back(Eigen::Vector3d::Zero());
+        swing_end_posi_I.emplace_back(Eigen::Vector3d::Zero());
     }
 }
 
 void ctrl_server::calc_contact_phase()
 {
+    // std::cout<<"time here"<<std::endl;
+
     double t_since_start = ros::Time::now().toSec() - t_start;
     Eigen::Vector4d normalized_time;
 
     for (int leg_i = 0; leg_i < leg_no; leg_i++)
     {
         normalized_time(leg_i) = fmod(t_since_start + P_gait - P_gait * b_gait(leg_i), P_gait) / P_gait;
+
+        // std::cout<<normalized_time(leg_i)<<std::endl;
 
         if (normalized_time(leg_i) < r_gait)
         {
@@ -80,7 +84,12 @@ void ctrl_server::calc_contact_phase()
             contact_gait(leg_i) = 0;
             phase_gait(leg_i) = (normalized_time(leg_i) - r_gait) / (1 - r_gait);
         }
+        // std::cout<<phase_gait(leg_i)<<std::endl;
+
+        // std::cout<<std::endl;
     }
+
+    // std::cout<<"=========time end========="<<std::endl;
 }
 
 void ctrl_server::set_gait()
@@ -91,30 +100,43 @@ void ctrl_server::set_gait()
         {
             if(phase_gait(leg_i) < 0.5)
             {
-                feet_posi_start_I[leg_i] =
+                swing_start_posi_I[leg_i] =
                     pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i) + pose_SE3_robot_base.translation();
             }
-            feet_posi_I[leg_i] = feet_posi_start_I[leg_i];
-            feet_velo_I[leg_i] = Eigen::Vector3d::Zero();
+            swing_feet_posi_I[leg_i] = swing_start_posi_I[leg_i];
+            swing_feet_velo_I[leg_i] = Eigen::Vector3d::Zero();
         }
         else
         {
-            // _endP.col(i) = _feetCal->calFootPos(i, _vxyGoal, _dYawGoal, (*_phase)(i));
-
-            end_posi_I[leg_i] = get_raibert_posi(leg_i, trot_vel_I.head(2), trot_vel_I(2), phase_gait(leg_i));
-
-            feet_posi_I[leg_i] = get_swing_foot_posi(
+            swing_end_posi_I[leg_i] = get_raibert_posi(
                 leg_i, 
-                feet_posi_start_I[leg_i],
-                end_posi_I[leg_i],
+                trot_vel_I.head(2), 
+                trot_vel_I(2), 
                 phase_gait(leg_i)
             );
-            feet_velo_I[leg_i] = get_swing_foot_velo(
+
+            swing_feet_posi_I[leg_i] = get_swing_foot_posi(
+                leg_i, 
+                swing_start_posi_I[leg_i],
+                swing_end_posi_I[leg_i],
+                phase_gait(leg_i)
+            );
+            swing_feet_velo_I[leg_i] = get_swing_foot_velo(
                 leg_i,
-                feet_posi_I[leg_i],
-                end_posi_I[leg_i],
+                swing_start_posi_I[leg_i],
+                swing_end_posi_I[leg_i],
                 phase_gait[leg_i]
             );
+
+            // if(contact_gait[leg_i] == 0)
+            // {
+            //     std::cout<<contact_gait[leg_i]<<std::endl;
+            //     std::cout<<phase_gait[leg_i]<<std::endl;
+            //     std::cout<<std::endl<<feet_posi_start_I[leg_i]<<std::endl<<std::endl;
+            //     std::cout<<end_posi_I[leg_i]<<std::endl<<std::endl;
+            //     std::cout<<std::endl<<feet_posi_I[leg_i]<<std::endl<<std::endl;
+            //     std::cout<<"============"<<std::endl;
+            // }   
         }
     }
     // _pastP = feetPos;

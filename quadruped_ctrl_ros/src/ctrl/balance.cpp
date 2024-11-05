@@ -222,6 +222,9 @@ void ctrl_server::set_fVec(const Sophus::Vector6d acc)
 
 void ctrl_server::set_constraints()
 {   
+    // std::cout<<"here in set constraints"<<std::endl;
+    // std::cout<<contact_gait<<std::endl<<std::endl;
+
     int leg_no_in_air = 0;
     std::vector<int> which_legs_in_air, which_legs_on_ground;
  
@@ -238,7 +241,9 @@ void ctrl_server::set_constraints()
         }
     }
 
-    int row_no = (leg_no - leg_no_in_air) * 5 + leg_no_in_air * 3;
+    int leg_no_on_ground = (leg_no - leg_no_in_air);
+
+    int row_no = leg_no_on_ground * 5 + leg_no_in_air * 3;
     int col_no = 12;
     AMat.resize(row_no, col_no);
     AMat.setZero();
@@ -267,8 +272,13 @@ void ctrl_server::set_constraints()
 
     for (int i = 0; i < which_legs_in_air.size(); i++)
     {
-        AMat.block<3,3>(i*3,which_legs_on_ground[i]*3) = Eigen::Matrix3d::Identity();
+        AMat.block<3,3>(leg_no_on_ground * 5 + i*3,which_legs_in_air[i]*3) = Eigen::Matrix3d::Identity();
     }
+
+
+    // std::cout<<AMat<<std::endl<<std::endl;
+    // std::cout<<ubVec<<std::endl<<std::endl;;
+    // std::cout<<lbVec<<std::endl<<std::endl;;
 }
 
 void ctrl_server::set_tau(

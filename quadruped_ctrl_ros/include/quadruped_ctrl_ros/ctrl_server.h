@@ -258,8 +258,7 @@ private:
     Eigen::Matrix3d Kdb_w_trot;
     Eigen::Matrix3d Kps_trot;
     Eigen::Matrix3d Kds_trot;
-    std::vector<Eigen::Vector3d> feet_posi_start_I;
-    std::vector<Eigen::Vector3d> feet_posi_I, feet_velo_I, end_posi_I;
+    std::vector<Eigen::Vector3d> swing_feet_posi_I, swing_feet_velo_I, swing_start_posi_I, swing_end_posi_I;
     double gait_height = 0.08;
     cv::Mat gait_viz;
     image_transport::Publisher image_pub;
