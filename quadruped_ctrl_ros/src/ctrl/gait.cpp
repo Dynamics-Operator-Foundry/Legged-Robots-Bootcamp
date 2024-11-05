@@ -95,7 +95,7 @@ void ctrl_server::calc_contact_phase()
     // std::cout<<"=========time end========="<<std::endl;
 }
 
-void ctrl_server::set_gait()
+void ctrl_server::set_foot_traj()
 {
     // std::cout<<"set_gait"<<std::endl;
 

@@ -33,77 +33,110 @@ void ctrl_server::trot_ctrl()
         trot_start = true;
     }
     
+    // 1. set phase + contact status
     calc_contact_phase();
     draw_gait(gait_viz, contact_gait);
 
+    // 2. set lateral + yaw vel & base desired x, y, phi
     set_trot_vel();
     set_trot_base_desired();
 
-    set_gait();
+    // 3. set foot traj
+    set_foot_traj();
 
+    // 4. set force
     set_trot_force(); // set force, force will then transformed into torque
     set_trot_swing(); // set swing, posi and velo will then transformed into q, dq
 
+    // 5. send cmd to joints
     set_trot_cmd();
 }
 
 void ctrl_server::set_trot_vel()
 {
-    trot_vel_I = Eigen::Vector3d(-0 * 0.5,-gait_vlim_B(0) * 0.5,0);
+    trot_vel_B = Eigen::Vector2d(
+        0.0,
+        0.0
+    );
+
+    trot_vel_yaw = -gait_vlim_B(2) * 0.5;
 }
 
 void ctrl_server::set_trot_base_desired()
 {
+    Eigen::Vector3d posi_base_now = pose_SE3_robot_base.translation();
+    Eigen::Vector3d velo_base_now = twist_robot_base.head(3);
+
+    double yaw_now = q2rpy(pose_SE3_robot_base.unit_quaternion())(2);
+    double dyaw_now = twist_robot_base(5);
+
+    trot_vel_I = pose_SE3_robot_base.rotationMatrix() * 
+        Eigen::Vector3d(
+            trot_vel_B.x(), 
+            trot_vel_B.y(), 
+            0
+        );
+
     // lateral movement
-        // get current posi
-    trot_base_posi_desired = pose_SE3_robot_base.translation();
-    
-        // posi setpoint += according to current velocity
+        // velo setpoint
     trot_base_dposi_desired.x() = saturation_check(
         trot_vel_I.x(), 
         Eigen::Vector2d(
-            trot_vel_I.x()-0.2, 
-            trot_vel_I.x()+0.2
+            velo_base_now.x()-0.2, 
+            velo_base_now.x()+0.2
         )
     );
     trot_base_dposi_desired.y() = saturation_check(
         trot_vel_I.y(), 
         Eigen::Vector2d(
-            trot_vel_I.y()-0.2, 
-            trot_vel_I.y()+0.2
+            velo_base_now.y()-0.2, 
+            velo_base_now.y()+0.2
         )
     );
     trot_base_dposi_desired.z() = 0;
 
+        // posi setpoint += according to current velocity setpoint
     trot_base_posi_desired.x() = saturation_check(
-        trot_base_posi_desired.x() + trot_base_dposi_desired.x() * (1.0 / ctrl_freq),
+        posi_base_now.x() + trot_base_dposi_desired.x() * (1.0 / ctrl_freq),
         Eigen::Vector2d(
-            trot_base_posi_desired.x() - 0.05,
-            trot_base_posi_desired.x() + 0.05
+            posi_base_now.x() - 0.05,
+            posi_base_now.x() + 0.05
         )
     );
     trot_base_posi_desired.y() = saturation_check(
-        trot_base_posi_desired.y() + trot_base_dposi_desired.y() * (1.0 / ctrl_freq),
+        posi_base_now.y() + trot_base_dposi_desired.y() * (1.0 / ctrl_freq),
         Eigen::Vector2d(
-            trot_base_posi_desired.y() - 0.05,
-            trot_base_posi_desired.y() + 0.05
+            posi_base_now.y() - 0.05,
+            posi_base_now.y() + 0.05
         )
     );
     trot_base_posi_desired.z() = -neutral_stance(2,0);
 
     // rotation
     trot_base_atti_desired.setZero();
+    trot_base_datti_desired.setZero();
+        
+        // velo yaw setpoint
+    trot_base_datti_desired.z() = saturation_check(
+        trot_vel_yaw, 
+        Eigen::Vector2d(
+            dyaw_now-0.2, 
+            dyaw_now+0.2
+        )
+    );
+        // posi yaw setpoint
+    trot_base_atti_desired(2) =saturation_check(
+        yaw_now + trot_base_datti_desired.z(), 
+        Eigen::Vector2d(
+            yaw_now-0.2, 
+            yaw_now+0.2
+        )
+    );
 }
 
 void ctrl_server::set_trot_force()
 {
     // in inertial frame
-    std::cout<<"desired base: \n";
-    std::cout<<trot_base_posi_desired<<std::endl<<std::endl;;
-    std::cout<<"current base: \n";
-    std::cout<<pose_SE3_robot_base.translation()<<std::endl;
-    std::cout<<"!!!!!!!!!"<<std::endl<<std::endl;
-
     Eigen::Vector3d acc_p = 
         Kp_p * (
             trot_base_posi_desired 

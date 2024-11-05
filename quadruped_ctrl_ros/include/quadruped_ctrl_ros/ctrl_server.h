@@ -222,11 +222,13 @@ private:
     Eigen::Vector3d trot_base_posi_desired;
     Eigen::Vector3d trot_base_dposi_desired;
     Eigen::Vector3d trot_base_atti_desired;
-    Eigen::Vector3d trot_vel_B;
+    Eigen::Vector3d trot_base_datti_desired;
+    Eigen::Vector2d trot_vel_B;
+    double trot_vel_yaw;
     Eigen::Vector3d trot_vel_I;
     bool trot_start = false;
 
-    void set_gait();
+    void set_foot_traj();
     void set_gait_params();
     void calc_contact_phase();
     double cycloid_lateral(double start, double end, double phase);
