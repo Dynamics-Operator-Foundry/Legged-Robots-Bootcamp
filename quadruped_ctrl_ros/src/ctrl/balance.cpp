@@ -222,7 +222,7 @@ void ctrl_server::set_fVec(const Sophus::Vector6d acc)
 
 void ctrl_server::set_constraints()
 {   
-    // std::cout<<"here in set constraints"<<std::endl;
+    std::cout<<"here in set constraints"<<std::endl;
     // std::cout<<contact_gait<<std::endl<<std::endl;
 
     int leg_no_in_air = 0;
@@ -275,8 +275,8 @@ void ctrl_server::set_constraints()
         AMat.block<3,3>(leg_no_on_ground * 5 + i*3,which_legs_in_air[i]*3) = Eigen::Matrix3d::Identity();
     }
 
-
-    // std::cout<<AMat<<std::endl<<std::endl;
+    std::cout<<contact_gait<<std::endl;
+    std::cout<<AMat<<std::endl<<std::endl;
     // std::cout<<ubVec<<std::endl<<std::endl;;
     // std::cout<<lbVec<<std::endl<<std::endl;;
 }

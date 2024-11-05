@@ -55,7 +55,9 @@ void ctrl_server::set_gait_params()
 
     for (int leg_i = 0; leg_i < leg_no; leg_i ++)
     {
-        swing_start_posi_I.emplace_back(pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i) + pose_SE3_robot_base.translation());
+        swing_start_posi_I.emplace_back(
+            pose_SE3_robot_base.rotationMatrix() * get_foot_p_B(leg_i) + pose_SE3_robot_base.translation()
+        );
         swing_feet_posi_I.emplace_back(Eigen::Vector3d::Zero());
         swing_feet_velo_I.emplace_back(Eigen::Vector3d::Zero());
         swing_end_posi_I.emplace_back(Eigen::Vector3d::Zero());
@@ -95,10 +97,13 @@ void ctrl_server::calc_contact_phase()
 
 void ctrl_server::set_gait()
 {
+    // std::cout<<"set_gait"<<std::endl;
+
     for(int leg_i = 0; leg_i < leg_no; leg_i++)
     {
         if(contact_gait(leg_i) == 1)
         {
+            // std::cout<<leg_i<<std::endl;
             if(phase_gait(leg_i) < 0.5)
             {
                 swing_start_posi_I[leg_i] =
@@ -111,8 +116,8 @@ void ctrl_server::set_gait()
         {
             swing_end_posi_I[leg_i] = get_raibert_posi(
                 leg_i, 
-                trot_vel_I.head(2), 
-                trot_vel_I(2), 
+                twist_robot_base.head(2), 
+                twist_robot_base.tail(3)(2), 
                 phase_gait(leg_i)
             );
 
@@ -171,7 +176,7 @@ Eigen::Vector3d ctrl_server::get_raibert_posi(int leg_i, Eigen::Vector2d velo_de
     double R = sqrt(
         pow(neutral_stance(0, leg_i), 2) 
             + 
-        pow(neutral_stance(0, leg_i), 2) 
+        pow(neutral_stance(1, leg_i), 2) 
     );
 
     double init_angle = atan2(

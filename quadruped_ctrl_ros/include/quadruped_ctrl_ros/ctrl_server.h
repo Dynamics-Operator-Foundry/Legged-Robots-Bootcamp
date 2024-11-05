@@ -218,6 +218,7 @@ private:
     void set_trot_force();
     void set_trot_swing();
     void set_trot_cmd();
+    void trot_ctrl_reset();
     Eigen::Vector3d trot_base_posi_desired;
     Eigen::Vector3d trot_base_dposi_desired;
     Eigen::Vector3d trot_base_atti_desired;

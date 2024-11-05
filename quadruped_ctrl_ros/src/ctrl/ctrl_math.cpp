@@ -382,10 +382,7 @@ double ctrl_server::saturation_check(double val, Eigen::Vector2d range)
 
     if (val < min)
         return min;
-    else
-        return val;
-    
-    if (val > max)
+    else if (val > max)
         return max;
     else
         return val;
