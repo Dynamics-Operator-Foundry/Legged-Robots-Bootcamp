@@ -49,7 +49,7 @@ void ctrl_server::trot_ctrl()
 
 void ctrl_server::set_trot_vel()
 {
-    trot_vel_I = Eigen::Vector3d(gait_vlim_B(0) * 0.5,0,0);
+    trot_vel_I = Eigen::Vector3d(-0 * 0.5,-gait_vlim_B(0) * 0.5,0);
 }
 
 void ctrl_server::set_trot_base_desired()
@@ -176,15 +176,11 @@ void ctrl_server::set_trot_force()
         {
             f_now.segment(leg_i * 3, 3) = 
             Kps_trot * (swing_feet_posi_I[leg_i] - feet_posi_I[leg_i]) 
-            // + Kds_trot * (swing_feet_velo_I[leg_i] - feet_velo_I[leg_i])
+            + Kds_trot * (swing_feet_velo_I[leg_i] - feet_velo_I[leg_i])
             ;   
             std::cout<<f_now.segment(leg_i * 3, 3).norm()<<std::endl<<std::endl;;
         }
     }
-
-    // std::cout<<"after set swing"<<std::endl;
-    // std::cout<<f_now<<std::endl<<std::endl;;
-    // ros::shutdown();
 
     set_tau(f_now);
 }
