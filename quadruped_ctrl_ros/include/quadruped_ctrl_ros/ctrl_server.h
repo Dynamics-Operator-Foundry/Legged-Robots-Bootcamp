@@ -93,7 +93,7 @@ private:
 
 //ros related
     // subscriber
-    ros::Subscriber fsm_sub, robot_base_sub;
+    ros::Subscriber fsm_sub, robot_base_sub, vcmd_sub;
     void register_callbacks();
     // callbacks
         // front right
@@ -120,6 +120,9 @@ private:
     void robotBaseCallback(const gazebo_msgs::ModelStates::ConstPtr &msg);
     Sophus::SE3d pose_SE3_robot_base;
     Sophus::Vector6d twist_robot_base;
+
+    void vCmdCallback(const geometry_msgs::Twist::ConstPtr &msg);
+    Sophus::Vector6d twist_normalized_cmd;
 
     // publisher
     void register_publishers();

@@ -54,12 +54,18 @@ void ctrl_server::trot_ctrl()
 
 void ctrl_server::set_trot_vel()
 {
+    // trot_vel_B = Eigen::Vector2d(
+        // 0.0,
+        // 0.0
+    // );
+
     trot_vel_B = Eigen::Vector2d(
-        0.0,
-        0.0
+        gait_vlim_B.x() * twist_normalized_cmd(0),
+        gait_vlim_B.y() * twist_normalized_cmd(1)
     );
 
-    trot_vel_yaw = -gait_vlim_B(2) * 0.5;
+    // trot_vel_yaw = -gait_vlim_B(2) * 0.5;
+    trot_vel_yaw = gait_vlim_B(2) * twist_normalized_cmd(5);
 }
 
 void ctrl_server::set_trot_base_desired()
@@ -125,13 +131,15 @@ void ctrl_server::set_trot_base_desired()
         )
     );
         // posi yaw setpoint
-    trot_base_atti_desired(2) =saturation_check(
-        yaw_now + trot_base_datti_desired.z(), 
+    double delta_yaw = saturation_check(
+        trot_base_datti_desired.z() * (1.0 / ctrl_freq), 
         Eigen::Vector2d(
-            yaw_now-0.2, 
-            yaw_now+0.2
+            -0.2, 
+            0.2
         )
     );
+
+    trot_base_atti_desired(2) = yaw_now + delta_yaw;
 }
 
 void ctrl_server::set_trot_force()

@@ -45,6 +45,8 @@ void ctrl_server::register_callbacks()
 
     robot_base_sub = nh.subscribe<gazebo_msgs::ModelStates>("/gazebo/model_states", 1, &ctrl_server::robotBaseCallback, this);
 
+    vcmd_sub = nh.subscribe<geometry_msgs::Twist>("/vcmd_normalized", 1, &ctrl_server::vCmdCallback, this);
+
     return;
 }
 
@@ -228,6 +230,16 @@ void ctrl_server::robotBaseCallback(
     pose_SE3_robot_base = posemsg_to_SE3(msg->pose[2]);
     twist_robot_base = twistmsg_to_velo(msg->twist[2]);
     // std::cout<<pose_SE3_robot_base.translation()<<std::endl<<std::endl;
+}
+
+void ctrl_server::vCmdCallback(
+    const geometry_msgs::Twist::ConstPtr &msg
+)
+{
+    twist_normalized_cmd << 
+        msg->linear.x, msg->linear.y, msg->linear.z,
+        msg->angular.x, msg->angular.y, msg->angular.z;
+
 }
 
 void ctrl_server::publish_servos(unitree_legged_msgs::LowCmd& _cmdSet)
