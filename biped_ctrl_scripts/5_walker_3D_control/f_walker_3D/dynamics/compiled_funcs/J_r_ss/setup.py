@@ -5,7 +5,7 @@ cy_opts = {'compiler_directives': {'language_level': '3'}}
 import numpy as np
 
 ext_mods = [Extension(
-    'wrapper_module_0', ['wrapper_module_0.pyx', 'wrapped_code_0.c'],
+    'wrapper_module_3', ['wrapper_module_3.pyx', 'wrapped_code_3.c'],
     include_dirs=[np.get_include()],
     library_dirs=[],
     libraries=[],

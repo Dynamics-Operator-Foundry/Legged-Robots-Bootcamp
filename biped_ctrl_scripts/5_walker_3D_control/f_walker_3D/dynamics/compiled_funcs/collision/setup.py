@@ -4,7 +4,7 @@ from Cython.Build import cythonize
 cy_opts = {'compiler_directives': {'language_level': '3'}}
 
 ext_mods = [Extension(
-    'wrapper_module_0', ['wrapper_module_0.pyx', 'wrapped_code_0.c'],
+    'wrapper_module_1', ['wrapper_module_1.pyx', 'wrapped_code_1.c'],
     include_dirs=[],
     library_dirs=[],
     libraries=[],

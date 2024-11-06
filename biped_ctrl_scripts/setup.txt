@@ -1,0 +1,11 @@
+numpy
+matplotlib
+pytorch
+torchvision
+torchaudio
+scipy
+sympy
+pickle
+Cython
+shutil
+tqdm
