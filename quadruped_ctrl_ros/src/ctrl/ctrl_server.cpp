@@ -126,6 +126,7 @@ void ctrl_server::fsm_manager()
             Eigen::Vector3d(0.3, 0.3, 0.5)
         );
     else if(FSM_STATE == UPRIGHT)
+        // to-do
         ;
     else    
         ROS_ERROR("Please Check System...");

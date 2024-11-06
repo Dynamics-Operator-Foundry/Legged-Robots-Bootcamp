@@ -226,6 +226,10 @@ Eigen::Vector3d ctrl_server::inverse_kinematics(
     )
         ROS_WARN("ANGLE HITS MECHANICAL LIMITS!");
 
+    theta0 = saturation_check(theta0, Eigen::Vector2d(-49.0/180 * M_PI, 49.0/180 * M_PI));
+    theta1 = saturation_check(theta1, Eigen::Vector2d(-39.0/180 * M_PI, 257.0/180 * M_PI));
+    theta2 = saturation_check(theta2, Eigen::Vector2d(-161.0/180 * M_PI, -51.0/180 * M_PI));
+
     return Eigen::Vector3d(theta0, theta1, theta2);
 }
 
