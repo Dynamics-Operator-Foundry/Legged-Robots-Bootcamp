@@ -141,7 +141,7 @@ For ```quadruped``` codes:
 1. Please follow [this](https://github.com/Dynamics-Learning-Workshop/unitree_ros) and [that](https://github.com/Dynamics-Learning-Workshop/unitree_guide) to setup the simulation environment.
   - please note that ROS is a prerequisite.
   - we tested all the codes on ubuntu 20.04 + ROS Noetic.
-  - also note that [lcm](https://github.com/lcm-proj/lcm) should be installed.
+  - also note that [lcm](https://github.com/lcm-proj/lcm), [osqp](https://github.com/osqp/osqp) and [osqp-eigen](https://github.com/robotology/osqp-eigen) should be installed.
   - I use ```tmux``` a lot, and this repo also used tmux. Please install tmux by ```sudo apt install tmux```.
 2. Prepare a gaming controller that is compatible with ```/joy```. Setup the controller via this [instruction](./viz/joy_tutorial.pdf).
 3. My practice is to install ```unitree_ros``` and ```unitree_guide``` in one workspace, and this repo in another workspace.
