@@ -82,7 +82,7 @@ void ctrl_server::set_squiggle_ctrl()
     yaw_mag = 20 * M_PI / 180;
     height_mag = 0.06;
 
-    dangle_mag = 0.25;
+    dangle_mag = 0.8;
     dheight_mag = 0.1;
 
     squiggle_fsm = "ROLL";
