@@ -25,17 +25,23 @@
 
 #include "quadruped_ctrl_ros/ctrl_server.h"
 
-void ctrl_server::set_gait_params()
+void ctrl_server::set_gait_params(
+    const double _P_gait,
+    const double _r_gait,
+    const Eigen::Vector4d _b_gait,
+    const Eigen::Vector3d _lim
+)
 {
     t_start = ros::Time::now().toSec();
-    P_gait = 0.45;
-    r_gait = 0.5;
-    b_gait << 0, 0.5, 0.5, 0;
+    P_gait = _P_gait;
+    r_gait = _r_gait;
+    b_gait = _b_gait;
+
     phase_gait.setConstant(0.5); 
     // all legs are at phase = 0.5, when everyone is on ground
     contact_gait << 1, 1, 1, 1;
 
-    gait_vlim_B << 0.4, 0.3, 0.5;
+    gait_vlim_B = _lim; //<< 0.4, 0.3, 0.5;
 
     Kpb_p_trot = Eigen::Vector3d(70,70,70).asDiagonal();
     Kdb_p_trot = Eigen::Vector3d(10,10,10).asDiagonal();
@@ -305,10 +311,4 @@ void ctrl_server::draw_gait(
 
     sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();
     image_pub.publish(msg);
-}
-
-
-void ctrl_server::reset_gait()
-{
-
 }

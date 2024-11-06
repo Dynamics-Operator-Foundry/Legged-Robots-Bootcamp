@@ -25,11 +25,16 @@
 
 #include "quadruped_ctrl_ros/ctrl_server.h"
 
-void ctrl_server::trot_ctrl()
+void ctrl_server::gait_ctrl(
+    const double _P_gait,
+    const double _r_gait,
+    const Eigen::Vector4d _b_gait,
+    const Eigen::Vector3d _lim
+)
 {
     if(!trot_start)
     {
-        set_gait_params();
+        set_gait_params(_P_gait, _r_gait, _b_gait, _lim);
         trot_start = true;
     }
     
@@ -38,21 +43,21 @@ void ctrl_server::trot_ctrl()
     draw_gait(gait_viz, contact_gait);
 
     // 2. set lateral + yaw vel & base desired x, y, phi
-    set_trot_vel();
-    set_trot_base_desired();
+    set_gait_ctrl_vel();
+    set_gait_ctrl_base_desired();
 
     // 3. set foot traj
     set_foot_traj();
 
     // 4. set force
-    set_trot_force(); // set force, force will then transformed into torque
-    set_trot_swing(); // set swing, posi and velo will then transformed into q, dq
+    set_gait_ctrl_force(); // set force, force will then transformed into torque
+    set_gait_ctrl_swing(); // set swing, posi and velo will then transformed into q, dq
 
     // 5. send cmd to joints
-    set_trot_cmd();
+    set_gait_ctrl_cmd();
 }
 
-void ctrl_server::set_trot_vel()
+void ctrl_server::set_gait_ctrl_vel()
 {
     // trot_vel_B = Eigen::Vector2d(
         // 0.0,
@@ -68,7 +73,7 @@ void ctrl_server::set_trot_vel()
     trot_vel_yaw = gait_vlim_B(2) * twist_normalized_cmd(5);
 }
 
-void ctrl_server::set_trot_base_desired()
+void ctrl_server::set_gait_ctrl_base_desired()
 {
     Eigen::Vector3d posi_base_now = pose_SE3_robot_base.translation();
     Eigen::Vector3d velo_base_now = twist_robot_base.head(3);
@@ -142,7 +147,7 @@ void ctrl_server::set_trot_base_desired()
     trot_base_atti_desired(2) = yaw_now + delta_yaw;
 }
 
-void ctrl_server::set_trot_force()
+void ctrl_server::set_gait_ctrl_force()
 {
     // in inertial frame
     Eigen::Vector3d acc_p = 
@@ -211,7 +216,7 @@ void ctrl_server::set_trot_force()
     set_tau(f_now);
 }
 
-void ctrl_server::set_trot_swing()
+void ctrl_server::set_gait_ctrl_swing()
 {
     Eigen::Vector3d p_swing_now_L;
     Eigen::Vector3d v_swing_now_L;
@@ -250,7 +255,7 @@ void ctrl_server::set_trot_swing()
     }
 }
 
-void ctrl_server::set_trot_cmd()
+void ctrl_server::set_gait_ctrl_cmd()
 {
     // after the above functions, we now have
     // f_now;
@@ -299,8 +304,7 @@ void ctrl_server::set_trot_cmd()
     }
 }
 
-
-void ctrl_server::trot_ctrl_reset()
+void ctrl_server::gait_ctrl_reset()
 {
     trot_start = false;
 }

@@ -105,9 +105,28 @@ void ctrl_server::fsm_manager()
     else if(FSM_STATE == BALANCE)
         balance_ctrl();
     else if(FSM_STATE == CRAWL)
-        crawl_ctrl();
+        gait_ctrl(
+            1.1, 
+            0.75, 
+            Eigen::Vector4d(0,0.25,0.5,0.75),
+            Eigen::Vector3d(0.2,0.15,0.2)
+        );
     else if(FSM_STATE == TROT)
-        trot_ctrl();
+        gait_ctrl(
+            0.45, 
+            0.5, 
+            Eigen::Vector4d(0,0.5,0.5,0),
+            Eigen::Vector3d(0.4, 0.3, 0.5)
+        );
+    else if(FSM_STATE == PRONK)
+        gait_ctrl(
+            0.4, 
+            0.7, 
+            Eigen::Vector4d(0,0,0,0),
+            Eigen::Vector3d(0.3, 0.3, 0.5)
+        );
+    else if(FSM_STATE == UPRIGHT)
+        ;
     else    
         ROS_ERROR("Please Check System...");
 }
@@ -127,5 +146,5 @@ void ctrl_server::fsm_reset()
     swing_leg_ctrl_reset();
     squiggle_ctrl_reset();
     balance_ctrl_reset();
-    trot_ctrl_reset();
+    gait_ctrl_reset();
 }

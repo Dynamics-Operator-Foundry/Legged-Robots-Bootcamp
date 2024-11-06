@@ -34,34 +34,7 @@ void ctrl_server::squiggle_ctrl()
         squiggle_track_start = true;
     }
 
-    // std::cout<<squiggle_fsm<<std::endl;
-    // std::cout<<ctrl_param<<std::endl<<std::endl;;
-
-    if (squiggle_fsm == "ROLL") 
-        roll_base = roll_mag * sin(ctrl_param);
-    else if (squiggle_fsm == "PITCH") 
-        pitch_base = pitch_mag * sin(ctrl_param);
-    else if (squiggle_fsm == "YAW") 
-        yaw_base = yaw_mag * sin(ctrl_param);
-    else 
-        height_base = height_mag * sin(ctrl_param);
-
-    ctrl_param = ctrl_param + 2 * M_PI / 3.0 * 1 / ctrl_freq;
-
-    if (ctrl_param > 2 * M_PI)
-    {
-        ctrl_param = 0;
-        roll_base = pitch_base = yaw_base = height_base = 0;
-
-        if (squiggle_fsm == "ROLL") 
-            squiggle_fsm = "PITCH";
-        else if (squiggle_fsm == "PITCH") 
-            squiggle_fsm = "YAW";
-        else if (squiggle_fsm == "YAW") 
-            squiggle_fsm = "HEIGHT";
-        else 
-            squiggle_fsm = "ROLL";
-    }
+    set_squiggle_atti();
 
     Eigen::Matrix3d _rot = rpy2q(
         Eigen::Vector3d(
@@ -80,21 +53,16 @@ void ctrl_server::squiggle_ctrl()
     // T_S_2_B = base_pose_S.inv()
 
     Sophus::SE3d T_S_2_B = base_pose_S.inverse();
-    // std::cout<<"================================"<<std::endl;
     for (int leg_i = 0; leg_i < leg_no; leg_i++)
     {
         p_foots_B.col(leg_i) = T_S_2_B.rotationMatrix() * p_foots_S.col(leg_i) + T_S_2_B.translation();
 
-        // std::cout<<p_foots_B.col(leg_i)<<std::endl<<std::endl;
-
         q_foots.col(leg_i) = get_q_from_B(leg_i, p_foots_B.col(leg_i));
 
-        // ros::shutdown()
         cmdSet.motorCmd[leg_i*3+0].q = q_foots.col(leg_i)[0];
         cmdSet.motorCmd[leg_i*3+1].q = q_foots.col(leg_i)[1];
         cmdSet.motorCmd[leg_i*3+2].q = q_foots.col(leg_i)[2];
     }
-    // std::cout<<"================================"<<std::endl;
 }
 
 void ctrl_server::set_squiggle_ctrl()
@@ -112,7 +80,10 @@ void ctrl_server::set_squiggle_ctrl()
     roll_mag = 20 * M_PI / 180;
     pitch_mag = 15 * M_PI / 180;
     yaw_mag = 20 * M_PI / 180;
-    height_mag = 0.04;
+    height_mag = 0.06;
+
+    dangle_mag = 0.25;
+    dheight_mag = 0.1;
 
     squiggle_fsm = "ROLL";
     roll_base = 0;
@@ -147,7 +118,47 @@ void ctrl_server::set_squiggle_ctrl_gain()
     }
 }
 
+void ctrl_server::set_squiggle_atti()
+{
+    roll_base = roll_base + dangle_mag * twist_normalized_cmd(1) * (1/ctrl_freq);
+    pitch_base = pitch_base + dangle_mag * twist_normalized_cmd(0) * (1/ctrl_freq);
+    yaw_base = yaw_base + dangle_mag * twist_normalized_cmd(5) * (1/ctrl_freq);
+    height_base = height_base + dheight_mag * twist_normalized_cmd(2) * (1/ctrl_freq);
+
+    roll_base = saturation_check(roll_base, Eigen::Vector2d(-roll_mag, roll_mag));
+    pitch_base = saturation_check(pitch_base, Eigen::Vector2d(-pitch_mag, pitch_mag));
+    yaw_base = saturation_check(yaw_base, Eigen::Vector2d(-yaw_mag, yaw_mag));
+    height_base = saturation_check(height_base, Eigen::Vector2d(-height_mag, height_mag));
+}
+
 void ctrl_server::squiggle_ctrl_reset()
 {
     squiggle_track_start = false;
 }
+
+
+// if (squiggle_fsm == "ROLL") 
+//     roll_base = roll_mag * sin(ctrl_param);
+// else if (squiggle_fsm == "PITCH") 
+//     pitch_base = pitch_mag * sin(ctrl_param);
+// else if (squiggle_fsm == "YAW") 
+//     yaw_base = yaw_mag * sin(ctrl_param);
+// else 
+//     height_base = height_mag * sin(ctrl_param);
+
+// ctrl_param = ctrl_param + 2 * M_PI / 3.0 * 1 / ctrl_freq;
+
+// if (ctrl_param > 2 * M_PI)
+// {
+//     ctrl_param = 0;
+//     roll_base = pitch_base = yaw_base = height_base = 0;
+
+//     if (squiggle_fsm == "ROLL") 
+//         squiggle_fsm = "PITCH";
+//     else if (squiggle_fsm == "PITCH") 
+//         squiggle_fsm = "YAW";
+//     else if (squiggle_fsm == "YAW") 
+//         squiggle_fsm = "HEIGHT";
+//     else 
+//         squiggle_fsm = "ROLL";
+// }

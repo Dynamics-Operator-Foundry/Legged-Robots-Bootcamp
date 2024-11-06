@@ -42,6 +42,8 @@
 #define BALANCE "BALANCE" // 4
 #define CRAWL "CRAWL" // 5
 #define TROT "TROT" // 6
+#define PRONK "PRONK" // 7
+#define UPRIGHT "UPRIGHT" // 7
 
 // CTRL_MODE
 // tau = tau_ff + Kp * dq + Kd * dqot
@@ -161,6 +163,7 @@ private:
     void squiggle_ctrl();
     void set_squiggle_ctrl();
     void set_squiggle_ctrl_gain();
+    void set_squiggle_atti();
     void squiggle_ctrl_reset();
     Eigen::Vector3d base_S; 
         // s_frame: squiggle frame
@@ -171,6 +174,7 @@ private:
     Eigen::Matrix<double, 3, 4> p_foots_S, p_foots_B, q_foots;
     // Eigen::Matrix
     double roll_mag, pitch_mag, yaw_mag, height_mag;
+    double dangle_mag, dheight_mag;
     double ctrl_param = 0;
     double roll_base, pitch_base, yaw_base, height_base;
     std::string squiggle_fsm;
@@ -214,14 +218,19 @@ private:
 
     void crawl_ctrl();
 
-    // trot
-    void trot_ctrl();
-    void set_trot_vel();
-    void set_trot_base_desired();
-    void set_trot_force();
-    void set_trot_swing();
-    void set_trot_cmd();
-    void trot_ctrl_reset();
+    // gait_control
+    void gait_ctrl(
+        const double _P_gait,
+        const double _r_gait,
+        const Eigen::Vector4d _b_gait,
+        const Eigen::Vector3d _lim
+    );
+    void set_gait_ctrl_vel();
+    void set_gait_ctrl_base_desired();
+    void set_gait_ctrl_force();
+    void set_gait_ctrl_swing();
+    void set_gait_ctrl_cmd();
+    void gait_ctrl_reset();
     Eigen::Vector3d trot_base_posi_desired;
     Eigen::Vector3d trot_base_dposi_desired;
     Eigen::Vector3d trot_base_atti_desired;
@@ -231,8 +240,14 @@ private:
     Eigen::Vector3d trot_vel_I;
     bool trot_start = false;
 
+    // gait
     void set_foot_traj();
-    void set_gait_params();
+    void set_gait_params(
+        const double _P_gait,
+        const double _r_gait,
+        const Eigen::Vector4d _b_gait,
+        const Eigen::Vector3d _lim
+    );
     void calc_contact_phase();
     double cycloid_lateral(double start, double end, double phase);
     double cycloid_vertical(double start, double h, double phase);
@@ -271,7 +286,11 @@ private:
     Eigen::Matrix<double, 3, 4> neutral_stance;
     std::vector<Eigen::Vector3d> q_swing_gait_target, dq_swing_gait_target;
 
-    void reset_gait();
+    // upright
+    void upwright_ctrl();
+    void set_upwright_ctrl();
+    void set_upwright_ctrl_gain();
+    void upwright_ctrl_reset();
 
     std::string pre_FSM_STATE;
     void check_fsm_change();

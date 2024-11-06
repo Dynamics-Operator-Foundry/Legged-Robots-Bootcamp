@@ -45,7 +45,7 @@ add_executable(ctrl_node
     src/ctrl/squiggle.cpp
     src/ctrl/balance.cpp
     src/ctrl/crawl.cpp
-    src/ctrl/trot.cpp
+    src/ctrl/gait_ctrl.cpp
     src/ctrl/gait.cpp
 
     src/qpsolve/osqpwrapper.cpp

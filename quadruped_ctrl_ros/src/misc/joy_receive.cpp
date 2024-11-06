@@ -35,6 +35,8 @@
 #define BALANCE "BALANCE" // 4
 #define CRAWL "CRAWL" // 5
 #define TROT "TROT" // 6
+#define PRONK "PRONK" // 7
+#define UPRIGHT "UPRIGHT" // 8 
 
 static std::string FSM_STATE, pre_FSM_STATE;
 static int key_no, key_no_prev;
@@ -114,13 +116,25 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
     if(msg->buttons[1] == 1) // circle
     {
-        key_no = 4;
+        key_no = 7;
         return;
     }
 
     if(msg->buttons[2] == 1) // triangle
     {
         key_no = 6;
+        return;
+    }
+
+    if(msg->buttons[3] == 1) // square
+    {
+        key_no = 5;
+        return;
+    }
+
+    if(msg->buttons[7] == 1) // R2
+    {
+        key_no = 8;
         return;
     }
 }
@@ -158,24 +172,6 @@ void mainSpinCallback(
             key_no_prev = key_no;
         }
     }
-    else if (key_no == 2) 
-    {   
-        if(!(FSM_STATE == SWING_LEG))
-        {
-            if (FSM_STATE != STAND)
-            {
-                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO SWING LEG!");
-                key_no = key_no_prev;
-            } 
-            else
-            {
-                ROS_WARN("CHANGE FSM!");
-                FSM_STATE = SWING_LEG;
-                ROS_GREEN_STREAM(FSM_STATE);
-                key_no_prev = key_no;
-            }
-        }
-    }
     else if (key_no == 3) 
     {
         if(!(FSM_STATE == SQUIGGLE))
@@ -194,31 +190,22 @@ void mainSpinCallback(
             }
         }
     }
-    else if (key_no == 4) 
+    else if (key_no == 5) 
     {
-        if(!(FSM_STATE == BALANCE))
+        if(!(FSM_STATE == CRAWL))
         {
             if (FSM_STATE != STAND)
             {
-                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO BALANCE!");
+                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO CRAWL!");
                 key_no = key_no_prev;
             }   
             else
             {
                 ROS_WARN("CHANGE FSM!");
-                FSM_STATE = BALANCE;
+                FSM_STATE = CRAWL;
                 ROS_GREEN_STREAM(FSM_STATE);
                 key_no_prev = key_no;
             }
-        }
-    }
-    else if (key_no == 5) 
-    {
-        if(!(FSM_STATE == CRAWL))
-        {
-            ROS_WARN("CHANGE FSM!");
-            FSM_STATE = CRAWL;
-            ROS_GREEN_STREAM(FSM_STATE);
         }
     }
     else if (key_no == 6) 
@@ -234,6 +221,42 @@ void mainSpinCallback(
             {
                 ROS_WARN("CHANGE FSM!");
                 FSM_STATE = TROT;
+                ROS_GREEN_STREAM(FSM_STATE);
+                key_no_prev = key_no;
+            }
+        }
+    }
+    else if (key_no == 7) 
+    {
+        if(!(FSM_STATE == PRONK))
+        {
+            if (FSM_STATE != STAND)
+            {
+                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO PRONK!");
+                key_no = key_no_prev;
+            }   
+            else
+            {
+                ROS_WARN("CHANGE FSM!");
+                FSM_STATE = PRONK;
+                ROS_GREEN_STREAM(FSM_STATE);
+                key_no_prev = key_no;
+            }
+        }
+    }
+    else if (key_no == 8) 
+    {
+        if(!(FSM_STATE == UPRIGHT))
+        {
+            if (FSM_STATE != STAND)
+            {
+                ROS_WARN("PLEASE MAKE FSM \"STAND\" PRIOR TO UPRIGHT!");
+                key_no = key_no_prev;
+            }   
+            else
+            {
+                ROS_WARN("CHANGE FSM!");
+                FSM_STATE = UPRIGHT;
                 ROS_GREEN_STREAM(FSM_STATE);
                 key_no_prev = key_no;
             }
