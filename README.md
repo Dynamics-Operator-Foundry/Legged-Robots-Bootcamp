@@ -31,7 +31,6 @@ This is a learning bootcamp for legged robotics newbies. Nevertheless, fundament
       - trajectory optimization, and 
       - feedback linearization.
       </br>
-      </br>
     <table align="center">
       <tr>
         <td align="center">
@@ -99,8 +98,7 @@ This is a learning bootcamp for legged robotics newbies. Nevertheless, fundament
       - dynamics modelling (Euler-Lagrange Equations), 
       - quadratic programming, and
       - cycloid trajectories.
-      
-  
+      </br>
       <table align="center">
         <tr>
           <td align="center">
