@@ -88,9 +88,9 @@ This is a learning bootcamp for legged robotics newbies. Nevertheless, fundament
           <td align="center">
             <img src="/viz/quadruped_pronk.gif" alt="pronk" width="300"/>
           </td>
-          <!-- <td align="center">
-            <img src="/viz/quadruped_pronk.gif" alt="dance" width="300"/>
-          </td> -->
+          <td align="center">
+            <img src="/viz/quadruped_dance.gif" alt="dance" width="300"/>
+          </td>
         </tr>
       </table>
 
