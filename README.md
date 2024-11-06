@@ -122,10 +122,12 @@ This is a learning bootcamp for legged robotics newbies. Nevertheless, fundament
 For ```biped``` scripts:
 1. Please first setup ```conda``` environment.
    ```
+   git clone https://github.com/Dynamics-Learning-Workshop/Legged-Robots-Bootcamp.git
+
    conda create --name leg_bootcamp
    conda activate leg_bootcamp
 
-   cd ./biped_ctrl_scripts
+   cd ./Legged-Robots-Bootcamp/biped_ctrl_scripts
    conda install --file setup.txt
    ```
 2. For 3D modelling, please do the following to wrap up python scripts in C, which will take around 1 minute (tested on M1 pro):
@@ -137,22 +139,28 @@ For ```biped``` scripts:
   
 For ```quadruped``` codes:
 1. Please follow [this](https://github.com/Dynamics-Learning-Workshop/unitree_ros) and [that](https://github.com/Dynamics-Learning-Workshop/unitree_guide) to setup the simulation environment.
-  - please note that ROS is a prerequisite.
-  - we tested all the codes on ubuntu 20.04 + ROS Noetic.
-  - also note that [lcm](https://github.com/lcm-proj/lcm), [osqp](https://github.com/osqp/osqp) and [osqp-eigen](https://github.com/robotology/osqp-eigen) should be installed.
-  - I use ```tmux``` a lot, and this repo also used tmux. Please install tmux by ```sudo apt install tmux```.
+     - please note that ROS is a prerequisite; we tested all the codes on ubuntu 20.04 + ROS Noetic.
+     - also note that [lcm](https://github.com/lcm-proj/lcm), [osqp](https://github.com/osqp/osqp) and [osqp-eigen](https://github.com/robotology/osqp-eigen) should be installed.
+     - I use ```tmux``` a lot, and this repo also used tmux. Please install tmux by ```sudo apt install tmux```.
 2. Prepare a gaming controller that is compatible with ```/joy```. Setup the controller via this [instruction](./viz/joy_tutorial.pdf).
 3. My practice is to install ```unitree_ros``` and ```unitree_guide``` in one workspace, and this repo in another workspace.
-4. Say the workspaces are respectively ```leg_sim_ws``` and ```leg_boot_ws```, first compile them with ```catkin_make```, and then:
+  ```
+  # do sim_env install as instructed above
+  
+  cd && mkdir -p leg_boot_ws/src && cd ~/leg_boot_ws_src
+  git clone https://github.com/Dynamics-Learning-Workshop/Legged-Robots-Bootcamp.git
+  ```
+  
+1. Say the workspaces are respectively ```leg_sim_ws``` and ```leg_boot_ws```, first compile them with ```catkin_make```, and then:
    ```
    cd ~ && ./leg_sim_ws/src/unitree_guide/sim.sh
    ```
-5. Then
+2. Then
    ```
    source ~/leg_boot_ws/devel/setup.bash 
    roslaunch quadruped_ros_ctrl ctrl.launch
    ```
-6. With the terminal, you will see some texts telling you the current FSM state. The control inputs via the controller are:
+3. With the terminal, you will see some texts telling you the current FSM state. The control inputs via the controller are:
    <p align="center">
       <img src="/viz/controller.jpg" alt="PS4" style="width: 100%;"/>
   </p>
