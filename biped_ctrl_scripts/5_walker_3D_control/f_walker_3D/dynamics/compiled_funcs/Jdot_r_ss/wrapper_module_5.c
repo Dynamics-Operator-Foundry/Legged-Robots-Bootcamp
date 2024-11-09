@@ -2630,7 +2630,7 @@ static const char __pyx_k_wrapper_module_5[] = "wrapper_module_5";
 static const char __pyx_k_asyncio_coroutines[] = "asyncio.coroutines";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_wrapper_module_5_pyx[] = "wrapper_module_5.pyx";
-static const char __pyx_k_out_2299211408529729899[] = "out_2299211408529729899";
+static const char __pyx_k_out_394789272384625011[] = "out_394789272384625011";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
 /* #### Code section: decls ### */
@@ -2723,7 +2723,7 @@ typedef struct {
   PyObject *__pyx_n_s_numpy;
   PyObject *__pyx_kp_u_numpy_core_multiarray_failed_to;
   PyObject *__pyx_kp_u_numpy_core_umath_failed_to_impor;
-  PyObject *__pyx_n_s_out_2299211408529729899;
+  PyObject *__pyx_n_s_out_394789272384625011;
   PyObject *__pyx_n_s_pitch;
   PyObject *__pyx_n_s_pitch_rh;
   PyObject *__pyx_n_s_pitch_rk;
@@ -2826,7 +2826,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_numpy);
   Py_CLEAR(clear_module_state->__pyx_kp_u_numpy_core_multiarray_failed_to);
   Py_CLEAR(clear_module_state->__pyx_kp_u_numpy_core_umath_failed_to_impor);
-  Py_CLEAR(clear_module_state->__pyx_n_s_out_2299211408529729899);
+  Py_CLEAR(clear_module_state->__pyx_n_s_out_394789272384625011);
   Py_CLEAR(clear_module_state->__pyx_n_s_pitch);
   Py_CLEAR(clear_module_state->__pyx_n_s_pitch_rh);
   Py_CLEAR(clear_module_state->__pyx_n_s_pitch_rk);
@@ -2907,7 +2907,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_numpy);
   Py_VISIT(traverse_module_state->__pyx_kp_u_numpy_core_multiarray_failed_to);
   Py_VISIT(traverse_module_state->__pyx_kp_u_numpy_core_umath_failed_to_impor);
-  Py_VISIT(traverse_module_state->__pyx_n_s_out_2299211408529729899);
+  Py_VISIT(traverse_module_state->__pyx_n_s_out_394789272384625011);
   Py_VISIT(traverse_module_state->__pyx_n_s_pitch);
   Py_VISIT(traverse_module_state->__pyx_n_s_pitch_rh);
   Py_VISIT(traverse_module_state->__pyx_n_s_pitch_rk);
@@ -3016,7 +3016,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_numpy __pyx_mstate_global->__pyx_n_s_numpy
 #define __pyx_kp_u_numpy_core_multiarray_failed_to __pyx_mstate_global->__pyx_kp_u_numpy_core_multiarray_failed_to
 #define __pyx_kp_u_numpy_core_umath_failed_to_impor __pyx_mstate_global->__pyx_kp_u_numpy_core_umath_failed_to_impor
-#define __pyx_n_s_out_2299211408529729899 __pyx_mstate_global->__pyx_n_s_out_2299211408529729899
+#define __pyx_n_s_out_394789272384625011 __pyx_mstate_global->__pyx_n_s_out_394789272384625011
 #define __pyx_n_s_pitch __pyx_mstate_global->__pyx_n_s_pitch
 #define __pyx_n_s_pitch_rh __pyx_mstate_global->__pyx_n_s_pitch_rh
 #define __pyx_n_s_pitch_rk __pyx_mstate_global->__pyx_n_s_pitch_rk
@@ -4301,11 +4301,11 @@ static CYTHON_INLINE NPY_DATETIMEUNIT __pyx_f_5numpy_get_datetime64_unit(PyObjec
 }
 
 /* "wrapper_module_5.pyx":7
- *     void autofunc(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2, double *out_2299211408529729899)
+ *     void autofunc(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2, double *out_394789272384625011)
  * 
  * def autofunc_c(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2):             # <<<<<<<<<<<<<<
  * 
- *     cdef np.ndarray[np.double_t, ndim=2] out_2299211408529729899 = np.empty((3,14))
+ *     cdef np.ndarray[np.double_t, ndim=2] out_394789272384625011 = np.empty((3,14))
  */
 
 /* Python wrapper */
@@ -4645,9 +4645,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 }
 
 static PyObject *__pyx_pf_16wrapper_module_5_autofunc_c(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_roll, double __pyx_v_pitch, double __pyx_v_yaw, double __pyx_v_roll_rh, double __pyx_v_pitch_rh, double __pyx_v_yaw_rh, double __pyx_v_pitch_rk, double __pyx_v_droll, double __pyx_v_dpitch, double __pyx_v_dyaw, double __pyx_v_droll_rh, double __pyx_v_dpitch_rh, double __pyx_v_dyaw_rh, double __pyx_v_dpitch_rk, double __pyx_v_w, double __pyx_v_l1, double __pyx_v_l2) {
-  PyArrayObject *__pyx_v_out_2299211408529729899 = 0;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_out_2299211408529729899;
-  __Pyx_Buffer __pyx_pybuffer_out_2299211408529729899;
+  PyArrayObject *__pyx_v_out_394789272384625011 = 0;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_out_394789272384625011;
+  __Pyx_Buffer __pyx_pybuffer_out_394789272384625011;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4660,17 +4660,17 @@ static PyObject *__pyx_pf_16wrapper_module_5_autofunc_c(CYTHON_UNUSED PyObject *
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("autofunc_c", 1);
-  __pyx_pybuffer_out_2299211408529729899.pybuffer.buf = NULL;
-  __pyx_pybuffer_out_2299211408529729899.refcount = 0;
-  __pyx_pybuffernd_out_2299211408529729899.data = NULL;
-  __pyx_pybuffernd_out_2299211408529729899.rcbuffer = &__pyx_pybuffer_out_2299211408529729899;
+  __pyx_pybuffer_out_394789272384625011.pybuffer.buf = NULL;
+  __pyx_pybuffer_out_394789272384625011.refcount = 0;
+  __pyx_pybuffernd_out_394789272384625011.data = NULL;
+  __pyx_pybuffernd_out_394789272384625011.rcbuffer = &__pyx_pybuffer_out_394789272384625011;
 
   /* "wrapper_module_5.pyx":9
  * def autofunc_c(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2):
  * 
- *     cdef np.ndarray[np.double_t, ndim=2] out_2299211408529729899 = np.empty((3,14))             # <<<<<<<<<<<<<<
- *     autofunc(roll, pitch, yaw, roll_rh, pitch_rh, yaw_rh, pitch_rk, droll, dpitch, dyaw, droll_rh, dpitch_rh, dyaw_rh, dpitch_rk, w, l1, l2, <double*> out_2299211408529729899.data)
- *     return out_2299211408529729899
+ *     cdef np.ndarray[np.double_t, ndim=2] out_394789272384625011 = np.empty((3,14))             # <<<<<<<<<<<<<<
+ *     autofunc(roll, pitch, yaw, roll_rh, pitch_rh, yaw_rh, pitch_rk, droll, dpitch, dyaw, droll_rh, dpitch_rh, dyaw_rh, dpitch_rk, w, l1, l2, <double*> out_394789272384625011.data)
+ *     return out_394789272384625011
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -4703,41 +4703,41 @@ static PyObject *__pyx_pf_16wrapper_module_5_autofunc_c(CYTHON_UNUSED PyObject *
   __pyx_t_5 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_out_2299211408529729899.rcbuffer->pybuffer, (PyObject*)__pyx_t_5, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
-      __pyx_v_out_2299211408529729899 = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_out_2299211408529729899.rcbuffer->pybuffer.buf = NULL;
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_out_394789272384625011.rcbuffer->pybuffer, (PyObject*)__pyx_t_5, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
+      __pyx_v_out_394789272384625011 = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_out_394789272384625011.rcbuffer->pybuffer.buf = NULL;
       __PYX_ERR(1, 9, __pyx_L1_error)
-    } else {__pyx_pybuffernd_out_2299211408529729899.diminfo[0].strides = __pyx_pybuffernd_out_2299211408529729899.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_out_2299211408529729899.diminfo[0].shape = __pyx_pybuffernd_out_2299211408529729899.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_out_2299211408529729899.diminfo[1].strides = __pyx_pybuffernd_out_2299211408529729899.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_out_2299211408529729899.diminfo[1].shape = __pyx_pybuffernd_out_2299211408529729899.rcbuffer->pybuffer.shape[1];
+    } else {__pyx_pybuffernd_out_394789272384625011.diminfo[0].strides = __pyx_pybuffernd_out_394789272384625011.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_out_394789272384625011.diminfo[0].shape = __pyx_pybuffernd_out_394789272384625011.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_out_394789272384625011.diminfo[1].strides = __pyx_pybuffernd_out_394789272384625011.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_out_394789272384625011.diminfo[1].shape = __pyx_pybuffernd_out_394789272384625011.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_t_5 = 0;
-  __pyx_v_out_2299211408529729899 = ((PyArrayObject *)__pyx_t_1);
+  __pyx_v_out_394789272384625011 = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
   /* "wrapper_module_5.pyx":10
  * 
- *     cdef np.ndarray[np.double_t, ndim=2] out_2299211408529729899 = np.empty((3,14))
- *     autofunc(roll, pitch, yaw, roll_rh, pitch_rh, yaw_rh, pitch_rk, droll, dpitch, dyaw, droll_rh, dpitch_rh, dyaw_rh, dpitch_rk, w, l1, l2, <double*> out_2299211408529729899.data)             # <<<<<<<<<<<<<<
- *     return out_2299211408529729899
+ *     cdef np.ndarray[np.double_t, ndim=2] out_394789272384625011 = np.empty((3,14))
+ *     autofunc(roll, pitch, yaw, roll_rh, pitch_rh, yaw_rh, pitch_rk, droll, dpitch, dyaw, droll_rh, dpitch_rh, dyaw_rh, dpitch_rk, w, l1, l2, <double*> out_394789272384625011.data)             # <<<<<<<<<<<<<<
+ *     return out_394789272384625011
  */
-  __pyx_t_6 = __pyx_f_5numpy_7ndarray_4data_data(((PyArrayObject *)__pyx_v_out_2299211408529729899)); if (unlikely(__pyx_t_6 == ((char *)NULL) && PyErr_Occurred())) __PYX_ERR(1, 10, __pyx_L1_error)
+  __pyx_t_6 = __pyx_f_5numpy_7ndarray_4data_data(((PyArrayObject *)__pyx_v_out_394789272384625011)); if (unlikely(__pyx_t_6 == ((char *)NULL) && PyErr_Occurred())) __PYX_ERR(1, 10, __pyx_L1_error)
   autofunc(__pyx_v_roll, __pyx_v_pitch, __pyx_v_yaw, __pyx_v_roll_rh, __pyx_v_pitch_rh, __pyx_v_yaw_rh, __pyx_v_pitch_rk, __pyx_v_droll, __pyx_v_dpitch, __pyx_v_dyaw, __pyx_v_droll_rh, __pyx_v_dpitch_rh, __pyx_v_dyaw_rh, __pyx_v_dpitch_rk, __pyx_v_w, __pyx_v_l1, __pyx_v_l2, ((double *)__pyx_t_6));
 
   /* "wrapper_module_5.pyx":11
- *     cdef np.ndarray[np.double_t, ndim=2] out_2299211408529729899 = np.empty((3,14))
- *     autofunc(roll, pitch, yaw, roll_rh, pitch_rh, yaw_rh, pitch_rk, droll, dpitch, dyaw, droll_rh, dpitch_rh, dyaw_rh, dpitch_rk, w, l1, l2, <double*> out_2299211408529729899.data)
- *     return out_2299211408529729899             # <<<<<<<<<<<<<<
+ *     cdef np.ndarray[np.double_t, ndim=2] out_394789272384625011 = np.empty((3,14))
+ *     autofunc(roll, pitch, yaw, roll_rh, pitch_rh, yaw_rh, pitch_rk, droll, dpitch, dyaw, droll_rh, dpitch_rh, dyaw_rh, dpitch_rk, w, l1, l2, <double*> out_394789272384625011.data)
+ *     return out_394789272384625011             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_INCREF((PyObject *)__pyx_v_out_2299211408529729899);
-  __pyx_r = ((PyObject *)__pyx_v_out_2299211408529729899);
+  __Pyx_INCREF((PyObject *)__pyx_v_out_394789272384625011);
+  __pyx_r = ((PyObject *)__pyx_v_out_394789272384625011);
   goto __pyx_L0;
 
   /* "wrapper_module_5.pyx":7
- *     void autofunc(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2, double *out_2299211408529729899)
+ *     void autofunc(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2, double *out_394789272384625011)
  * 
  * def autofunc_c(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2):             # <<<<<<<<<<<<<<
  * 
- *     cdef np.ndarray[np.double_t, ndim=2] out_2299211408529729899 = np.empty((3,14))
+ *     cdef np.ndarray[np.double_t, ndim=2] out_394789272384625011 = np.empty((3,14))
  */
 
   /* function exit code */
@@ -4749,15 +4749,15 @@ static PyObject *__pyx_pf_16wrapper_module_5_autofunc_c(CYTHON_UNUSED PyObject *
     __Pyx_PyThreadState_declare
     __Pyx_PyThreadState_assign
     __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_out_2299211408529729899.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_out_394789272384625011.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
   __Pyx_AddTraceback("wrapper_module_5.autofunc_c", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   goto __pyx_L2;
   __pyx_L0:;
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_out_2299211408529729899.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_out_394789272384625011.rcbuffer->pybuffer);
   __pyx_L2:;
-  __Pyx_XDECREF((PyObject *)__pyx_v_out_2299211408529729899);
+  __Pyx_XDECREF((PyObject *)__pyx_v_out_394789272384625011);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -4804,7 +4804,7 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_numpy, __pyx_k_numpy, sizeof(__pyx_k_numpy), 0, 0, 1, 1},
     {&__pyx_kp_u_numpy_core_multiarray_failed_to, __pyx_k_numpy_core_multiarray_failed_to, sizeof(__pyx_k_numpy_core_multiarray_failed_to), 0, 1, 0, 0},
     {&__pyx_kp_u_numpy_core_umath_failed_to_impor, __pyx_k_numpy_core_umath_failed_to_impor, sizeof(__pyx_k_numpy_core_umath_failed_to_impor), 0, 1, 0, 0},
-    {&__pyx_n_s_out_2299211408529729899, __pyx_k_out_2299211408529729899, sizeof(__pyx_k_out_2299211408529729899), 0, 0, 1, 1},
+    {&__pyx_n_s_out_394789272384625011, __pyx_k_out_394789272384625011, sizeof(__pyx_k_out_394789272384625011), 0, 0, 1, 1},
     {&__pyx_n_s_pitch, __pyx_k_pitch, sizeof(__pyx_k_pitch), 0, 0, 1, 1},
     {&__pyx_n_s_pitch_rh, __pyx_k_pitch_rh, sizeof(__pyx_k_pitch_rh), 0, 0, 1, 1},
     {&__pyx_n_s_pitch_rk, __pyx_k_pitch_rk, sizeof(__pyx_k_pitch_rk), 0, 0, 1, 1},
@@ -4859,22 +4859,22 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "wrapper_module_5.pyx":9
  * def autofunc_c(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2):
  * 
- *     cdef np.ndarray[np.double_t, ndim=2] out_2299211408529729899 = np.empty((3,14))             # <<<<<<<<<<<<<<
- *     autofunc(roll, pitch, yaw, roll_rh, pitch_rh, yaw_rh, pitch_rk, droll, dpitch, dyaw, droll_rh, dpitch_rh, dyaw_rh, dpitch_rk, w, l1, l2, <double*> out_2299211408529729899.data)
- *     return out_2299211408529729899
+ *     cdef np.ndarray[np.double_t, ndim=2] out_394789272384625011 = np.empty((3,14))             # <<<<<<<<<<<<<<
+ *     autofunc(roll, pitch, yaw, roll_rh, pitch_rh, yaw_rh, pitch_rk, droll, dpitch, dyaw, droll_rh, dpitch_rh, dyaw_rh, dpitch_rk, w, l1, l2, <double*> out_394789272384625011.data)
+ *     return out_394789272384625011
  */
   __pyx_tuple__3 = PyTuple_Pack(2, __pyx_int_3, __pyx_int_14); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(1, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
   /* "wrapper_module_5.pyx":7
- *     void autofunc(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2, double *out_2299211408529729899)
+ *     void autofunc(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2, double *out_394789272384625011)
  * 
  * def autofunc_c(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2):             # <<<<<<<<<<<<<<
  * 
- *     cdef np.ndarray[np.double_t, ndim=2] out_2299211408529729899 = np.empty((3,14))
+ *     cdef np.ndarray[np.double_t, ndim=2] out_394789272384625011 = np.empty((3,14))
  */
-  __pyx_tuple__5 = PyTuple_Pack(18, __pyx_n_s_roll, __pyx_n_s_pitch, __pyx_n_s_yaw, __pyx_n_s_roll_rh, __pyx_n_s_pitch_rh, __pyx_n_s_yaw_rh, __pyx_n_s_pitch_rk, __pyx_n_s_droll, __pyx_n_s_dpitch, __pyx_n_s_dyaw, __pyx_n_s_droll_rh, __pyx_n_s_dpitch_rh, __pyx_n_s_dyaw_rh, __pyx_n_s_dpitch_rk, __pyx_n_s_w, __pyx_n_s_l1, __pyx_n_s_l2, __pyx_n_s_out_2299211408529729899); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_tuple__5 = PyTuple_Pack(18, __pyx_n_s_roll, __pyx_n_s_pitch, __pyx_n_s_yaw, __pyx_n_s_roll_rh, __pyx_n_s_pitch_rh, __pyx_n_s_yaw_rh, __pyx_n_s_pitch_rk, __pyx_n_s_droll, __pyx_n_s_dpitch, __pyx_n_s_dyaw, __pyx_n_s_droll_rh, __pyx_n_s_dpitch_rh, __pyx_n_s_dyaw_rh, __pyx_n_s_dpitch_rk, __pyx_n_s_w, __pyx_n_s_l1, __pyx_n_s_l2, __pyx_n_s_out_394789272384625011); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__5);
   __Pyx_GIVEREF(__pyx_tuple__5);
   __pyx_codeobj__6 = (PyObject*)__Pyx_PyCode_New(17, 0, 0, 18, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__5, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_wrapper_module_5_pyx, __pyx_n_s_autofunc_c, 7, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__6)) __PYX_ERR(1, 7, __pyx_L1_error)
@@ -5313,11 +5313,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "wrapper_module_5.pyx":7
- *     void autofunc(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2, double *out_2299211408529729899)
+ *     void autofunc(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2, double *out_394789272384625011)
  * 
  * def autofunc_c(double roll, double pitch, double yaw, double roll_rh, double pitch_rh, double yaw_rh, double pitch_rk, double droll, double dpitch, double dyaw, double droll_rh, double dpitch_rh, double dyaw_rh, double dpitch_rk, double w, double l1, double l2):             # <<<<<<<<<<<<<<
  * 
- *     cdef np.ndarray[np.double_t, ndim=2] out_2299211408529729899 = np.empty((3,14))
+ *     cdef np.ndarray[np.double_t, ndim=2] out_394789272384625011 = np.empty((3,14))
  */
   __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_16wrapper_module_5_1autofunc_c, 0, __pyx_n_s_autofunc_c, NULL, __pyx_n_s_wrapper_module_5, __pyx_d, ((PyObject *)__pyx_codeobj__6)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
