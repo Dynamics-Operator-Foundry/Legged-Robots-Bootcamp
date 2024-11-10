@@ -200,4 +200,13 @@ Based on
   year         = 2024,
   note         = {\url{https://github.com/unitreerobotics/unitree_ros} [Accessed: 17/Sep/2024]}
 }
+
+@inproceedings{gehring2013control,
+  title={Control of dynamic gaits for a quadrupedal robot},
+  author={Gehring, Christian and Coros, Stelian and Hutter, Marco and Bloesch, Michael and Hoepflinger, Markus A and Siegwart, Roland},
+  booktitle={2013 IEEE international conference on Robotics and automation},
+  pages={3287--3292},
+  year={2013},
+  organization={IEEE}
+}
 ```
