@@ -706,6 +706,15 @@ class Simulation3D(RobotUtils, Walker3DModelling, Leg3DModelling):
                 0.2
             )
             
+            self.set_sim_range(
+                -2.0,
+                2.0,
+                -2.0,
+                2.0,
+                -2.0,
+                2.0
+            )
+            
     def set_sim_range(self, xmin, xmax, ymin, ymax, zmin, zmax):
         
         # Set plot limits and labels
@@ -858,7 +867,7 @@ class Simulation3D(RobotUtils, Walker3DModelling, Leg3DModelling):
                 self.x_states[2][frame]
             ])
             
-            p_foot = self.get_p_foot_3Dleg(q_now)
+            p_foot = self.get_p_foot_3Dleg(q_now, sim_info=self.sim_info)
             p_knee = self.get_p_knee_3Dleg(q_now)
             p_hip  = self.get_p_hip_3Dleg(q_now)
             
