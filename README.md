@@ -9,7 +9,7 @@
       </td>
     </tr>
 </table>
-<!-- lala -->
+
 ## Introduction
 This is a learning bootcamp for legged robotics newbies. Nevertheless, fundamentals in robotics are grossly omitted; for those who have some basic knowledge, you are in the right place. In which, we have 2 main camps:
 1. **3D Walker**: Naive simulator from scratch, which consists the development of:
