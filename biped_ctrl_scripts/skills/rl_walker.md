@@ -1,0 +1,5 @@
+1. go through all subfolders and scripts under biped_ctrl_scripts. why is it that my walker_3D_control.py @ /home/patrick/leisure_projects/Legged-Robots-Bootcamp/biped_ctrl_scripts/5_walker_3D_control/f_walker_3D/walker_3D_control.py cannot find a good limit cycle to walk?
+2. in /home/patrick/leisure_projects/Legged-Robots-Bootcamp/biped_ctrl_scripts/6_rl_walker, use PPO to train a walking policy. the walking policy should be able to track different velocity. initial condition should be at standing straight.
+3. the physics engine should be using the one I coded in biped_ctrl_scripts.
+
+the provided prompt is very high level, try to get the best solution. for poicare point problem, just return an md to me to read. for policy, put all the scripts and NN parameters in /home/patrick/leisure_projects/Legged-Robots-Bootcamp/biped_ctrl_scripts/6_rl_walker

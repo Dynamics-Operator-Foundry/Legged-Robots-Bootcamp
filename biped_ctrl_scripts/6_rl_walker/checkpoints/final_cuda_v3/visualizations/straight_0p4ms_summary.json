@@ -1,0 +1,16 @@
+{
+  "checkpoint": "/home/patrick/leisure_projects/Legged-Robots-Bootcamp/biped_ctrl_scripts/6_rl_walker/checkpoints/final_cuda_v3/policy_episode_000810.pt",
+  "checkpoint_training_steps": 38176,
+  "checkpoint_training_episodes": 810,
+  "command_vx_mps": 0.4,
+  "command_vy_mps": 0.0,
+  "command_yaw_rate_radps": 0.0,
+  "simulated_seconds": 1.4600000000000009,
+  "distance_x_m": 0.6091890332507562,
+  "mean_vx_mps": 0.4028147841976988,
+  "vx_rmse_mps": 1.0371639897482425,
+  "foot_strikes": 2,
+  "episode_return": 69.02651390946963,
+  "termination_reason": "excessive_roll",
+  "passed_full_horizon": false
+}

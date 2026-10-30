@@ -88,6 +88,8 @@
         "bit": "cpp",
         "*.ipp": "cpp",
         "core": "cpp"
-    }
+    },
+    "ROS2.distro": "humble",
+    "cmake.sourceDirectory": "/home/patrick/leisure_projects/Legged-Robots-Bootcamp/quadruped_ctrl_ros"
 
 }
