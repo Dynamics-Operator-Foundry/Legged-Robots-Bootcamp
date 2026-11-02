@@ -4,7 +4,7 @@ Lec20_powered_walker_optimization
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.pt
 # C extensions
 *.so
 
